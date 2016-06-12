@@ -10,7 +10,10 @@
 #include <pcl/filters/voxel_grid.h>
 #include <pcl/filters/statistical_outlier_removal.h>
 
+#include <map>
 #include <sstream>
+
+#include "CloudGl.hpp"
 
 using namespace ci;
 using namespace ci::app;
@@ -18,13 +21,6 @@ using namespace std;
 
 class CiPcdViewerApp : public App {
 public:
-    CiPcdViewerApp()
-        : _cloud(new pcl::PointCloud<pcl::PointXYZRGBA>)
-        , _cloud_input(new pcl::PointCloud<pcl::PointXYZRGBA>)
-        , _cloud_batch(gl::VertBatch::create(GL_POINTS))
-    {
-    }
-    
     void setup() override;
     void mouseDown( MouseEvent event ) override;
     void update() override;
@@ -37,11 +33,7 @@ private:
     vec3 _camera_target;
     vec3 _camera_eye_point;
     
-    fs::path _pcdfile;
-    pcl::PointCloud<pcl::PointXYZRGBA>::Ptr _cloud_input;
-    pcl::PointCloud<pcl::PointXYZRGBA>::Ptr _cloud;
-    
-    gl::VertBatchRef _cloud_batch;
+    map<fs::path, shared_ptr<CloudGl>> _clouds;
     
     float _point_size;
     float _voxel_size;
@@ -70,12 +62,11 @@ void CiPcdViewerApp::setup()
     _sor_std_dev_mul_th = 1.0f;
     _enabled_sor = false;
     
-    _params = params::InterfaceGl::create(getWindow(), "CiPcdViewer", toPixels(ivec2(200, 300)));
+    _params = params::InterfaceGl::create(getWindow(), "CiPcdViewer", toPixels(ivec2(200, 400)));
     
     _params->addButton("Open *.pcd file", [this]() {
-        _pcdfile = getOpenFilePath();
-        cout << _pcdfile << endl;
-        pcl::io::loadPCDFile(_pcdfile.string(), *_cloud_input);
+        auto pcdfile = getOpenFilePath();
+        _clouds[pcdfile] = std::make_shared<CloudGl>(pcdfile);
         updatePointCloud();
     });
     
@@ -129,37 +120,39 @@ void CiPcdViewerApp::setup()
 }
 
 void CiPcdViewerApp::updatePointCloud() {
-    pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud_tmp(new pcl::PointCloud<pcl::PointXYZRGBA>);
-    if (_enabled_voxel_filter) {                      
-        pcl::VoxelGrid<pcl::PointXYZRGBA> sor;
-        sor.setInputCloud(_cloud_input);
-        sor.setLeafSize(_voxel_size, _voxel_size, _voxel_size);
-        sor.filter(*cloud_tmp);
-    } else {
-        pcl::copyPointCloud(*_cloud_input, *cloud_tmp);
-    }
-    
-    if (_enabled_sor) {
-        pcl::StatisticalOutlierRemoval<pcl::PointXYZRGBA> sor;
-        sor.setInputCloud(cloud_tmp);
-        sor.setMeanK(_sor_meank);
-        sor.setStddevMulThresh(_sor_std_dev_mul_th);
-        sor.filter(*_cloud);
-    } else {
-        pcl::copyPointCloud(*cloud_tmp, *_cloud);
-    }
-    
-    stringstream ss_input;
-    ss_input << "label=`Cloud Size: " << _cloud_input->size() << "`";
-    _params->setOptions("cloud_size", ss_input.str());
-    stringstream ss_filtered;
-    ss_filtered << "label=`Filtered: " << _cloud->size() << "`";
-    _params->setOptions("filtered_cloud_size", ss_filtered.str());
-    
-    _cloud_batch->clear();
-    for (auto point : _cloud->points) {
-        _cloud_batch->color(ColorA8u(point.r, point.g, point.b, point.a));
-        _cloud_batch->vertex(vec3(point.x, point.y, point.z));
+    for (auto cloud_gl : _clouds) {
+        cloud_gl.second->filter([this](pcl::PointCloud<pcl::PointXYZRGBA>::Ptr &cloud) {
+            stringstream ss_input;
+            ss_input << "label=`Cloud Size: " << cloud->size() << "`";
+            _params->setOptions("cloud_size", ss_input.str());
+            
+            pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud_tmp(new pcl::PointCloud<pcl::PointXYZRGBA>);
+            
+            if (_enabled_voxel_filter) {
+                pcl::VoxelGrid<pcl::PointXYZRGBA> sor;
+                sor.setInputCloud(cloud);
+                sor.setLeafSize(_voxel_size, _voxel_size, _voxel_size);
+                sor.filter(*cloud_tmp);
+            } else {
+                pcl::copyPointCloud(*cloud, *cloud_tmp);
+            }
+            
+            if (_enabled_sor) {
+                pcl::StatisticalOutlierRemoval<pcl::PointXYZRGBA> sor;
+                sor.setInputCloud(cloud_tmp);
+                sor.setMeanK(_sor_meank);
+                sor.setStddevMulThresh(_sor_std_dev_mul_th);
+                sor.filter(*cloud);
+            } else {
+                pcl::copyPointCloud(*cloud_tmp, *cloud);
+            }
+            
+            stringstream ss_filtered;
+            ss_filtered << "label=`Filtered: " << cloud->size() << "`";
+            _params->setOptions("filtered_cloud_size", ss_filtered.str());
+        });
+        
+        cloud_gl.second->update();
     }
 }
 
@@ -185,7 +178,9 @@ void CiPcdViewerApp::draw()
     gl::setMatrices(_camera);
     
     gl::pointSize(_point_size);
-    _cloud_batch->draw();
+    for (auto cloud_gl : _clouds) {
+        cloud_gl.second->draw();
+    }
     
     _params->draw();
 }
