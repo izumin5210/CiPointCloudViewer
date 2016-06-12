@@ -34,6 +34,8 @@ private:
     params::InterfaceGlRef _params;
     
     CameraPersp _camera;
+    vec3 _camera_target;
+    vec3 _camera_eye_point;
     
     fs::path _pcdfile;
     pcl::PointCloud<pcl::PointXYZRGBA>::Ptr _cloud_input;
@@ -51,6 +53,7 @@ private:
     
     void updatePointCloud();
     
+    const string OPT_CAMERA = "Camera";
     const string OPT_VOXEL = "Voxel Filter";
     const string OPT_SOR = "Statistical Outlier Removal";
 };
@@ -58,6 +61,9 @@ private:
 void CiPcdViewerApp::setup()
 {
     _point_size = 0.005f;
+    _camera_target = vec3(0);
+    _camera_eye_point = vec3(3);
+    
     _voxel_size = 0.05f;
     _enabled_voxel_filter = false;
     _sor_meank = 50;
@@ -78,6 +84,14 @@ void CiPcdViewerApp::setup()
         .max(10.0f)
         .step(0.1f);
     
+    _params->addParam("Look At", &_camera_target)
+        .group(OPT_CAMERA);
+    
+    _params->addParam("Eye Point", &_camera_eye_point)
+        .group(OPT_CAMERA);
+    
+    _params->addSeparator();
+    
     _params->addParam("Enable Voxel Filter", &_enabled_voxel_filter)
         .group(OPT_VOXEL)
         .updateFn(bind(&CiPcdViewerApp::updatePointCloud, this));
@@ -88,7 +102,6 @@ void CiPcdViewerApp::setup()
         .step(0.001f)
         .group(OPT_VOXEL)
         .updateFn(bind(&CiPcdViewerApp::updatePointCloud, this));
-    
     
     _params->addParam("Enable SOR", &_enabled_sor)
         .group(OPT_SOR)
@@ -168,7 +181,7 @@ void CiPcdViewerApp::draw()
 {
     gl::clear();
     
-    _camera.lookAt(vec3(3, 3, 3), vec3(0, 0, 0));
+    _camera.lookAt(_camera_eye_point, _camera_target);
     gl::setMatrices(_camera);
     
     gl::pointSize(_point_size);
