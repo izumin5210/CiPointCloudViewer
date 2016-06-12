@@ -69,6 +69,7 @@
 		C5CBBE0BBB4A44B2A99B791D /* StdVector */ = {isa = PBXFileReference; lastKnownFileType = "\"\""; name = StdVector; path = ../blocks/PCL/include/Eigen/StdVector; sourceTree = "<group>"; };
 		C88BDB481B034C1798F1508C /* Geometry */ = {isa = PBXFileReference; lastKnownFileType = "\"\""; name = Geometry; path = ../blocks/PCL/include/Eigen/Geometry; sourceTree = "<group>"; };
 		E5D1447EFF22430EBE878E01 /* Cholesky */ = {isa = PBXFileReference; lastKnownFileType = "\"\""; name = Cholesky; path = ../blocks/PCL/include/Eigen/Cholesky; sourceTree = "<group>"; };
+		E7FA5A231D0D878100F9ED9C /* CloudGl.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = CloudGl.hpp; path = ../src/CloudGl.hpp; sourceTree = "<group>"; };
 		EA1E254A31C445A49DD37CC7 /* CiPcdViewer_Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = "\"\""; path = CiPcdViewer_Prefix.pch; sourceTree = "<group>"; };
 		EBE531F7609D43F9B6C3E4EA /* Resources.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Resources.h; path = ../include/Resources.h; sourceTree = "<group>"; };
 		ECAE0CD98F054AE6AB68DBC1 /* Dense */ = {isa = PBXFileReference; lastKnownFileType = "\"\""; name = Dense; path = ../blocks/PCL/include/Eigen/Dense; sourceTree = "<group>"; };
@@ -110,6 +111,7 @@
 			isa = PBXGroup;
 			children = (
 				B817BB5C16114E838CB031B5 /* CiPcdViewerApp.cpp */,
+				E7FA5A231D0D878100F9ED9C /* CloudGl.hpp */,
 			);
 			name = Source;
 			sourceTree = "<group>";
@@ -334,14 +336,14 @@
 				INSTALL_PATH = "$(HOME)/Applications";
 				OTHER_LDFLAGS = (
 					"\"$(CINDER_PATH)/lib/libcinder_d.a\"",
-                    ../blocks/PCL/lib/macosx/libflann.1.8.4.dylib,
-                    ../blocks/PCL/lib/macosx/libflann.1.8.dylib,
-                    ../blocks/PCL/lib/macosx/libflann.dylib,
-                    ../blocks/PCL/lib/macosx/libflann_cpp.1.8.4.dylib,
-                    ../blocks/PCL/lib/macosx/libflann_cpp.1.8.dylib,
-                    ../blocks/PCL/lib/macosx/libflann_cpp.dylib,
-                    ../blocks/PCL/lib/macosx/libflann_cpp_s.a,
-                    ../blocks/PCL/lib/macosx/libflann_s.a,
+					../blocks/PCL/lib/macosx/libflann.1.8.4.dylib,
+					../blocks/PCL/lib/macosx/libflann.1.8.dylib,
+					../blocks/PCL/lib/macosx/libflann.dylib,
+					../blocks/PCL/lib/macosx/libflann_cpp.1.8.4.dylib,
+					../blocks/PCL/lib/macosx/libflann_cpp.1.8.dylib,
+					../blocks/PCL/lib/macosx/libflann_cpp.dylib,
+					../blocks/PCL/lib/macosx/libflann_cpp_s.a,
+					../blocks/PCL/lib/macosx/libflann_s.a,
 					../blocks/PCL/lib/macosx/libpcl_2d.1.8.0.dylib,
 					../blocks/PCL/lib/macosx/libpcl_2d.1.8.dylib,
 					../blocks/PCL/lib/macosx/libpcl_2d.dylib,
@@ -434,14 +436,14 @@
 				INSTALL_PATH = "$(HOME)/Applications";
 				OTHER_LDFLAGS = (
 					"\"$(CINDER_PATH)/lib/libcinder.a\"",
-                    ../blocks/PCL/lib/macosx/libflann.1.8.4.dylib,
-                    ../blocks/PCL/lib/macosx/libflann.1.8.dylib,
-                    ../blocks/PCL/lib/macosx/libflann.dylib,
-                    ../blocks/PCL/lib/macosx/libflann_cpp.1.8.4.dylib,
-                    ../blocks/PCL/lib/macosx/libflann_cpp.1.8.dylib,
-                    ../blocks/PCL/lib/macosx/libflann_cpp.dylib,
-                    ../blocks/PCL/lib/macosx/libflann_cpp_s.a,
-                    ../blocks/PCL/lib/macosx/libflann_s.a,
+					../blocks/PCL/lib/macosx/libflann.1.8.4.dylib,
+					../blocks/PCL/lib/macosx/libflann.1.8.dylib,
+					../blocks/PCL/lib/macosx/libflann.dylib,
+					../blocks/PCL/lib/macosx/libflann_cpp.1.8.4.dylib,
+					../blocks/PCL/lib/macosx/libflann_cpp.1.8.dylib,
+					../blocks/PCL/lib/macosx/libflann_cpp.dylib,
+					../blocks/PCL/lib/macosx/libflann_cpp_s.a,
+					../blocks/PCL/lib/macosx/libflann_s.a,
 					../blocks/PCL/lib/macosx/libpcl_2d.1.8.0.dylib,
 					../blocks/PCL/lib/macosx/libpcl_2d.1.8.dylib,
 					../blocks/PCL/lib/macosx/libpcl_2d.dylib,
