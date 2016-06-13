@@ -56,8 +56,8 @@ void CiPcdViewerApp::setup()
     _point_size = 0.005f;
     _visible_grid = true;
 
-    _camera_target = vec3(0);
-    _camera_eye_point = vec3(3);
+    _camera_target = vec3(0, 0.5, 0);
+    _camera_eye_point = vec3(4, 2, -4);
 
     _voxel_size = 0.05f;
     _enabled_voxel_filter = false;
@@ -177,9 +177,9 @@ void CiPcdViewerApp::draw()
         gl::pushMatrices();
         gl::color(1, 1, 1, 0.3);
         gl::rotate(M_PI_2, vec3(1, 0, 0));
-        for (int i = -5; i < 5; i++) {
-            for (int j = -5; j < 5; j++) {
-                gl::drawStrokedRect(Rectf(i, j, i + 1, j + 1));
+        for (float i = -5; i < 5; i += 0.5) {
+            for (float j = -5; j < 5; j += 0.5) {
+                gl::drawStrokedRect(Rectf(i, j, i + 0.5, j + 0.5));
             }
         }
         gl::popMatrices();
@@ -194,4 +194,5 @@ void CiPcdViewerApp::draw()
 
 CINDER_APP( CiPcdViewerApp, RendererGl, [](App::Settings *settings) {
     settings->setHighDensityDisplayEnabled();
+    settings->setWindowSize(1280, 960);
 })
