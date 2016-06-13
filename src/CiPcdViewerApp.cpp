@@ -11,7 +11,6 @@
 #include <pcl/filters/statistical_outlier_removal.h>
 
 #include <map>
-#include <sstream>
 
 #include "CloudGl.hpp"
 
@@ -113,19 +112,12 @@ void CiPcdViewerApp::setup()
         .updateFn(bind(&CiPcdViewerApp::updatePointCloud, this));
     
     _params->addSeparator();
-    _params->addText("cloud_size", "label=`Cloud Size: 0`");
-    _params->addText("filtered_cloud_size", "label=`Filtered: 0`");
-    _params->addSeparator();
     _params->addText("fps", "label=`FPS: `");
 }
 
 void CiPcdViewerApp::updatePointCloud() {
     for (auto cloud_gl : _clouds) {
         cloud_gl.second->filter([this](pcl::PointCloud<pcl::PointXYZRGBA>::Ptr &cloud) {
-            stringstream ss_input;
-            ss_input << "label=`Cloud Size: " << cloud->size() << "`";
-            _params->setOptions("cloud_size", ss_input.str());
-            
             pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud_tmp(new pcl::PointCloud<pcl::PointXYZRGBA>);
             
             if (_enabled_voxel_filter) {
@@ -146,10 +138,6 @@ void CiPcdViewerApp::updatePointCloud() {
             } else {
                 pcl::copyPointCloud(*cloud_tmp, *cloud);
             }
-            
-            stringstream ss_filtered;
-            ss_filtered << "label=`Filtered: " << cloud->size() << "`";
-            _params->setOptions("filtered_cloud_size", ss_filtered.str());
         });
         
         cloud_gl.second->update();
