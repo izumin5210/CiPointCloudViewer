@@ -69,7 +69,7 @@ void CiPcdViewerApp::setup()
 {
     _batch = gl::VertBatch::create(GL_POINTS);
 
-    _point_size = 0.005f;
+    _point_size = 1.0f;
     _visible_grid = true;
 
     _camera_target = vec3(0, 0.5, 0);
