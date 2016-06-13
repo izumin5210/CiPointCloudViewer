@@ -35,6 +35,8 @@ private:
     map<fs::path, shared_ptr<CloudGl>> _clouds;
     
     float _point_size;
+    bool _visible_grid;
+
     float _voxel_size;
     bool _enabled_voxel_filter;
     
@@ -52,6 +54,8 @@ private:
 void CiPcdViewerApp::setup()
 {
     _point_size = 0.005f;
+    _visible_grid = true;
+
     _camera_target = vec3(0);
     _camera_eye_point = vec3(3);
     
@@ -68,7 +72,9 @@ void CiPcdViewerApp::setup()
         _clouds[pcdfile] = std::make_shared<CloudGl>(pcdfile);
         updatePointCloud();
     });
-    
+
+    _params->addParam("Grid", &_visible_grid);
+
     _params->addParam("Point Size", &_point_size)
         .min(1.0f)
         .max(10.0f)
@@ -166,6 +172,19 @@ void CiPcdViewerApp::draw()
     gl::setMatrices(_camera);
     
     gl::pointSize(_point_size);
+
+    if (_visible_grid) {
+        gl::pushMatrices();
+        gl::color(1, 1, 1, 0.3);
+        gl::rotate(M_PI_2, vec3(1, 0, 0));
+        for (int i = -5; i < 5; i++) {
+            for (int j = -5; j < 5; j++) {
+                gl::drawStrokedRect(Rectf(i, j, i + 1, j + 1));
+            }
+        }
+        gl::popMatrices();
+    }
+
     for (auto cloud_gl : _clouds) {
         cloud_gl.second->draw();
     }
