@@ -19,8 +19,6 @@
 #include "cinder/params/Params.h"
 #include "cinder/gl/gl.h"
 
-#endif /* Cloud_hpp */
-
 class CloudGl {
 public:
     typedef pcl::PointXYZRGBA PointT;
@@ -42,3 +40,5 @@ private:
     const boost::filesystem::path path_;
     PointCloudPtr cloud_;
 };
+
+#endif /* Cloud_hpp */
