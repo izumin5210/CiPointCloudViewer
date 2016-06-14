@@ -27,35 +27,35 @@ public:
 	void draw() override;
 
 private:
-    params::InterfaceGlRef _params;
+    params::InterfaceGlRef params_;
 
-    CameraPersp _camera;
-    vec3 _camera_target;
-    vec3 _camera_eye_point;
+    CameraPersp camera_;
+    vec3 camera_target_;
+    vec3 camera_eye_point_;
 
-    map<fs::path, shared_ptr<CloudGl>> _clouds;
+    map<fs::path, shared_ptr<CloudGl>> clouds_;
 
-    gl::VertBatchRef _batch;
+    gl::VertBatchRef batch_;
 
-    float _point_size;
-    bool _visible_grid;
+    float point_size_;
+    bool visible_grid_;
 
-    float _voxel_size;
-    bool _enabled_voxel_filter;
+    float voxel_size_;
+    bool enabled_voxel_filter_;
 
-    bool _enable_pass_through_x = false;
-    float _min_pass_through_x = -1.0f;
-    float _max_pass_through_x = 1.0f;
-    bool _enable_pass_through_y = false;
-    float _min_pass_through_y = -1.0f;
-    float _max_pass_through_y = 1.0f;
-    bool _enable_pass_through_z = false;
-    float _min_pass_through_z = -1.0f;
-    float _max_pass_through_z = 1.0f;
-                             
-    int _sor_meank;
-    float _sor_std_dev_mul_th;
-    bool _enabled_sor;
+    bool enable_pass_through_x_ = false;
+    float min_pass_through_x_ = -1.0f;
+    float max_pass_through_x_ = 1.0f;
+    bool enable_pass_through_y_ = false;
+    float min_pass_through_y_ = -1.0f;
+    float max_pass_through_y_ = 1.0f;
+    bool enable_pass_through_z_ = false;
+    float min_pass_through_z_ = -1.0f;
+    float max_pass_through_z_ = 1.0f;
+
+    int sor_meank_;
+    float sor_std_dev_mul_th_;
+    bool enabled_sor_;
 
     void updatePointCloud();
 
@@ -67,205 +67,205 @@ private:
 
 void CiPcdViewerApp::setup()
 {
-    _batch = gl::VertBatch::create(GL_POINTS);
+    batch_ = gl::VertBatch::create(GL_POINTS);
 
-    _point_size = 1.0f;
-    _visible_grid = true;
+    point_size_ = 1.0f;
+    visible_grid_ = true;
 
-    _camera_target = vec3(0, 0.5, 0);
-    _camera_eye_point = vec3(4, 2, -4);
+    camera_target_ = vec3(0, 0.5, 0);
+    camera_eye_point_ = vec3(4, 2, -4);
 
-    _voxel_size = 0.05f;
-    _enabled_voxel_filter = false;
-    _sor_meank = 50;
-    _sor_std_dev_mul_th = 1.0f;
-    _enabled_sor = false;
+    voxel_size_ = 0.05f;
+    enabled_voxel_filter_ = false;
+    sor_meank_ = 50;
+    sor_std_dev_mul_th_ = 1.0f;
+    enabled_sor_ = false;
 
-    _params = params::InterfaceGl::create(getWindow(), "CiPcdViewer", toPixels(ivec2(200, 640)));
+    params_ = params::InterfaceGl::create(getWindow(), "CiPcdViewer", toPixels(ivec2(200, 640)));
 
-    _params->addButton("Open *.pcd file", [this]() {
+    params_->addButton("Open *.pcd file", [this]() {
         auto pcdfile = getOpenFilePath();
-        _clouds[pcdfile] = std::make_shared<CloudGl>(pcdfile);
+        clouds_[pcdfile] = std::make_shared<CloudGl>(pcdfile);
         updatePointCloud();
     });
 
-    _params->addParam("Grid", &_visible_grid);
+    params_->addParam("Grid", &visible_grid_);
 
-    _params->addParam("Point Size", &_point_size)
+    params_->addParam("Point Size", &point_size_)
         .min(1.0f)
         .max(10.0f)
         .step(0.1f);
 
-    _params->addParam("Look At", &_camera_target)
+    params_->addParam("Look At", &camera_target_)
         .group(OPT_CAMERA);
 
-    _params->addParam("Eye Point", &_camera_eye_point)
+    params_->addParam("Eye Point", &camera_eye_point_)
         .group(OPT_CAMERA);
 
-    _params->addSeparator();
+    params_->addSeparator();
 
-    _params->addParam("X Filter", &_enable_pass_through_x)
+    params_->addParam("X Filter", &enable_pass_through_x_)
         .group(OPT_PASS_THROUGH)
         .updateFn(bind(&CiPcdViewerApp::updatePointCloud, this));
 
-    _params->addParam("Min X", &_min_pass_through_x)
+    params_->addParam("Min X", &min_pass_through_x_)
         .min(-5.0f)
         .max(5.0f)
         .step(0.02f)
         .group(OPT_PASS_THROUGH)
         .updateFn(bind(&CiPcdViewerApp::updatePointCloud, this));
 
-    _params->addParam("Max X", &_max_pass_through_x)
+    params_->addParam("Max X", &max_pass_through_x_)
         .min(-5.0f)
         .max(5.0f)
         .step(0.02f)
         .group(OPT_PASS_THROUGH)
         .updateFn(bind(&CiPcdViewerApp::updatePointCloud, this));
 
-    _params->addParam("Y Filter", &_enable_pass_through_y)
+    params_->addParam("Y Filter", &enable_pass_through_y_)
         .group(OPT_PASS_THROUGH)
         .updateFn(bind(&CiPcdViewerApp::updatePointCloud, this));
 
-    _params->addParam("Min Y", &_min_pass_through_y)
+    params_->addParam("Min Y", &min_pass_through_y_)
         .min(-5.0f)
         .max(5.0f)
         .step(0.02f)
         .group(OPT_PASS_THROUGH)
         .updateFn(bind(&CiPcdViewerApp::updatePointCloud, this));
 
-    _params->addParam("Max Y", &_max_pass_through_y)
+    params_->addParam("Max Y", &max_pass_through_y_)
         .min(-5.0f)
         .max(5.0f)
         .step(0.02f)
         .group(OPT_PASS_THROUGH)
         .updateFn(bind(&CiPcdViewerApp::updatePointCloud, this));
 
-    _params->addParam("Z Filter", &_enable_pass_through_z)
+    params_->addParam("Z Filter", &enable_pass_through_z_)
         .group(OPT_PASS_THROUGH)
         .updateFn(bind(&CiPcdViewerApp::updatePointCloud, this));
 
-    _params->addParam("Min Z", &_min_pass_through_z)
+    params_->addParam("Min Z", &min_pass_through_z_)
         .min(-5.0f)
         .max(5.0f)
         .step(0.02f)
         .group(OPT_PASS_THROUGH)
         .updateFn(bind(&CiPcdViewerApp::updatePointCloud, this));
 
-    _params->addParam("Max Z", &_max_pass_through_z)
+    params_->addParam("Max Z", &max_pass_through_z_)
         .min(-5.0f)
         .max(5.0f)
         .step(0.02f)
         .group(OPT_PASS_THROUGH)
         .updateFn(bind(&CiPcdViewerApp::updatePointCloud, this));
 
-    _params->addParam("Enable Voxel Filter", &_enabled_voxel_filter)
+    params_->addParam("Enable Voxel Filter", &enabled_voxel_filter_)
         .group(OPT_VOXEL)
         .updateFn(bind(&CiPcdViewerApp::updatePointCloud, this));
 
-    _params->addParam("Voxel Size", &_voxel_size)
+    params_->addParam("Voxel Size", &voxel_size_)
         .min(0.001f)
         .max(1.0f)
         .step(0.001f)
         .group(OPT_VOXEL)
         .updateFn(bind(&CiPcdViewerApp::updatePointCloud, this));
 
-    _params->addParam("Enable SOR", &_enabled_sor)
+    params_->addParam("Enable SOR", &enabled_sor_)
         .group(OPT_SOR)
         .updateFn(bind(&CiPcdViewerApp::updatePointCloud, this));
 
-    _params->addParam("MeanK", &_sor_meank)
+    params_->addParam("MeanK", &sor_meank_)
         .min(1)
         .max(100)
         .step(1)
         .group(OPT_SOR)
         .updateFn(bind(&CiPcdViewerApp::updatePointCloud, this));
 
-    _params->addParam("StddevMulThresh", &_sor_std_dev_mul_th)
+    params_->addParam("StddevMulThresh", &sor_std_dev_mul_th_)
         .min(0.0f)
         .max(10.0f)
         .step(0.1f)
         .group(OPT_SOR)
         .updateFn(bind(&CiPcdViewerApp::updatePointCloud, this));
 
-    _params->addSeparator();
-    _params->addText("fps", "label=`FPS: `");
-    _params->addText("cloud_size", "label=`Cloud Size: `");
-    _params->addText("filtered_cloud_size", "label=`Filtered: `");
+    params_->addSeparator();
+    params_->addText("fps", "label=`FPS: `");
+    params_->addText("cloud_size", "label=`Cloud Size: `");
+    params_->addText("filtered_cloud_size", "label=`Filtered: `");
 
     gl::enableDepthRead();
     gl::enableDepthWrite();
 }
 
 void CiPcdViewerApp::updatePointCloud() {
-    _batch->clear();
+    batch_->clear();
 
     pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZRGBA>);
     pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud_tmp(new pcl::PointCloud<pcl::PointXYZRGBA>);
 
-    for (auto cloud_gl : _clouds) {
+    for (auto cloud_gl : clouds_) {
         *cloud += *(cloud_gl.second->cloud());
     }
 
     std::stringstream ss_input;
     ss_input << "label=`Cloud Size: " << cloud->size() << "`";
-    _params->setOptions("cloud_size", ss_input.str());
+    params_->setOptions("cloud_size", ss_input.str());
 
-    if (_enable_pass_through_x) {
+    if (enable_pass_through_x_) {
         pcl::PassThrough<pcl::PointXYZRGBA> pass_x;
         pass_x.setInputCloud(cloud);
         pass_x.setFilterFieldName("x");
-        pass_x.setFilterLimits(_min_pass_through_x, _max_pass_through_x);
+        pass_x.setFilterLimits(min_pass_through_x_, max_pass_through_x_);
         pass_x.filter(*cloud_tmp);
     } else {
         pcl::copyPointCloud(*cloud, *cloud_tmp);
     }
 
-    if (_enable_pass_through_y) {
+    if (enable_pass_through_y_) {
         pcl::PassThrough<pcl::PointXYZRGBA> pass_y;
         pass_y.setInputCloud(cloud_tmp);
         pass_y.setFilterFieldName("y");
-        pass_y.setFilterLimits(_min_pass_through_y, _max_pass_through_y);
+        pass_y.setFilterLimits(min_pass_through_y_, max_pass_through_y_);
         pass_y.filter(*cloud);
     } else {
         pcl::copyPointCloud(*cloud_tmp, *cloud);
     }
 
-    if (_enable_pass_through_z) {
+    if (enable_pass_through_z_) {
         pcl::PassThrough<pcl::PointXYZRGBA> pass_z;
         pass_z.setInputCloud(cloud);
         pass_z.setFilterFieldName("z");
-        pass_z.setFilterLimits(_min_pass_through_z, _max_pass_through_z);
+        pass_z.setFilterLimits(min_pass_through_z_, max_pass_through_z_);
         pass_z.filter(*cloud_tmp);
     } else {
         pcl::copyPointCloud(*cloud, *cloud_tmp);
     }
 
-    if (_enabled_voxel_filter) {
+    if (enabled_voxel_filter_) {
         pcl::VoxelGrid<pcl::PointXYZRGBA> sor;
         sor.setInputCloud(cloud_tmp);
-        sor.setLeafSize(_voxel_size, _voxel_size, _voxel_size);
+        sor.setLeafSize(voxel_size_, voxel_size_, voxel_size_);
         sor.filter(*cloud);
     } else {
         pcl::copyPointCloud(*cloud_tmp, *cloud);
     }
 
-    if (_enabled_sor) {
+    if (enabled_sor_) {
         pcl::StatisticalOutlierRemoval<pcl::PointXYZRGBA> sor;
         sor.setInputCloud(cloud);
-        sor.setMeanK(_sor_meank);
-        sor.setStddevMulThresh(_sor_std_dev_mul_th);
+        sor.setMeanK(sor_meank_);
+        sor.setStddevMulThresh(sor_std_dev_mul_th_);
         sor.filter(*cloud_tmp);
         pcl::copyPointCloud(*cloud_tmp, *cloud);
     }
 
     for (auto point : cloud->points) {
-        _batch->color(ci::ColorA8u(point.r, point.g, point.b, point.a));
-        _batch->vertex(ci::vec3(point.x, point.y, point.z));
+        batch_->color(ci::ColorA8u(point.r, point.g, point.b, point.a));
+        batch_->vertex(ci::vec3(point.x, point.y, point.z));
     }
 
     std::stringstream ss_filtered;
     ss_filtered << "label=`Filtered: " << cloud->size() << "`";
-    _params->setOptions("filtered_cloud_size", ss_filtered.str());
+    params_->setOptions("filtered_cloud_size", ss_filtered.str());
 }
 
 void CiPcdViewerApp::mouseDown( MouseEvent event )
@@ -276,19 +276,19 @@ void CiPcdViewerApp::update()
 {
     stringstream ss;
     ss << "label=`FPS: " << getAverageFps() << "`";
-    _params->setOptions("fps", ss.str());
+    params_->setOptions("fps", ss.str());
 }
 
 void CiPcdViewerApp::draw()
 {
     gl::clear();
 
-    _camera.lookAt(_camera_eye_point, _camera_target);
-    gl::setMatrices(_camera);
+    camera_.lookAt(camera_eye_point_, camera_target_);
+    gl::setMatrices(camera_);
 
-    gl::pointSize(_point_size);
+    gl::pointSize(point_size_);
 
-    if (_visible_grid) {
+    if (visible_grid_) {
         gl::pushMatrices();
         gl::color(1, 1, 1, 0.3);
         gl::rotate(M_PI_2, vec3(1, 0, 0));
@@ -300,9 +300,9 @@ void CiPcdViewerApp::draw()
         gl::popMatrices();
     }
 
-    _batch->draw();
+    batch_->draw();
 
-    _params->draw();
+    params_->draw();
 }
 
 CINDER_APP( CiPcdViewerApp, RendererGl, [](App::Settings *settings) {
