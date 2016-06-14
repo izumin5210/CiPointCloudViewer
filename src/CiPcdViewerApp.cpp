@@ -27,6 +27,11 @@ public:
 	void draw() override;
 
 private:
+    const string kOptCamera = "Camera";
+    const string kOptVoxel = "Voxel Filter";
+    const string kOptSor = "Statistical Outlier Removal";
+    const string kOptPassThrough = "PassThrough Filter";
+
     params::InterfaceGlRef params_;
 
     CameraPersp camera_;
@@ -58,11 +63,6 @@ private:
     bool enabled_sor_;
 
     void updatePointCloud();
-
-    const string OPT_CAMERA = "Camera";
-    const string OPT_VOXEL = "Voxel Filter";
-    const string OPT_SOR = "Statistical Outlier Removal";
-    const string OPT_PASS_THROUGH = "PassThrough Filter";
 };
 
 void CiPcdViewerApp::setup()
@@ -97,94 +97,94 @@ void CiPcdViewerApp::setup()
         .step(0.1f);
 
     params_->addParam("Look At", &camera_target_)
-        .group(OPT_CAMERA);
+        .group(kOptCamera);
 
     params_->addParam("Eye Point", &camera_eye_point_)
-        .group(OPT_CAMERA);
+        .group(kOptCamera);
 
     params_->addSeparator();
 
     params_->addParam("X Filter", &enable_pass_through_x_)
-        .group(OPT_PASS_THROUGH)
+        .group(kOptPassThrough)
         .updateFn(bind(&CiPcdViewerApp::updatePointCloud, this));
 
     params_->addParam("Min X", &min_pass_through_x_)
         .min(-5.0f)
         .max(5.0f)
         .step(0.02f)
-        .group(OPT_PASS_THROUGH)
+        .group(kOptPassThrough)
         .updateFn(bind(&CiPcdViewerApp::updatePointCloud, this));
 
     params_->addParam("Max X", &max_pass_through_x_)
         .min(-5.0f)
         .max(5.0f)
         .step(0.02f)
-        .group(OPT_PASS_THROUGH)
+        .group(kOptPassThrough)
         .updateFn(bind(&CiPcdViewerApp::updatePointCloud, this));
 
     params_->addParam("Y Filter", &enable_pass_through_y_)
-        .group(OPT_PASS_THROUGH)
+        .group(kOptPassThrough)
         .updateFn(bind(&CiPcdViewerApp::updatePointCloud, this));
 
     params_->addParam("Min Y", &min_pass_through_y_)
         .min(-5.0f)
         .max(5.0f)
         .step(0.02f)
-        .group(OPT_PASS_THROUGH)
+        .group(kOptPassThrough)
         .updateFn(bind(&CiPcdViewerApp::updatePointCloud, this));
 
     params_->addParam("Max Y", &max_pass_through_y_)
         .min(-5.0f)
         .max(5.0f)
         .step(0.02f)
-        .group(OPT_PASS_THROUGH)
+        .group(kOptPassThrough)
         .updateFn(bind(&CiPcdViewerApp::updatePointCloud, this));
 
     params_->addParam("Z Filter", &enable_pass_through_z_)
-        .group(OPT_PASS_THROUGH)
+        .group(kOptPassThrough)
         .updateFn(bind(&CiPcdViewerApp::updatePointCloud, this));
 
     params_->addParam("Min Z", &min_pass_through_z_)
         .min(-5.0f)
         .max(5.0f)
         .step(0.02f)
-        .group(OPT_PASS_THROUGH)
+        .group(kOptPassThrough)
         .updateFn(bind(&CiPcdViewerApp::updatePointCloud, this));
 
     params_->addParam("Max Z", &max_pass_through_z_)
         .min(-5.0f)
         .max(5.0f)
         .step(0.02f)
-        .group(OPT_PASS_THROUGH)
+        .group(kOptPassThrough)
         .updateFn(bind(&CiPcdViewerApp::updatePointCloud, this));
 
     params_->addParam("Enable Voxel Filter", &enabled_voxel_filter_)
-        .group(OPT_VOXEL)
+        .group(kOptVoxel)
         .updateFn(bind(&CiPcdViewerApp::updatePointCloud, this));
 
     params_->addParam("Voxel Size", &voxel_size_)
         .min(0.001f)
         .max(1.0f)
         .step(0.001f)
-        .group(OPT_VOXEL)
+        .group(kOptVoxel)
         .updateFn(bind(&CiPcdViewerApp::updatePointCloud, this));
 
     params_->addParam("Enable SOR", &enabled_sor_)
-        .group(OPT_SOR)
+        .group(kOptSor)
         .updateFn(bind(&CiPcdViewerApp::updatePointCloud, this));
 
     params_->addParam("MeanK", &sor_meank_)
         .min(1)
         .max(100)
         .step(1)
-        .group(OPT_SOR)
+        .group(kOptSor)
         .updateFn(bind(&CiPcdViewerApp::updatePointCloud, this));
 
     params_->addParam("StddevMulThresh", &sor_std_dev_mul_th_)
         .min(0.0f)
         .max(10.0f)
         .step(0.1f)
-        .group(OPT_SOR)
+        .group(kOptSor)
         .updateFn(bind(&CiPcdViewerApp::updatePointCloud, this));
 
     params_->addSeparator();
