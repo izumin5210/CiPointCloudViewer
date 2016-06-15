@@ -45,6 +45,8 @@ private:
     float point_size_;
     bool visible_grid_;
 
+    Color bg_color_ = Color(0, 0, 0);
+
     float voxel_size_;
     bool enabled_voxel_filter_;
 
@@ -90,6 +92,8 @@ void CiPcdViewerApp::setup()
     });
 
     params_->addParam("Grid", &visible_grid_);
+
+    params_->addParam("Background Color", &bg_color_);
 
     params_->addParam("Point Size", &point_size_)
         .min(1.0f)
@@ -281,7 +285,7 @@ void CiPcdViewerApp::update()
 
 void CiPcdViewerApp::draw()
 {
-    gl::clear();
+    gl::clear(bg_color_);
 
     camera_.lookAt(camera_eye_point_, camera_target_);
     gl::setMatrices(camera_);
