@@ -13,7 +13,7 @@
 
 #include <map>
 
-#include "CloudGl.hpp"
+#include "grabber/PcdGrabber.hpp"
 
 using namespace ci;
 using namespace ci::app;
@@ -38,7 +38,7 @@ private:
     vec3 camera_target_;
     vec3 camera_eye_point_;
 
-    map<fs::path, shared_ptr<CloudGl>> clouds_;
+    map<fs::path, shared_ptr<grabber::PointCloudGrabber>> grabbers_;
 
     gl::VertBatchRef batch_;
 
@@ -87,8 +87,11 @@ void CiPcdViewerApp::setup()
 
     params_->addButton("Open *.pcd file", [this]() {
         auto pcdfile = getOpenFilePath();
-        clouds_[pcdfile] = std::make_shared<CloudGl>(pcdfile);
-        updatePointCloud();
+        auto grabber = std::make_shared<grabber::PcdGrabber>(pcdfile);
+        grabbers_[pcdfile] = grabber;
+        grabber->start([this]() {
+            updatePointCloud();
+        });
     });
 
     params_->addParam("Grid", &visible_grid_);
@@ -206,8 +209,8 @@ void CiPcdViewerApp::updatePointCloud() {
     pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZRGBA>);
     pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud_tmp(new pcl::PointCloud<pcl::PointXYZRGBA>);
 
-    for (auto cloud_gl : clouds_) {
-        *cloud += *(cloud_gl.second->cloud());
+    for (auto grabber_ : grabbers_) {
+        *cloud += *(grabber_.second->cloud());
     }
 
     std::stringstream ss_input;

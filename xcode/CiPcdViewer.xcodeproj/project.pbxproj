@@ -71,7 +71,6 @@
 		E5D1447EFF22430EBE878E01 /* Cholesky */ = {isa = PBXFileReference; lastKnownFileType = "\"\""; name = Cholesky; path = ../blocks/PCL/include/Eigen/Cholesky; sourceTree = "<group>"; };
 		E7F0DB241D2657E1000003F6 /* PointCloudGrabber.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = PointCloudGrabber.hpp; path = ../src/grabber/PointCloudGrabber.hpp; sourceTree = "<group>"; };
 		E7F0DB271D265801000003F6 /* PcdGrabber.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = PcdGrabber.hpp; path = ../src/grabber/PcdGrabber.hpp; sourceTree = "<group>"; };
-		E7FA5A231D0D878100F9ED9C /* CloudGl.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = CloudGl.hpp; path = ../src/CloudGl.hpp; sourceTree = "<group>"; };
 		EA1E254A31C445A49DD37CC7 /* CiPcdViewer_Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = "\"\""; path = CiPcdViewer_Prefix.pch; sourceTree = "<group>"; };
 		EBE531F7609D43F9B6C3E4EA /* Resources.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Resources.h; path = ../include/Resources.h; sourceTree = "<group>"; };
 		ECAE0CD98F054AE6AB68DBC1 /* Dense */ = {isa = PBXFileReference; lastKnownFileType = "\"\""; name = Dense; path = ../blocks/PCL/include/Eigen/Dense; sourceTree = "<group>"; };
@@ -113,7 +112,6 @@
 			isa = PBXGroup;
 			children = (
 				B817BB5C16114E838CB031B5 /* CiPcdViewerApp.cpp */,
-				E7FA5A231D0D878100F9ED9C /* CloudGl.hpp */,
 				E7F0DB291D265809000003F6 /* grabber */,
 			);
 			name = Source;
