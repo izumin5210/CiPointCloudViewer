@@ -69,7 +69,8 @@
 		C5CBBE0BBB4A44B2A99B791D /* StdVector */ = {isa = PBXFileReference; lastKnownFileType = "\"\""; name = StdVector; path = ../blocks/PCL/include/Eigen/StdVector; sourceTree = "<group>"; };
 		C88BDB481B034C1798F1508C /* Geometry */ = {isa = PBXFileReference; lastKnownFileType = "\"\""; name = Geometry; path = ../blocks/PCL/include/Eigen/Geometry; sourceTree = "<group>"; };
 		E5D1447EFF22430EBE878E01 /* Cholesky */ = {isa = PBXFileReference; lastKnownFileType = "\"\""; name = Cholesky; path = ../blocks/PCL/include/Eigen/Cholesky; sourceTree = "<group>"; };
-		E7FA5A231D0D878100F9ED9C /* CloudGl.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = CloudGl.hpp; path = ../src/CloudGl.hpp; sourceTree = "<group>"; };
+		E7F0DB241D2657E1000003F6 /* PointCloudGrabber.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = PointCloudGrabber.hpp; path = ../src/grabber/PointCloudGrabber.hpp; sourceTree = "<group>"; };
+		E7F0DB271D265801000003F6 /* PcdGrabber.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = PcdGrabber.hpp; path = ../src/grabber/PcdGrabber.hpp; sourceTree = "<group>"; };
 		EA1E254A31C445A49DD37CC7 /* CiPcdViewer_Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = "\"\""; path = CiPcdViewer_Prefix.pch; sourceTree = "<group>"; };
 		EBE531F7609D43F9B6C3E4EA /* Resources.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Resources.h; path = ../include/Resources.h; sourceTree = "<group>"; };
 		ECAE0CD98F054AE6AB68DBC1 /* Dense */ = {isa = PBXFileReference; lastKnownFileType = "\"\""; name = Dense; path = ../blocks/PCL/include/Eigen/Dense; sourceTree = "<group>"; };
@@ -111,7 +112,7 @@
 			isa = PBXGroup;
 			children = (
 				B817BB5C16114E838CB031B5 /* CiPcdViewerApp.cpp */,
-				E7FA5A231D0D878100F9ED9C /* CloudGl.hpp */,
+				E7F0DB291D265809000003F6 /* grabber */,
 			);
 			name = Source;
 			sourceTree = "<group>";
@@ -246,6 +247,15 @@
 			name = Eigen;
 			sourceTree = "<group>";
 		};
+		E7F0DB291D265809000003F6 /* grabber */ = {
+			isa = PBXGroup;
+			children = (
+				E7F0DB241D2657E1000003F6 /* PointCloudGrabber.hpp */,
+				E7F0DB271D265801000003F6 /* PcdGrabber.hpp */,
+			);
+			name = grabber;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -335,6 +345,80 @@
 				INFOPLIST_FILE = Info.plist;
 				INSTALL_PATH = "$(HOME)/Applications";
 				OTHER_LDFLAGS = (
+					"\"$(CINDER_PATH)/lib/libcinder_d.a\"",
+					../blocks/PCL/lib/macosx/libflann.1.8.4.dylib,
+					../blocks/PCL/lib/macosx/libflann.1.8.dylib,
+					../blocks/PCL/lib/macosx/libflann.dylib,
+					../blocks/PCL/lib/macosx/libflann_cpp.1.8.4.dylib,
+					../blocks/PCL/lib/macosx/libflann_cpp.1.8.dylib,
+					../blocks/PCL/lib/macosx/libflann_cpp.dylib,
+					../blocks/PCL/lib/macosx/libflann_cpp_s.a,
+					../blocks/PCL/lib/macosx/libflann_s.a,
+					../blocks/PCL/lib/macosx/libpcl_2d.1.8.0.dylib,
+					../blocks/PCL/lib/macosx/libpcl_2d.1.8.dylib,
+					../blocks/PCL/lib/macosx/libpcl_2d.dylib,
+					../blocks/PCL/lib/macosx/libpcl_common.1.8.0.dylib,
+					../blocks/PCL/lib/macosx/libpcl_common.1.8.dylib,
+					../blocks/PCL/lib/macosx/libpcl_common.dylib,
+					../blocks/PCL/lib/macosx/libpcl_features.1.8.0.dylib,
+					../blocks/PCL/lib/macosx/libpcl_features.1.8.dylib,
+					../blocks/PCL/lib/macosx/libpcl_features.dylib,
+					../blocks/PCL/lib/macosx/libpcl_filters.1.8.0.dylib,
+					../blocks/PCL/lib/macosx/libpcl_filters.1.8.dylib,
+					../blocks/PCL/lib/macosx/libpcl_filters.dylib,
+					../blocks/PCL/lib/macosx/libpcl_io.1.8.0.dylib,
+					../blocks/PCL/lib/macosx/libpcl_io.1.8.dylib,
+					../blocks/PCL/lib/macosx/libpcl_io.dylib,
+					../blocks/PCL/lib/macosx/libpcl_io_ply.1.8.0.dylib,
+					../blocks/PCL/lib/macosx/libpcl_io_ply.1.8.dylib,
+					../blocks/PCL/lib/macosx/libpcl_io_ply.dylib,
+					../blocks/PCL/lib/macosx/libpcl_kdtree.1.8.0.dylib,
+					../blocks/PCL/lib/macosx/libpcl_kdtree.1.8.dylib,
+					../blocks/PCL/lib/macosx/libpcl_kdtree.dylib,
+					../blocks/PCL/lib/macosx/libpcl_keypoints.1.8.0.dylib,
+					../blocks/PCL/lib/macosx/libpcl_keypoints.1.8.dylib,
+					../blocks/PCL/lib/macosx/libpcl_keypoints.dylib,
+					../blocks/PCL/lib/macosx/libpcl_ml.1.8.0.dylib,
+					../blocks/PCL/lib/macosx/libpcl_ml.1.8.dylib,
+					../blocks/PCL/lib/macosx/libpcl_ml.dylib,
+					../blocks/PCL/lib/macosx/libpcl_octree.1.8.0.dylib,
+					../blocks/PCL/lib/macosx/libpcl_octree.1.8.dylib,
+					../blocks/PCL/lib/macosx/libpcl_octree.dylib,
+					../blocks/PCL/lib/macosx/libpcl_outofcore.1.8.0.dylib,
+					../blocks/PCL/lib/macosx/libpcl_outofcore.1.8.dylib,
+					../blocks/PCL/lib/macosx/libpcl_outofcore.dylib,
+					../blocks/PCL/lib/macosx/libpcl_people.1.8.0.dylib,
+					../blocks/PCL/lib/macosx/libpcl_people.1.8.dylib,
+					../blocks/PCL/lib/macosx/libpcl_people.dylib,
+					../blocks/PCL/lib/macosx/libpcl_recognition.1.8.0.dylib,
+					../blocks/PCL/lib/macosx/libpcl_recognition.1.8.dylib,
+					../blocks/PCL/lib/macosx/libpcl_recognition.dylib,
+					../blocks/PCL/lib/macosx/libpcl_registration.1.8.0.dylib,
+					../blocks/PCL/lib/macosx/libpcl_registration.1.8.dylib,
+					../blocks/PCL/lib/macosx/libpcl_registration.dylib,
+					../blocks/PCL/lib/macosx/libpcl_sample_consensus.1.8.0.dylib,
+					../blocks/PCL/lib/macosx/libpcl_sample_consensus.1.8.dylib,
+					../blocks/PCL/lib/macosx/libpcl_sample_consensus.dylib,
+					../blocks/PCL/lib/macosx/libpcl_search.1.8.0.dylib,
+					../blocks/PCL/lib/macosx/libpcl_search.1.8.dylib,
+					../blocks/PCL/lib/macosx/libpcl_search.dylib,
+					../blocks/PCL/lib/macosx/libpcl_segmentation.1.8.0.dylib,
+					../blocks/PCL/lib/macosx/libpcl_segmentation.1.8.dylib,
+					../blocks/PCL/lib/macosx/libpcl_segmentation.dylib,
+					../blocks/PCL/lib/macosx/libpcl_stereo.1.8.0.dylib,
+					../blocks/PCL/lib/macosx/libpcl_stereo.1.8.dylib,
+					../blocks/PCL/lib/macosx/libpcl_stereo.dylib,
+					../blocks/PCL/lib/macosx/libpcl_surface.1.8.0.dylib,
+					../blocks/PCL/lib/macosx/libpcl_surface.1.8.dylib,
+					../blocks/PCL/lib/macosx/libpcl_surface.dylib,
+					../blocks/PCL/lib/macosx/libpcl_tracking.1.8.0.dylib,
+					../blocks/PCL/lib/macosx/libpcl_tracking.1.8.dylib,
+					../blocks/PCL/lib/macosx/libpcl_tracking.dylib,
+					../blocks/PCL/lib/macosx/libpcl_visualization.1.8.0.dylib,
+					../blocks/PCL/lib/macosx/libpcl_visualization.1.8.dylib,
+					../blocks/PCL/lib/macosx/libpcl_visualization.dylib,
+				);
+				"OTHER_LDFLAGS[arch=*]" = (
 					"\"$(CINDER_PATH)/lib/libcinder_d.a\"",
 					../blocks/PCL/lib/macosx/libflann.1.8.4.dylib,
 					../blocks/PCL/lib/macosx/libflann.1.8.dylib,
