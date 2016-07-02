@@ -1,0 +1,226 @@
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav</Extensions>
+    </Filter>
+    <Filter Include="ANGLE">
+      <UniqueIdentifier>{45946981-8d7c-4a51-9f4d-11d6addf5727}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ANGLE\Win32">
+      <UniqueIdentifier>{d846cdb2-0586-4557-8da0-656e4b7482fb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ANGLE\x64">
+      <UniqueIdentifier>{96d88de8-ede7-4c87-baf2-c228e16226b2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Blocks">
+      <UniqueIdentifier>{71F8981D-5041-4E1B-B962-435B4068DF38}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Blocks\ImGui">
+      <UniqueIdentifier>{874BA55C-F8CF-40E9-A0E3-5E4C69DCA44D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Blocks\ImGui\include">
+      <UniqueIdentifier>{E5F86CDF-1D81-42C6-9445-88EF49A67A52}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Blocks\ImGui\lib">
+      <UniqueIdentifier>{64CFA5EA-C2DA-40E5-9906-5DC760DA1EFB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Blocks\ImGui\lib\imgui">
+      <UniqueIdentifier>{65C4F54F-262E-4F87-9EE5-4CCD327ACF44}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Blocks\ImGui\src">
+      <UniqueIdentifier>{3763A9C6-D4A0-4D03-B0A7-1C00454B087A}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Blocks\PCL">
+      <UniqueIdentifier>{AB952A92-8E3D-45C9-AEEF-B9346560B600}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Blocks\PCL\include">
+      <UniqueIdentifier>{7CEAAEF0-5EF7-4D65-B446-CDD3F1FBF161}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Blocks\PCL\include\Eigen">
+      <UniqueIdentifier>{4E8DA6D1-0DEE-4BA1-A8D1-97D218D329A0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Blocks\PCL\include\flann">
+      <UniqueIdentifier>{99F6F542-D0C1-4405-AF4E-2AAFFDED95C6}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\src\CiPointCloudViewerApp.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\CiPointCloudViewerApp.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClInclude Include="..\include\Resources.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\blocks\ImGui\include\CinderImGui.h">
+      <Filter>Blocks\ImGui\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\blocks\ImGui\include\imgui_user.h">
+      <Filter>Blocks\ImGui\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\blocks\ImGui\include\imgui_user.inl">
+      <Filter>Blocks\ImGui\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\blocks\ImGui\lib\imgui\imconfig.h">
+      <Filter>Blocks\ImGui\lib\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\blocks\ImGui\lib\imgui\imgui.h">
+      <Filter>Blocks\ImGui\lib\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\blocks\ImGui\lib\imgui\imgui_internal.h">
+      <Filter>Blocks\ImGui\lib\imgui</Filter>
+    </ClInclude>
+    <ClCompile Include="..\blocks\ImGui\src\CinderImGui.cpp">
+      <Filter>Blocks\ImGui\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\blocks\ImGui\lib\imgui\imgui.cpp">
+      <Filter>Blocks\ImGui\lib\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\blocks\ImGui\lib\imgui\imgui_draw.cpp">
+      <Filter>Blocks\ImGui\lib\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\blocks\ImGui\lib\imgui\imgui_demo.cpp">
+      <Filter>Blocks\ImGui\lib\imgui</Filter>
+    </ClCompile>
+    <ClInclude Include="..\blocks\PCL\include\Eigen\Array">
+      <Filter>Blocks\PCL\include\Eigen</Filter>
+    </ClInclude>
+    <ClInclude Include="..\blocks\PCL\include\Eigen\Cholesky">
+      <Filter>Blocks\PCL\include\Eigen</Filter>
+    </ClInclude>
+    <ClInclude Include="..\blocks\PCL\include\Eigen\CholmodSupport">
+      <Filter>Blocks\PCL\include\Eigen</Filter>
+    </ClInclude>
+    <ClInclude Include="..\blocks\PCL\include\Eigen\Core">
+      <Filter>Blocks\PCL\include\Eigen</Filter>
+    </ClInclude>
+    <ClInclude Include="..\blocks\PCL\include\Eigen\Dense">
+      <Filter>Blocks\PCL\include\Eigen</Filter>
+    </ClInclude>
+    <ClInclude Include="..\blocks\PCL\include\Eigen\Eigen">
+      <Filter>Blocks\PCL\include\Eigen</Filter>
+    </ClInclude>
+    <ClInclude Include="..\blocks\PCL\include\Eigen\Eigen2Support">
+      <Filter>Blocks\PCL\include\Eigen</Filter>
+    </ClInclude>
+    <ClInclude Include="..\blocks\PCL\include\Eigen\Eigenvalues">
+      <Filter>Blocks\PCL\include\Eigen</Filter>
+    </ClInclude>
+    <ClInclude Include="..\blocks\PCL\include\Eigen\Geometry">
+      <Filter>Blocks\PCL\include\Eigen</Filter>
+    </ClInclude>
+    <ClInclude Include="..\blocks\PCL\include\Eigen\Householder">
+      <Filter>Blocks\PCL\include\Eigen</Filter>
+    </ClInclude>
+    <ClInclude Include="..\blocks\PCL\include\Eigen\IterativeLinearSolvers">
+      <Filter>Blocks\PCL\include\Eigen</Filter>
+    </ClInclude>
+    <ClInclude Include="..\blocks\PCL\include\Eigen\Jacobi">
+      <Filter>Blocks\PCL\include\Eigen</Filter>
+    </ClInclude>
+    <ClInclude Include="..\blocks\PCL\include\Eigen\LeastSquares">
+      <Filter>Blocks\PCL\include\Eigen</Filter>
+    </ClInclude>
+    <ClInclude Include="..\blocks\PCL\include\Eigen\LU">
+      <Filter>Blocks\PCL\include\Eigen</Filter>
+    </ClInclude>
+    <ClInclude Include="..\blocks\PCL\include\Eigen\MetisSupport">
+      <Filter>Blocks\PCL\include\Eigen</Filter>
+    </ClInclude>
+    <ClInclude Include="..\blocks\PCL\include\Eigen\OrderingMethods">
+      <Filter>Blocks\PCL\include\Eigen</Filter>
+    </ClInclude>
+    <ClInclude Include="..\blocks\PCL\include\Eigen\PardisoSupport">
+      <Filter>Blocks\PCL\include\Eigen</Filter>
+    </ClInclude>
+    <ClInclude Include="..\blocks\PCL\include\Eigen\PaStiXSupport">
+      <Filter>Blocks\PCL\include\Eigen</Filter>
+    </ClInclude>
+    <ClInclude Include="..\blocks\PCL\include\Eigen\QR">
+      <Filter>Blocks\PCL\include\Eigen</Filter>
+    </ClInclude>
+    <ClInclude Include="..\blocks\PCL\include\Eigen\QtAlignedMalloc">
+      <Filter>Blocks\PCL\include\Eigen</Filter>
+    </ClInclude>
+    <ClInclude Include="..\blocks\PCL\include\Eigen\Sparse">
+      <Filter>Blocks\PCL\include\Eigen</Filter>
+    </ClInclude>
+    <ClInclude Include="..\blocks\PCL\include\Eigen\SparseCholesky">
+      <Filter>Blocks\PCL\include\Eigen</Filter>
+    </ClInclude>
+    <ClInclude Include="..\blocks\PCL\include\Eigen\SparseCore">
+      <Filter>Blocks\PCL\include\Eigen</Filter>
+    </ClInclude>
+    <ClInclude Include="..\blocks\PCL\include\Eigen\SparseLU">
+      <Filter>Blocks\PCL\include\Eigen</Filter>
+    </ClInclude>
+    <ClInclude Include="..\blocks\PCL\include\Eigen\SparseQR">
+      <Filter>Blocks\PCL\include\Eigen</Filter>
+    </ClInclude>
+    <ClInclude Include="..\blocks\PCL\include\Eigen\SPQRSupport">
+      <Filter>Blocks\PCL\include\Eigen</Filter>
+    </ClInclude>
+    <ClInclude Include="..\blocks\PCL\include\Eigen\StdDeque">
+      <Filter>Blocks\PCL\include\Eigen</Filter>
+    </ClInclude>
+    <ClInclude Include="..\blocks\PCL\include\Eigen\StdList">
+      <Filter>Blocks\PCL\include\Eigen</Filter>
+    </ClInclude>
+    <ClInclude Include="..\blocks\PCL\include\Eigen\StdVector">
+      <Filter>Blocks\PCL\include\Eigen</Filter>
+    </ClInclude>
+    <ClInclude Include="..\blocks\PCL\include\Eigen\SuperLUSupport">
+      <Filter>Blocks\PCL\include\Eigen</Filter>
+    </ClInclude>
+    <ClInclude Include="..\blocks\PCL\include\Eigen\SVD">
+      <Filter>Blocks\PCL\include\Eigen</Filter>
+    </ClInclude>
+    <ClInclude Include="..\blocks\PCL\include\Eigen\UmfPackSupport">
+      <Filter>Blocks\PCL\include\Eigen</Filter>
+    </ClInclude>
+    <ClInclude Include="..\blocks\PCL\include\flann\config.h">
+      <Filter>Blocks\PCL\include\flann</Filter>
+    </ClInclude>
+    <ClInclude Include="..\blocks\PCL\include\flann\defines.h">
+      <Filter>Blocks\PCL\include\flann</Filter>
+    </ClInclude>
+    <ClInclude Include="..\blocks\PCL\include\flann\flann.h">
+      <Filter>Blocks\PCL\include\flann</Filter>
+    </ClInclude>
+    <ClInclude Include="..\blocks\PCL\include\flann\flann.hpp">
+      <Filter>Blocks\PCL\include\flann</Filter>
+    </ClInclude>
+    <ClInclude Include="..\blocks\PCL\include\flann\general.h">
+      <Filter>Blocks\PCL\include\flann</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\include\Resources.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\..\cinder\Cinder\lib\winrt\x86\libEGL.dll">
+      <Filter>ANGLE\Win32</Filter>
+    </None>
+    <None Include="..\..\..\cinder\Cinder\lib\winrt\x86\libGLESv2.dll">
+      <Filter>ANGLE\Win32</Filter>
+    </None>
+    <None Include="..\..\..\cinder\Cinder\lib\winrt\x64\libEGL.dll">
+      <Filter>ANGLE\x64</Filter>
+    </None>
+    <None Include="..\..\..\cinder\Cinder\lib\winrt\x64\libGLESv2.dll">
+      <Filter>ANGLE\x64</Filter>
+    </None>
+  </ItemGroup>
+</Project>
