@@ -1,3 +1,6 @@
+[submodule "blocks/ImGui"]
+	path = blocks/ImGui
+	url = https://github.com/simongeilfus/Cinder-ImGui.git
 [submodule "blocks/PCL"]
 	path = blocks/PCL
 	url = git://github.com/izumin5210/Cinder-PCL.git

@@ -16,13 +16,18 @@
 		00B784B60FF439BC000DE1D7 /* CoreAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00B784B20FF439BC000DE1D7 /* CoreAudio.framework */; };
 		00B9955A1B128DF400A5C623 /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00B995581B128DF400A5C623 /* IOKit.framework */; };
 		00B9955B1B128DF400A5C623 /* IOSurface.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00B995591B128DF400A5C623 /* IOSurface.framework */; };
-		1B975EDDC20842259346852F /* CinderApp.icns in Resources */ = {isa = PBXBuildFile; fileRef = 70BF33A1FCB64EB384D5755D /* CinderApp.icns */; };
+		10001611E9F74F0A8E2103B3 /* imgui.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 34732A21307449AE97F282D1 /* imgui.cpp */; };
+		27CDCA5C34AD4676B43AFF6C /* imgui_demo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E71E2D5D3BFF43EAA7BD9B80 /* imgui_demo.cpp */; };
 		5323E6B20EAFCA74003A9687 /* CoreVideo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5323E6B10EAFCA74003A9687 /* CoreVideo.framework */; };
+		62C9684C2DBB4D738A4027B7 /* CiPointCloudViewerApp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 84EE79368E394425868B934F /* CiPointCloudViewerApp.cpp */; };
+		77760C778997432B85D9087D /* CinderImGui.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7F930651B1954A9184C13DF2 /* CinderImGui.cpp */; };
 		8D11072F0486CEB800E47090 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */; };
-		CD97B14AD6C94D79803EA43D /* CiPcdViewerApp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B817BB5C16114E838CB031B5 /* CiPcdViewerApp.cpp */; };
+		C20A3444065C4D28928161E5 /* CinderApp.icns in Resources */ = {isa = PBXBuildFile; fileRef = 000C90AA803A45568E9ED917 /* CinderApp.icns */; };
+		CA3A405528884C91ACB84635 /* imgui_draw.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E6CC4734FB6D49339391039A /* imgui_draw.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		000C90AA803A45568E9ED917 /* CinderApp.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; name = CinderApp.icns; path = ../resources/CinderApp.icns; sourceTree = "<group>"; };
 		006D720219952D00008149E2 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
 		006D720319952D00008149E2 /* CoreMedia.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMedia.framework; path = System/Library/Frameworks/CoreMedia.framework; sourceTree = SDKROOT; };
 		0091D8F80E81B9330029341E /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = /System/Library/Frameworks/OpenGL.framework; sourceTree = "<absolute>"; };
@@ -32,50 +37,64 @@
 		00B784B20FF439BC000DE1D7 /* CoreAudio.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreAudio.framework; path = System/Library/Frameworks/CoreAudio.framework; sourceTree = SDKROOT; };
 		00B995581B128DF400A5C623 /* IOKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOKit.framework; path = System/Library/Frameworks/IOKit.framework; sourceTree = SDKROOT; };
 		00B995591B128DF400A5C623 /* IOSurface.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOSurface.framework; path = System/Library/Frameworks/IOSurface.framework; sourceTree = SDKROOT; };
-		0155A9B0FB8C4B26916F9A25 /* QtAlignedMalloc */ = {isa = PBXFileReference; lastKnownFileType = "\"\""; name = QtAlignedMalloc; path = ../blocks/PCL/include/Eigen/QtAlignedMalloc; sourceTree = "<group>"; };
-		03E5F691C5704B838BB95745 /* Eigen2Support */ = {isa = PBXFileReference; lastKnownFileType = "\"\""; name = Eigen2Support; path = ../blocks/PCL/include/Eigen/Eigen2Support; sourceTree = "<group>"; };
-		05AA57BB78C34EB88DDDC305 /* QR */ = {isa = PBXFileReference; lastKnownFileType = "\"\""; name = QR; path = ../blocks/PCL/include/Eigen/QR; sourceTree = "<group>"; };
-		0D672BAAA8824F7E8CC3389E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		01A9DF7017DA4EF4AB7643E4 /* Core */ = {isa = PBXFileReference; lastKnownFileType = "\"\""; name = Core; path = ../blocks/PCL/include/Eigen/Core; sourceTree = "<group>"; };
+		08269DE05788435B9D514D66 /* MetisSupport */ = {isa = PBXFileReference; lastKnownFileType = "\"\""; name = MetisSupport; path = ../blocks/PCL/include/Eigen/MetisSupport; sourceTree = "<group>"; };
+		098DD58206BC444D802185C6 /* QtAlignedMalloc */ = {isa = PBXFileReference; lastKnownFileType = "\"\""; name = QtAlignedMalloc; path = ../blocks/PCL/include/Eigen/QtAlignedMalloc; sourceTree = "<group>"; };
 		1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
-		112F6D5A538442C99423B574 /* SparseCore */ = {isa = PBXFileReference; lastKnownFileType = "\"\""; name = SparseCore; path = ../blocks/PCL/include/Eigen/SparseCore; sourceTree = "<group>"; };
-		1C89F31AAED84CF780A2E3D4 /* Core */ = {isa = PBXFileReference; lastKnownFileType = "\"\""; name = Core; path = ../blocks/PCL/include/Eigen/Core; sourceTree = "<group>"; };
+		18F466379B3042E887FADD20 /* PardisoSupport */ = {isa = PBXFileReference; lastKnownFileType = "\"\""; name = PardisoSupport; path = ../blocks/PCL/include/Eigen/PardisoSupport; sourceTree = "<group>"; };
+		1BFD5177AC5B41239F66E3EB /* LeastSquares */ = {isa = PBXFileReference; lastKnownFileType = "\"\""; name = LeastSquares; path = ../blocks/PCL/include/Eigen/LeastSquares; sourceTree = "<group>"; };
+		298539137F5D415BBDD8FD6B /* StdDeque */ = {isa = PBXFileReference; lastKnownFileType = "\"\""; name = StdDeque; path = ../blocks/PCL/include/Eigen/StdDeque; sourceTree = "<group>"; };
 		29B97324FDCFA39411CA2CEA /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = /System/Library/Frameworks/AppKit.framework; sourceTree = "<absolute>"; };
 		29B97325FDCFA39411CA2CEA /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
-		2C7B257D73D94240BA8B5821 /* Eigenvalues */ = {isa = PBXFileReference; lastKnownFileType = "\"\""; name = Eigenvalues; path = ../blocks/PCL/include/Eigen/Eigenvalues; sourceTree = "<group>"; };
-		2EB9123854784220AD311518 /* SparseQR */ = {isa = PBXFileReference; lastKnownFileType = "\"\""; name = SparseQR; path = ../blocks/PCL/include/Eigen/SparseQR; sourceTree = "<group>"; };
-		30F7147D311F415898D7C0C2 /* UmfPackSupport */ = {isa = PBXFileReference; lastKnownFileType = "\"\""; name = UmfPackSupport; path = ../blocks/PCL/include/Eigen/UmfPackSupport; sourceTree = "<group>"; };
-		31D01E744D65483C9804ED03 /* OrderingMethods */ = {isa = PBXFileReference; lastKnownFileType = "\"\""; name = OrderingMethods; path = ../blocks/PCL/include/Eigen/OrderingMethods; sourceTree = "<group>"; };
-		3A2ED434386B4B9CA42C6A8E /* Sparse */ = {isa = PBXFileReference; lastKnownFileType = "\"\""; name = Sparse; path = ../blocks/PCL/include/Eigen/Sparse; sourceTree = "<group>"; };
+		2D4FE98FD6FA4222B4DE0FFE /* Sparse */ = {isa = PBXFileReference; lastKnownFileType = "\"\""; name = Sparse; path = ../blocks/PCL/include/Eigen/Sparse; sourceTree = "<group>"; };
+		34732A21307449AE97F282D1 /* imgui.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.cpp; name = imgui.cpp; path = ../blocks/ImGui/lib/imgui/imgui.cpp; sourceTree = "<group>"; };
+		3750DF584BCA416CA9B9B2A2 /* StdList */ = {isa = PBXFileReference; lastKnownFileType = "\"\""; name = StdList; path = ../blocks/PCL/include/Eigen/StdList; sourceTree = "<group>"; };
+		3AD373D940F24301B9D3D480 /* Jacobi */ = {isa = PBXFileReference; lastKnownFileType = "\"\""; name = Jacobi; path = ../blocks/PCL/include/Eigen/Jacobi; sourceTree = "<group>"; };
+		3F4D03BD7DAC4D5F9432EB57 /* IterativeLinearSolvers */ = {isa = PBXFileReference; lastKnownFileType = "\"\""; name = IterativeLinearSolvers; path = ../blocks/PCL/include/Eigen/IterativeLinearSolvers; sourceTree = "<group>"; };
+		412701AFCF794E5A8686BD3D /* PaStiXSupport */ = {isa = PBXFileReference; lastKnownFileType = "\"\""; name = PaStiXSupport; path = ../blocks/PCL/include/Eigen/PaStiXSupport; sourceTree = "<group>"; };
+		42A85D29F92C4E9EB2B6981D /* QR */ = {isa = PBXFileReference; lastKnownFileType = "\"\""; name = QR; path = ../blocks/PCL/include/Eigen/QR; sourceTree = "<group>"; };
+		525BDF04DD6E498C950652C3 /* SVD */ = {isa = PBXFileReference; lastKnownFileType = "\"\""; name = SVD; path = ../blocks/PCL/include/Eigen/SVD; sourceTree = "<group>"; };
 		5323E6B10EAFCA74003A9687 /* CoreVideo.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreVideo.framework; path = /System/Library/Frameworks/CoreVideo.framework; sourceTree = "<absolute>"; };
-		5C6FE5CCB52742BCB4D8B15C /* Eigen */ = {isa = PBXFileReference; lastKnownFileType = "\"\""; name = Eigen; path = ../blocks/PCL/include/Eigen/Eigen; sourceTree = "<group>"; };
-		5F232606D8F54B1DA0C16A46 /* StdDeque */ = {isa = PBXFileReference; lastKnownFileType = "\"\""; name = StdDeque; path = ../blocks/PCL/include/Eigen/StdDeque; sourceTree = "<group>"; };
-		68C0CD16A3274478BEEA8AD0 /* SPQRSupport */ = {isa = PBXFileReference; lastKnownFileType = "\"\""; name = SPQRSupport; path = ../blocks/PCL/include/Eigen/SPQRSupport; sourceTree = "<group>"; };
-		70BF33A1FCB64EB384D5755D /* CinderApp.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; name = CinderApp.icns; path = ../resources/CinderApp.icns; sourceTree = "<group>"; };
-		71863C36BEA14BEE824D25B6 /* SparseLU */ = {isa = PBXFileReference; lastKnownFileType = "\"\""; name = SparseLU; path = ../blocks/PCL/include/Eigen/SparseLU; sourceTree = "<group>"; };
-		744F8EBC15F44CA3A2B05458 /* Array */ = {isa = PBXFileReference; lastKnownFileType = "\"\""; name = Array; path = ../blocks/PCL/include/Eigen/Array; sourceTree = "<group>"; };
-		783F0BF95C5F4858926BA041 /* PardisoSupport */ = {isa = PBXFileReference; lastKnownFileType = "\"\""; name = PardisoSupport; path = ../blocks/PCL/include/Eigen/PardisoSupport; sourceTree = "<group>"; };
-		7E6AAD9167754B64B3AF8ACC /* IterativeLinearSolvers */ = {isa = PBXFileReference; lastKnownFileType = "\"\""; name = IterativeLinearSolvers; path = ../blocks/PCL/include/Eigen/IterativeLinearSolvers; sourceTree = "<group>"; };
-		7F50F2C89C05492D80C1BD76 /* StdList */ = {isa = PBXFileReference; lastKnownFileType = "\"\""; name = StdList; path = ../blocks/PCL/include/Eigen/StdList; sourceTree = "<group>"; };
-		800A1ED6037544C6928EEEA6 /* Householder */ = {isa = PBXFileReference; lastKnownFileType = "\"\""; name = Householder; path = ../blocks/PCL/include/Eigen/Householder; sourceTree = "<group>"; };
-		8D1107320486CEB800E47090 /* CiPcdViewer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CiPcdViewer.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		8EB182B8861E48768718875D /* LU */ = {isa = PBXFileReference; lastKnownFileType = "\"\""; name = LU; path = ../blocks/PCL/include/Eigen/LU; sourceTree = "<group>"; };
-		93631DE6FA614A01AF751EF0 /* PaStiXSupport */ = {isa = PBXFileReference; lastKnownFileType = "\"\""; name = PaStiXSupport; path = ../blocks/PCL/include/Eigen/PaStiXSupport; sourceTree = "<group>"; };
-		98DDA5B648E346D2BF3D87DE /* SVD */ = {isa = PBXFileReference; lastKnownFileType = "\"\""; name = SVD; path = ../blocks/PCL/include/Eigen/SVD; sourceTree = "<group>"; };
-		A9E5371413AE41B38E9B5988 /* Jacobi */ = {isa = PBXFileReference; lastKnownFileType = "\"\""; name = Jacobi; path = ../blocks/PCL/include/Eigen/Jacobi; sourceTree = "<group>"; };
-		ACAFF901516445359DC30C20 /* MetisSupport */ = {isa = PBXFileReference; lastKnownFileType = "\"\""; name = MetisSupport; path = ../blocks/PCL/include/Eigen/MetisSupport; sourceTree = "<group>"; };
-		B164F8C2655340B09B6A996B /* SuperLUSupport */ = {isa = PBXFileReference; lastKnownFileType = "\"\""; name = SuperLUSupport; path = ../blocks/PCL/include/Eigen/SuperLUSupport; sourceTree = "<group>"; };
-		B577C0D7728345029E1A1E53 /* SparseCholesky */ = {isa = PBXFileReference; lastKnownFileType = "\"\""; name = SparseCholesky; path = ../blocks/PCL/include/Eigen/SparseCholesky; sourceTree = "<group>"; };
-		B817BB5C16114E838CB031B5 /* CiPcdViewerApp.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.cpp; name = CiPcdViewerApp.cpp; path = ../src/CiPcdViewerApp.cpp; sourceTree = "<group>"; };
-		C5CBBE0BBB4A44B2A99B791D /* StdVector */ = {isa = PBXFileReference; lastKnownFileType = "\"\""; name = StdVector; path = ../blocks/PCL/include/Eigen/StdVector; sourceTree = "<group>"; };
-		C88BDB481B034C1798F1508C /* Geometry */ = {isa = PBXFileReference; lastKnownFileType = "\"\""; name = Geometry; path = ../blocks/PCL/include/Eigen/Geometry; sourceTree = "<group>"; };
-		E5D1447EFF22430EBE878E01 /* Cholesky */ = {isa = PBXFileReference; lastKnownFileType = "\"\""; name = Cholesky; path = ../blocks/PCL/include/Eigen/Cholesky; sourceTree = "<group>"; };
-		E7F0DB241D2657E1000003F6 /* PointCloudGrabber.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = PointCloudGrabber.hpp; path = ../src/grabber/PointCloudGrabber.hpp; sourceTree = "<group>"; };
-		E7F0DB271D265801000003F6 /* PcdGrabber.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = PcdGrabber.hpp; path = ../src/grabber/PcdGrabber.hpp; sourceTree = "<group>"; };
-		EA1E254A31C445A49DD37CC7 /* CiPcdViewer_Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = "\"\""; path = CiPcdViewer_Prefix.pch; sourceTree = "<group>"; };
-		EBE531F7609D43F9B6C3E4EA /* Resources.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Resources.h; path = ../include/Resources.h; sourceTree = "<group>"; };
-		ECAE0CD98F054AE6AB68DBC1 /* Dense */ = {isa = PBXFileReference; lastKnownFileType = "\"\""; name = Dense; path = ../blocks/PCL/include/Eigen/Dense; sourceTree = "<group>"; };
-		F491AD8DB14E4EA88E20A248 /* LeastSquares */ = {isa = PBXFileReference; lastKnownFileType = "\"\""; name = LeastSquares; path = ../blocks/PCL/include/Eigen/LeastSquares; sourceTree = "<group>"; };
-		FF70EC7A7DA44F3C9AF81E7F /* CholmodSupport */ = {isa = PBXFileReference; lastKnownFileType = "\"\""; name = CholmodSupport; path = ../blocks/PCL/include/Eigen/CholmodSupport; sourceTree = "<group>"; };
+		5828C4A29739404A9DA69252 /* defines.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = defines.h; path = ../blocks/PCL/include/flann/defines.h; sourceTree = "<group>"; };
+		58CF8BD564344E7FA5D59E14 /* general.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = general.h; path = ../blocks/PCL/include/flann/general.h; sourceTree = "<group>"; };
+		60908E2913244B1FA54FDC10 /* Eigen2Support */ = {isa = PBXFileReference; lastKnownFileType = "\"\""; name = Eigen2Support; path = ../blocks/PCL/include/Eigen/Eigen2Support; sourceTree = "<group>"; };
+		61A95C4827A14B839FC2B21E /* Cholesky */ = {isa = PBXFileReference; lastKnownFileType = "\"\""; name = Cholesky; path = ../blocks/PCL/include/Eigen/Cholesky; sourceTree = "<group>"; };
+		62F3B31452A04659877816B2 /* SPQRSupport */ = {isa = PBXFileReference; lastKnownFileType = "\"\""; name = SPQRSupport; path = ../blocks/PCL/include/Eigen/SPQRSupport; sourceTree = "<group>"; };
+		6B5500CF8B754D97A21ABC73 /* imconfig.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = imconfig.h; path = ../blocks/ImGui/lib/imgui/imconfig.h; sourceTree = "<group>"; };
+		6D672FDEF8794C52AA0F02C4 /* imgui_user.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = imgui_user.h; path = ../blocks/ImGui/include/imgui_user.h; sourceTree = "<group>"; };
+		704171201C45422DA69E8F04 /* flann.hpp */ = {isa = PBXFileReference; lastKnownFileType = "\"\""; name = flann.hpp; path = ../blocks/PCL/include/flann/flann.hpp; sourceTree = "<group>"; };
+		7F930651B1954A9184C13DF2 /* CinderImGui.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.cpp; name = CinderImGui.cpp; path = ../blocks/ImGui/src/CinderImGui.cpp; sourceTree = "<group>"; };
+		84EE79368E394425868B934F /* CiPointCloudViewerApp.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.cpp; name = CiPointCloudViewerApp.cpp; path = ../src/CiPointCloudViewerApp.cpp; sourceTree = "<group>"; };
+		87C4EF2EF29847CF9B9F60C1 /* LU */ = {isa = PBXFileReference; lastKnownFileType = "\"\""; name = LU; path = ../blocks/PCL/include/Eigen/LU; sourceTree = "<group>"; };
+		8BEF92E22DA24F9C8F0282F6 /* SparseCholesky */ = {isa = PBXFileReference; lastKnownFileType = "\"\""; name = SparseCholesky; path = ../blocks/PCL/include/Eigen/SparseCholesky; sourceTree = "<group>"; };
+		8D1107320486CEB800E47090 /* CiPointCloudViewer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CiPointCloudViewer.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		949048E1394F4EDD8B5B6C54 /* OrderingMethods */ = {isa = PBXFileReference; lastKnownFileType = "\"\""; name = OrderingMethods; path = ../blocks/PCL/include/Eigen/OrderingMethods; sourceTree = "<group>"; };
+		961D28CE474E4909ABB86151 /* CholmodSupport */ = {isa = PBXFileReference; lastKnownFileType = "\"\""; name = CholmodSupport; path = ../blocks/PCL/include/Eigen/CholmodSupport; sourceTree = "<group>"; };
+		98F80DD7F80F4EF785C61E39 /* StdVector */ = {isa = PBXFileReference; lastKnownFileType = "\"\""; name = StdVector; path = ../blocks/PCL/include/Eigen/StdVector; sourceTree = "<group>"; };
+		A093CC67C5A14200BC0AC988 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		A2F7DA627EC147C89B1D0967 /* Array */ = {isa = PBXFileReference; lastKnownFileType = "\"\""; name = Array; path = ../blocks/PCL/include/Eigen/Array; sourceTree = "<group>"; };
+		A8ECDFE8B02F4F86B43C9523 /* Eigen */ = {isa = PBXFileReference; lastKnownFileType = "\"\""; name = Eigen; path = ../blocks/PCL/include/Eigen/Eigen; sourceTree = "<group>"; };
+		B58AAFDD2CE3497994E39199 /* imgui_internal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = imgui_internal.h; path = ../blocks/ImGui/lib/imgui/imgui_internal.h; sourceTree = "<group>"; };
+		BD4C9FCBF3E64789800CCCE5 /* imgui.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = imgui.h; path = ../blocks/ImGui/lib/imgui/imgui.h; sourceTree = "<group>"; };
+		C19E654E173242DBA7C6E3B2 /* UmfPackSupport */ = {isa = PBXFileReference; lastKnownFileType = "\"\""; name = UmfPackSupport; path = ../blocks/PCL/include/Eigen/UmfPackSupport; sourceTree = "<group>"; };
+		C55052AB9BA94E54AB158740 /* imgui_user.inl */ = {isa = PBXFileReference; lastKnownFileType = "\"\""; name = imgui_user.inl; path = ../blocks/ImGui/include/imgui_user.inl; sourceTree = "<group>"; };
+		CA207E2B621F438F82184BC5 /* Householder */ = {isa = PBXFileReference; lastKnownFileType = "\"\""; name = Householder; path = ../blocks/PCL/include/Eigen/Householder; sourceTree = "<group>"; };
+		CCC1909982E6423A93E9528E /* flann.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = flann.h; path = ../blocks/PCL/include/flann/flann.h; sourceTree = "<group>"; };
+		CE1289101A504589BB0A20A2 /* SparseLU */ = {isa = PBXFileReference; lastKnownFileType = "\"\""; name = SparseLU; path = ../blocks/PCL/include/Eigen/SparseLU; sourceTree = "<group>"; };
+		D1894BE50369421CB7F0A783 /* SparseQR */ = {isa = PBXFileReference; lastKnownFileType = "\"\""; name = SparseQR; path = ../blocks/PCL/include/Eigen/SparseQR; sourceTree = "<group>"; };
+		DE26D6A3E4E045729CFFC15A /* Dense */ = {isa = PBXFileReference; lastKnownFileType = "\"\""; name = Dense; path = ../blocks/PCL/include/Eigen/Dense; sourceTree = "<group>"; };
+		E1CB749CED81481B8BAB49C8 /* config.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = config.h; path = ../blocks/PCL/include/flann/config.h; sourceTree = "<group>"; };
+		E6CC4734FB6D49339391039A /* imgui_draw.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.cpp; name = imgui_draw.cpp; path = ../blocks/ImGui/lib/imgui/imgui_draw.cpp; sourceTree = "<group>"; };
+		E6F2F06D436E4EBF9B1316AB /* CiPointCloudViewer_Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = "\"\""; path = CiPointCloudViewer_Prefix.pch; sourceTree = "<group>"; };
+		E71E2D5D3BFF43EAA7BD9B80 /* imgui_demo.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.cpp; name = imgui_demo.cpp; path = ../blocks/ImGui/lib/imgui/imgui_demo.cpp; sourceTree = "<group>"; };
+		E745C1C11D27A66700FCC25A /* PcdGrabber.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = PcdGrabber.hpp; path = ../../CiPcdViewer/src/grabber/PcdGrabber.hpp; sourceTree = "<group>"; };
+		E745C1C21D27A66700FCC25A /* PointCloudGrabber.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = PointCloudGrabber.hpp; path = ../../CiPcdViewer/src/grabber/PointCloudGrabber.hpp; sourceTree = "<group>"; };
+		EA44C7073B384A7CB360F590 /* SuperLUSupport */ = {isa = PBXFileReference; lastKnownFileType = "\"\""; name = SuperLUSupport; path = ../blocks/PCL/include/Eigen/SuperLUSupport; sourceTree = "<group>"; };
+		ED9EE83C8AA04B1588F58A8E /* SparseCore */ = {isa = PBXFileReference; lastKnownFileType = "\"\""; name = SparseCore; path = ../blocks/PCL/include/Eigen/SparseCore; sourceTree = "<group>"; };
+		EDDBA50428884B589C57C294 /* Geometry */ = {isa = PBXFileReference; lastKnownFileType = "\"\""; name = Geometry; path = ../blocks/PCL/include/Eigen/Geometry; sourceTree = "<group>"; };
+		F5E6FBC7543948D6A2E50F0F /* CinderImGui.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = CinderImGui.h; path = ../blocks/ImGui/include/CinderImGui.h; sourceTree = "<group>"; };
+		F655C146532B47F09E35F055 /* Eigenvalues */ = {isa = PBXFileReference; lastKnownFileType = "\"\""; name = Eigenvalues; path = ../blocks/PCL/include/Eigen/Eigenvalues; sourceTree = "<group>"; };
+		FE5413F9727C432782F82873 /* Resources.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Resources.h; path = ../include/Resources.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -103,16 +122,27 @@
 		01B97315FEAEA392516A2CEA /* Blocks */ = {
 			isa = PBXGroup;
 			children = (
-				834A700CB1BD45BBAA064A5A /* PCL */,
+				06C0E5B4D23E43509A550D24 /* ImGui */,
+				5BCD33D1DF0C4337BE8EA97E /* PCL */,
 			);
 			name = Blocks;
+			sourceTree = "<group>";
+		};
+		06C0E5B4D23E43509A550D24 /* ImGui */ = {
+			isa = PBXGroup;
+			children = (
+				9123A6A429A742FCBF517964 /* include */,
+				DA29A596D1794F73A836FE24 /* lib */,
+				6755A75B13B045E0994F5507 /* src */,
+			);
+			name = ImGui;
 			sourceTree = "<group>";
 		};
 		080E96DDFE201D6D7F000001 /* Source */ = {
 			isa = PBXGroup;
 			children = (
-				B817BB5C16114E838CB031B5 /* CiPcdViewerApp.cpp */,
-				E7F0DB291D265809000003F6 /* grabber */,
+				E745C1C01D27A65000FCC25A /* grabber */,
+				84EE79368E394425868B934F /* CiPointCloudViewerApp.cpp */,
 			);
 			name = Source;
 			sourceTree = "<group>";
@@ -147,12 +177,12 @@
 		19C28FACFE9D520D11CA2CBB /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				8D1107320486CEB800E47090 /* CiPcdViewer.app */,
+				8D1107320486CEB800E47090 /* CiPointCloudViewer.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
 		};
-		29B97314FDCFA39411CA2CEA /* CiPcdViewer */ = {
+		29B97314FDCFA39411CA2CEA /* CiPointCloudViewer */ = {
 			isa = PBXGroup;
 			children = (
 				01B97315FEAEA392516A2CEA /* Blocks */,
@@ -162,14 +192,14 @@
 				29B97323FDCFA39411CA2CEA /* Frameworks */,
 				19C28FACFE9D520D11CA2CBB /* Products */,
 			);
-			name = CiPcdViewer;
+			name = CiPointCloudViewer;
 			sourceTree = "<group>";
 		};
 		29B97315FDCFA39411CA2CEA /* Headers */ = {
 			isa = PBXGroup;
 			children = (
-				EBE531F7609D43F9B6C3E4EA /* Resources.h */,
-				EA1E254A31C445A49DD37CC7 /* CiPcdViewer_Prefix.pch */,
+				FE5413F9727C432782F82873 /* Resources.h */,
+				E6F2F06D436E4EBF9B1316AB /* CiPointCloudViewer_Prefix.pch */,
 			);
 			name = Headers;
 			sourceTree = "<group>";
@@ -177,8 +207,8 @@
 		29B97317FDCFA39411CA2CEA /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				70BF33A1FCB64EB384D5755D /* CinderApp.icns */,
-				0D672BAAA8824F7E8CC3389E /* Info.plist */,
+				000C90AA803A45568E9ED917 /* CinderApp.icns */,
+				A093CC67C5A14200BC0AC988 /* Info.plist */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -192,66 +222,118 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
-		59F3D2BC72FA448789F5C047 /* include */ = {
+		4F2FA8F07ED141D0AB5B999F /* Eigen */ = {
 			isa = PBXGroup;
 			children = (
-				B880F38409154EE7ABEF67A2 /* Eigen */,
-			);
-			name = include;
-			sourceTree = "<group>";
-		};
-		834A700CB1BD45BBAA064A5A /* PCL */ = {
-			isa = PBXGroup;
-			children = (
-				59F3D2BC72FA448789F5C047 /* include */,
-			);
-			name = PCL;
-			sourceTree = "<group>";
-		};
-		B880F38409154EE7ABEF67A2 /* Eigen */ = {
-			isa = PBXGroup;
-			children = (
-				744F8EBC15F44CA3A2B05458 /* Array */,
-				E5D1447EFF22430EBE878E01 /* Cholesky */,
-				FF70EC7A7DA44F3C9AF81E7F /* CholmodSupport */,
-				1C89F31AAED84CF780A2E3D4 /* Core */,
-				ECAE0CD98F054AE6AB68DBC1 /* Dense */,
-				5C6FE5CCB52742BCB4D8B15C /* Eigen */,
-				03E5F691C5704B838BB95745 /* Eigen2Support */,
-				2C7B257D73D94240BA8B5821 /* Eigenvalues */,
-				C88BDB481B034C1798F1508C /* Geometry */,
-				800A1ED6037544C6928EEEA6 /* Householder */,
-				7E6AAD9167754B64B3AF8ACC /* IterativeLinearSolvers */,
-				A9E5371413AE41B38E9B5988 /* Jacobi */,
-				F491AD8DB14E4EA88E20A248 /* LeastSquares */,
-				8EB182B8861E48768718875D /* LU */,
-				ACAFF901516445359DC30C20 /* MetisSupport */,
-				31D01E744D65483C9804ED03 /* OrderingMethods */,
-				783F0BF95C5F4858926BA041 /* PardisoSupport */,
-				93631DE6FA614A01AF751EF0 /* PaStiXSupport */,
-				05AA57BB78C34EB88DDDC305 /* QR */,
-				0155A9B0FB8C4B26916F9A25 /* QtAlignedMalloc */,
-				3A2ED434386B4B9CA42C6A8E /* Sparse */,
-				B577C0D7728345029E1A1E53 /* SparseCholesky */,
-				112F6D5A538442C99423B574 /* SparseCore */,
-				71863C36BEA14BEE824D25B6 /* SparseLU */,
-				2EB9123854784220AD311518 /* SparseQR */,
-				68C0CD16A3274478BEEA8AD0 /* SPQRSupport */,
-				5F232606D8F54B1DA0C16A46 /* StdDeque */,
-				7F50F2C89C05492D80C1BD76 /* StdList */,
-				C5CBBE0BBB4A44B2A99B791D /* StdVector */,
-				B164F8C2655340B09B6A996B /* SuperLUSupport */,
-				98DDA5B648E346D2BF3D87DE /* SVD */,
-				30F7147D311F415898D7C0C2 /* UmfPackSupport */,
+				A2F7DA627EC147C89B1D0967 /* Array */,
+				61A95C4827A14B839FC2B21E /* Cholesky */,
+				961D28CE474E4909ABB86151 /* CholmodSupport */,
+				01A9DF7017DA4EF4AB7643E4 /* Core */,
+				DE26D6A3E4E045729CFFC15A /* Dense */,
+				A8ECDFE8B02F4F86B43C9523 /* Eigen */,
+				60908E2913244B1FA54FDC10 /* Eigen2Support */,
+				F655C146532B47F09E35F055 /* Eigenvalues */,
+				EDDBA50428884B589C57C294 /* Geometry */,
+				CA207E2B621F438F82184BC5 /* Householder */,
+				3F4D03BD7DAC4D5F9432EB57 /* IterativeLinearSolvers */,
+				3AD373D940F24301B9D3D480 /* Jacobi */,
+				1BFD5177AC5B41239F66E3EB /* LeastSquares */,
+				87C4EF2EF29847CF9B9F60C1 /* LU */,
+				08269DE05788435B9D514D66 /* MetisSupport */,
+				949048E1394F4EDD8B5B6C54 /* OrderingMethods */,
+				18F466379B3042E887FADD20 /* PardisoSupport */,
+				412701AFCF794E5A8686BD3D /* PaStiXSupport */,
+				42A85D29F92C4E9EB2B6981D /* QR */,
+				098DD58206BC444D802185C6 /* QtAlignedMalloc */,
+				2D4FE98FD6FA4222B4DE0FFE /* Sparse */,
+				8BEF92E22DA24F9C8F0282F6 /* SparseCholesky */,
+				ED9EE83C8AA04B1588F58A8E /* SparseCore */,
+				CE1289101A504589BB0A20A2 /* SparseLU */,
+				D1894BE50369421CB7F0A783 /* SparseQR */,
+				62F3B31452A04659877816B2 /* SPQRSupport */,
+				298539137F5D415BBDD8FD6B /* StdDeque */,
+				3750DF584BCA416CA9B9B2A2 /* StdList */,
+				98F80DD7F80F4EF785C61E39 /* StdVector */,
+				EA44C7073B384A7CB360F590 /* SuperLUSupport */,
+				525BDF04DD6E498C950652C3 /* SVD */,
+				C19E654E173242DBA7C6E3B2 /* UmfPackSupport */,
 			);
 			name = Eigen;
 			sourceTree = "<group>";
 		};
-		E7F0DB291D265809000003F6 /* grabber */ = {
+		5A23BD35E7A2454C9F2438F6 /* include */ = {
 			isa = PBXGroup;
 			children = (
-				E7F0DB241D2657E1000003F6 /* PointCloudGrabber.hpp */,
-				E7F0DB271D265801000003F6 /* PcdGrabber.hpp */,
+				4F2FA8F07ED141D0AB5B999F /* Eigen */,
+				A76CF1707D48488BA0A4EF55 /* flann */,
+			);
+			name = include;
+			sourceTree = "<group>";
+		};
+		5BCD33D1DF0C4337BE8EA97E /* PCL */ = {
+			isa = PBXGroup;
+			children = (
+				5A23BD35E7A2454C9F2438F6 /* include */,
+			);
+			name = PCL;
+			sourceTree = "<group>";
+		};
+		6755A75B13B045E0994F5507 /* src */ = {
+			isa = PBXGroup;
+			children = (
+				7F930651B1954A9184C13DF2 /* CinderImGui.cpp */,
+			);
+			name = src;
+			sourceTree = "<group>";
+		};
+		9123A6A429A742FCBF517964 /* include */ = {
+			isa = PBXGroup;
+			children = (
+				F5E6FBC7543948D6A2E50F0F /* CinderImGui.h */,
+				6D672FDEF8794C52AA0F02C4 /* imgui_user.h */,
+				C55052AB9BA94E54AB158740 /* imgui_user.inl */,
+			);
+			name = include;
+			sourceTree = "<group>";
+		};
+		94748C9D0CED4360B30DA2B9 /* imgui */ = {
+			isa = PBXGroup;
+			children = (
+				6B5500CF8B754D97A21ABC73 /* imconfig.h */,
+				BD4C9FCBF3E64789800CCCE5 /* imgui.h */,
+				B58AAFDD2CE3497994E39199 /* imgui_internal.h */,
+				34732A21307449AE97F282D1 /* imgui.cpp */,
+				E6CC4734FB6D49339391039A /* imgui_draw.cpp */,
+				E71E2D5D3BFF43EAA7BD9B80 /* imgui_demo.cpp */,
+			);
+			name = imgui;
+			sourceTree = "<group>";
+		};
+		A76CF1707D48488BA0A4EF55 /* flann */ = {
+			isa = PBXGroup;
+			children = (
+				E1CB749CED81481B8BAB49C8 /* config.h */,
+				5828C4A29739404A9DA69252 /* defines.h */,
+				CCC1909982E6423A93E9528E /* flann.h */,
+				704171201C45422DA69E8F04 /* flann.hpp */,
+				58CF8BD564344E7FA5D59E14 /* general.h */,
+			);
+			name = flann;
+			sourceTree = "<group>";
+		};
+		DA29A596D1794F73A836FE24 /* lib */ = {
+			isa = PBXGroup;
+			children = (
+				94748C9D0CED4360B30DA2B9 /* imgui */,
+			);
+			name = lib;
+			sourceTree = "<group>";
+		};
+		E745C1C01D27A65000FCC25A /* grabber */ = {
+			isa = PBXGroup;
+			children = (
+				E745C1C11D27A66700FCC25A /* PcdGrabber.hpp */,
+				E745C1C21D27A66700FCC25A /* PointCloudGrabber.hpp */,
 			);
 			name = grabber;
 			sourceTree = "<group>";
@@ -259,9 +341,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		8D1107260486CEB800E47090 /* CiPcdViewer */ = {
+		8D1107260486CEB800E47090 /* CiPointCloudViewer */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = C01FCF4A08A954540054247B /* Build configuration list for PBXNativeTarget "CiPcdViewer" */;
+			buildConfigurationList = C01FCF4A08A954540054247B /* Build configuration list for PBXNativeTarget "CiPointCloudViewer" */;
 			buildPhases = (
 				8D1107290486CEB800E47090 /* Resources */,
 				8D11072C0486CEB800E47090 /* Sources */,
@@ -271,10 +353,10 @@
 			);
 			dependencies = (
 			);
-			name = CiPcdViewer;
+			name = CiPointCloudViewer;
 			productInstallPath = "$(HOME)/Applications";
-			productName = CiPcdViewer;
-			productReference = 8D1107320486CEB800E47090 /* CiPcdViewer.app */;
+			productName = CiPointCloudViewer;
+			productReference = 8D1107320486CEB800E47090 /* CiPointCloudViewer.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -284,7 +366,7 @@
 			isa = PBXProject;
 			attributes = {
 			};
-			buildConfigurationList = C01FCF4E08A954540054247B /* Build configuration list for PBXProject "CiPcdViewer" */;
+			buildConfigurationList = C01FCF4E08A954540054247B /* Build configuration list for PBXProject "CiPointCloudViewer" */;
 			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = English;
 			hasScannedForEncodings = 1;
@@ -294,11 +376,11 @@
 				French,
 				German,
 			);
-			mainGroup = 29B97314FDCFA39411CA2CEA /* CiPcdViewer */;
+			mainGroup = 29B97314FDCFA39411CA2CEA /* CiPointCloudViewer */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				8D1107260486CEB800E47090 /* CiPcdViewer */,
+				8D1107260486CEB800E47090 /* CiPointCloudViewer */,
 			);
 		};
 /* End PBXProject section */
@@ -308,7 +390,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				1B975EDDC20842259346852F /* CinderApp.icns in Resources */,
+				C20A3444065C4D28928161E5 /* CinderApp.icns in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -319,7 +401,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				CD97B14AD6C94D79803EA43D /* CiPcdViewerApp.cpp in Sources */,
+				62C9684C2DBB4D738A4027B7 /* CiPointCloudViewerApp.cpp in Sources */,
+				77760C778997432B85D9087D /* CinderImGui.cpp in Sources */,
+				10001611E9F74F0A8E2103B3 /* imgui.cpp in Sources */,
+				CA3A405528884C91ACB84635 /* imgui_draw.cpp in Sources */,
+				27CDCA5C34AD4676B43AFF6C /* imgui_demo.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -336,7 +422,7 @@
 				GCC_INLINES_ARE_PRIVATE_EXTERN = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = CiPcdViewer_Prefix.pch;
+				GCC_PREFIX_HEADER = CiPointCloudViewer_Prefix.pch;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
 					"$(inherited)",
@@ -346,88 +432,14 @@
 				INSTALL_PATH = "$(HOME)/Applications";
 				OTHER_LDFLAGS = (
 					"\"$(CINDER_PATH)/lib/libcinder_d.a\"",
+					../blocks/PCL/lib/macosx/libflann_cpp_s.a,
+					../blocks/PCL/lib/macosx/libflann_s.a,
 					../blocks/PCL/lib/macosx/libflann.1.8.4.dylib,
 					../blocks/PCL/lib/macosx/libflann.1.8.dylib,
 					../blocks/PCL/lib/macosx/libflann.dylib,
 					../blocks/PCL/lib/macosx/libflann_cpp.1.8.4.dylib,
 					../blocks/PCL/lib/macosx/libflann_cpp.1.8.dylib,
 					../blocks/PCL/lib/macosx/libflann_cpp.dylib,
-					../blocks/PCL/lib/macosx/libflann_cpp_s.a,
-					../blocks/PCL/lib/macosx/libflann_s.a,
-					../blocks/PCL/lib/macosx/libpcl_2d.1.8.0.dylib,
-					../blocks/PCL/lib/macosx/libpcl_2d.1.8.dylib,
-					../blocks/PCL/lib/macosx/libpcl_2d.dylib,
-					../blocks/PCL/lib/macosx/libpcl_common.1.8.0.dylib,
-					../blocks/PCL/lib/macosx/libpcl_common.1.8.dylib,
-					../blocks/PCL/lib/macosx/libpcl_common.dylib,
-					../blocks/PCL/lib/macosx/libpcl_features.1.8.0.dylib,
-					../blocks/PCL/lib/macosx/libpcl_features.1.8.dylib,
-					../blocks/PCL/lib/macosx/libpcl_features.dylib,
-					../blocks/PCL/lib/macosx/libpcl_filters.1.8.0.dylib,
-					../blocks/PCL/lib/macosx/libpcl_filters.1.8.dylib,
-					../blocks/PCL/lib/macosx/libpcl_filters.dylib,
-					../blocks/PCL/lib/macosx/libpcl_io.1.8.0.dylib,
-					../blocks/PCL/lib/macosx/libpcl_io.1.8.dylib,
-					../blocks/PCL/lib/macosx/libpcl_io.dylib,
-					../blocks/PCL/lib/macosx/libpcl_io_ply.1.8.0.dylib,
-					../blocks/PCL/lib/macosx/libpcl_io_ply.1.8.dylib,
-					../blocks/PCL/lib/macosx/libpcl_io_ply.dylib,
-					../blocks/PCL/lib/macosx/libpcl_kdtree.1.8.0.dylib,
-					../blocks/PCL/lib/macosx/libpcl_kdtree.1.8.dylib,
-					../blocks/PCL/lib/macosx/libpcl_kdtree.dylib,
-					../blocks/PCL/lib/macosx/libpcl_keypoints.1.8.0.dylib,
-					../blocks/PCL/lib/macosx/libpcl_keypoints.1.8.dylib,
-					../blocks/PCL/lib/macosx/libpcl_keypoints.dylib,
-					../blocks/PCL/lib/macosx/libpcl_ml.1.8.0.dylib,
-					../blocks/PCL/lib/macosx/libpcl_ml.1.8.dylib,
-					../blocks/PCL/lib/macosx/libpcl_ml.dylib,
-					../blocks/PCL/lib/macosx/libpcl_octree.1.8.0.dylib,
-					../blocks/PCL/lib/macosx/libpcl_octree.1.8.dylib,
-					../blocks/PCL/lib/macosx/libpcl_octree.dylib,
-					../blocks/PCL/lib/macosx/libpcl_outofcore.1.8.0.dylib,
-					../blocks/PCL/lib/macosx/libpcl_outofcore.1.8.dylib,
-					../blocks/PCL/lib/macosx/libpcl_outofcore.dylib,
-					../blocks/PCL/lib/macosx/libpcl_people.1.8.0.dylib,
-					../blocks/PCL/lib/macosx/libpcl_people.1.8.dylib,
-					../blocks/PCL/lib/macosx/libpcl_people.dylib,
-					../blocks/PCL/lib/macosx/libpcl_recognition.1.8.0.dylib,
-					../blocks/PCL/lib/macosx/libpcl_recognition.1.8.dylib,
-					../blocks/PCL/lib/macosx/libpcl_recognition.dylib,
-					../blocks/PCL/lib/macosx/libpcl_registration.1.8.0.dylib,
-					../blocks/PCL/lib/macosx/libpcl_registration.1.8.dylib,
-					../blocks/PCL/lib/macosx/libpcl_registration.dylib,
-					../blocks/PCL/lib/macosx/libpcl_sample_consensus.1.8.0.dylib,
-					../blocks/PCL/lib/macosx/libpcl_sample_consensus.1.8.dylib,
-					../blocks/PCL/lib/macosx/libpcl_sample_consensus.dylib,
-					../blocks/PCL/lib/macosx/libpcl_search.1.8.0.dylib,
-					../blocks/PCL/lib/macosx/libpcl_search.1.8.dylib,
-					../blocks/PCL/lib/macosx/libpcl_search.dylib,
-					../blocks/PCL/lib/macosx/libpcl_segmentation.1.8.0.dylib,
-					../blocks/PCL/lib/macosx/libpcl_segmentation.1.8.dylib,
-					../blocks/PCL/lib/macosx/libpcl_segmentation.dylib,
-					../blocks/PCL/lib/macosx/libpcl_stereo.1.8.0.dylib,
-					../blocks/PCL/lib/macosx/libpcl_stereo.1.8.dylib,
-					../blocks/PCL/lib/macosx/libpcl_stereo.dylib,
-					../blocks/PCL/lib/macosx/libpcl_surface.1.8.0.dylib,
-					../blocks/PCL/lib/macosx/libpcl_surface.1.8.dylib,
-					../blocks/PCL/lib/macosx/libpcl_surface.dylib,
-					../blocks/PCL/lib/macosx/libpcl_tracking.1.8.0.dylib,
-					../blocks/PCL/lib/macosx/libpcl_tracking.1.8.dylib,
-					../blocks/PCL/lib/macosx/libpcl_tracking.dylib,
-					../blocks/PCL/lib/macosx/libpcl_visualization.1.8.0.dylib,
-					../blocks/PCL/lib/macosx/libpcl_visualization.1.8.dylib,
-					../blocks/PCL/lib/macosx/libpcl_visualization.dylib,
-				);
-				"OTHER_LDFLAGS[arch=*]" = (
-					"\"$(CINDER_PATH)/lib/libcinder_d.a\"",
-					../blocks/PCL/lib/macosx/libflann.1.8.4.dylib,
-					../blocks/PCL/lib/macosx/libflann.1.8.dylib,
-					../blocks/PCL/lib/macosx/libflann.dylib,
-					../blocks/PCL/lib/macosx/libflann_cpp.1.8.4.dylib,
-					../blocks/PCL/lib/macosx/libflann_cpp.1.8.dylib,
-					../blocks/PCL/lib/macosx/libflann_cpp.dylib,
-					../blocks/PCL/lib/macosx/libflann_cpp_s.a,
-					../blocks/PCL/lib/macosx/libflann_s.a,
 					../blocks/PCL/lib/macosx/libpcl_2d.1.8.0.dylib,
 					../blocks/PCL/lib/macosx/libpcl_2d.1.8.dylib,
 					../blocks/PCL/lib/macosx/libpcl_2d.dylib,
@@ -493,7 +505,7 @@
 					../blocks/PCL/lib/macosx/libpcl_visualization.dylib,
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "org.libcinder.${PRODUCT_NAME:rfc1034identifier}";
-				PRODUCT_NAME = CiPcdViewer;
+				PRODUCT_NAME = CiPointCloudViewer;
 				SYMROOT = ./build;
 				WRAPPER_EXTENSION = app;
 			};
@@ -510,7 +522,7 @@
 				GCC_INLINES_ARE_PRIVATE_EXTERN = YES;
 				GCC_OPTIMIZATION_LEVEL = 3;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = CiPcdViewer_Prefix.pch;
+				GCC_PREFIX_HEADER = CiPointCloudViewer_Prefix.pch;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"NDEBUG=1",
 					"$(inherited)",
@@ -520,14 +532,14 @@
 				INSTALL_PATH = "$(HOME)/Applications";
 				OTHER_LDFLAGS = (
 					"\"$(CINDER_PATH)/lib/libcinder.a\"",
+					../blocks/PCL/lib/macosx/libflann_cpp_s.a,
+					../blocks/PCL/lib/macosx/libflann_s.a,
 					../blocks/PCL/lib/macosx/libflann.1.8.4.dylib,
 					../blocks/PCL/lib/macosx/libflann.1.8.dylib,
 					../blocks/PCL/lib/macosx/libflann.dylib,
 					../blocks/PCL/lib/macosx/libflann_cpp.1.8.4.dylib,
 					../blocks/PCL/lib/macosx/libflann_cpp.1.8.dylib,
 					../blocks/PCL/lib/macosx/libflann_cpp.dylib,
-					../blocks/PCL/lib/macosx/libflann_cpp_s.a,
-					../blocks/PCL/lib/macosx/libflann_s.a,
 					../blocks/PCL/lib/macosx/libpcl_2d.1.8.0.dylib,
 					../blocks/PCL/lib/macosx/libpcl_2d.1.8.dylib,
 					../blocks/PCL/lib/macosx/libpcl_2d.dylib,
@@ -593,7 +605,7 @@
 					../blocks/PCL/lib/macosx/libpcl_visualization.dylib,
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "org.libcinder.${PRODUCT_NAME:rfc1034identifier}";
-				PRODUCT_NAME = CiPcdViewer;
+				PRODUCT_NAME = CiPointCloudViewer;
 				STRIP_INSTALLED_PRODUCT = YES;
 				SYMROOT = ./build;
 				WRAPPER_EXTENSION = app;
@@ -617,7 +629,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = macosx;
-				USER_HEADER_SEARCH_PATHS = "\"$(CINDER_PATH)/include\" ../include";
+				USER_HEADER_SEARCH_PATHS = "\"$(CINDER_PATH)/include\" ../include ../blocks/ImGui/lib/imgui ../blocks/ImGui/include";
 			};
 			name = Debug;
 		};
@@ -636,14 +648,14 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				SDKROOT = macosx;
-				USER_HEADER_SEARCH_PATHS = "\"$(CINDER_PATH)/include\" ../include";
+				USER_HEADER_SEARCH_PATHS = "\"$(CINDER_PATH)/include\" ../include ../blocks/ImGui/lib/imgui ../blocks/ImGui/include";
 			};
 			name = Release;
 		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		C01FCF4A08A954540054247B /* Build configuration list for PBXNativeTarget "CiPcdViewer" */ = {
+		C01FCF4A08A954540054247B /* Build configuration list for PBXNativeTarget "CiPointCloudViewer" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				C01FCF4B08A954540054247B /* Debug */,
@@ -652,7 +664,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		C01FCF4E08A954540054247B /* Build configuration list for PBXProject "CiPcdViewer" */ = {
+		C01FCF4E08A954540054247B /* Build configuration list for PBXProject "CiPointCloudViewer" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				C01FCF4F08A954540054247B /* Debug */,

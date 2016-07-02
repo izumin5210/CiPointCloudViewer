@@ -19,12 +19,12 @@ using namespace ci;
 using namespace ci::app;
 using namespace std;
 
-class CiPcdViewerApp : public App {
+class CiPointCloudViewerApp : public App {
 public:
     void setup() override;
     void mouseDown( MouseEvent event ) override;
     void update() override;
-	void draw() override;
+    void draw() override;
 
 private:
     const string kOptCamera = "Camera";
@@ -67,7 +67,7 @@ private:
     void updatePointCloud();
 };
 
-void CiPcdViewerApp::setup()
+void CiPointCloudViewerApp::setup()
 {
     batch_ = gl::VertBatch::create(GL_POINTS);
 
@@ -83,7 +83,7 @@ void CiPcdViewerApp::setup()
     sor_std_dev_mul_th_ = 1.0f;
     enabled_sor_ = false;
 
-    params_ = params::InterfaceGl::create(getWindow(), "CiPcdViewer", toPixels(ivec2(200, 640)));
+    params_ = params::InterfaceGl::create(getWindow(), "CiPointCloudViewer", toPixels(ivec2(200, 640)));
 
     params_->addButton("Open *.pcd file", [this]() {
         auto pcdfile = getOpenFilePath();
@@ -99,100 +99,100 @@ void CiPcdViewerApp::setup()
     params_->addParam("Background Color", &bg_color_);
 
     params_->addParam("Point Size", &point_size_)
-        .min(1.0f)
-        .max(10.0f)
-        .step(0.1f);
+    .min(1.0f)
+    .max(10.0f)
+    .step(0.1f);
 
     params_->addParam("Look At", &camera_target_)
-        .group(kOptCamera);
+    .group(kOptCamera);
 
     params_->addParam("Eye Point", &camera_eye_point_)
-        .group(kOptCamera);
+    .group(kOptCamera);
 
     params_->addSeparator();
 
     params_->addParam("X Filter", &enable_pass_through_x_)
-        .group(kOptPassThrough)
-        .updateFn(bind(&CiPcdViewerApp::updatePointCloud, this));
+    .group(kOptPassThrough)
+    .updateFn(bind(&CiPointCloudViewerApp::updatePointCloud, this));
 
     params_->addParam("Min X", &min_pass_through_x_)
-        .min(-5.0f)
-        .max(5.0f)
-        .step(0.02f)
-        .group(kOptPassThrough)
-        .updateFn(bind(&CiPcdViewerApp::updatePointCloud, this));
+    .min(-5.0f)
+    .max(5.0f)
+    .step(0.02f)
+    .group(kOptPassThrough)
+    .updateFn(bind(&CiPointCloudViewerApp::updatePointCloud, this));
 
     params_->addParam("Max X", &max_pass_through_x_)
-        .min(-5.0f)
-        .max(5.0f)
-        .step(0.02f)
-        .group(kOptPassThrough)
-        .updateFn(bind(&CiPcdViewerApp::updatePointCloud, this));
+    .min(-5.0f)
+    .max(5.0f)
+    .step(0.02f)
+    .group(kOptPassThrough)
+    .updateFn(bind(&CiPointCloudViewerApp::updatePointCloud, this));
 
     params_->addParam("Y Filter", &enable_pass_through_y_)
-        .group(kOptPassThrough)
-        .updateFn(bind(&CiPcdViewerApp::updatePointCloud, this));
+    .group(kOptPassThrough)
+    .updateFn(bind(&CiPointCloudViewerApp::updatePointCloud, this));
 
     params_->addParam("Min Y", &min_pass_through_y_)
-        .min(-5.0f)
-        .max(5.0f)
-        .step(0.02f)
-        .group(kOptPassThrough)
-        .updateFn(bind(&CiPcdViewerApp::updatePointCloud, this));
+    .min(-5.0f)
+    .max(5.0f)
+    .step(0.02f)
+    .group(kOptPassThrough)
+    .updateFn(bind(&CiPointCloudViewerApp::updatePointCloud, this));
 
     params_->addParam("Max Y", &max_pass_through_y_)
-        .min(-5.0f)
-        .max(5.0f)
-        .step(0.02f)
-        .group(kOptPassThrough)
-        .updateFn(bind(&CiPcdViewerApp::updatePointCloud, this));
+    .min(-5.0f)
+    .max(5.0f)
+    .step(0.02f)
+    .group(kOptPassThrough)
+    .updateFn(bind(&CiPointCloudViewerApp::updatePointCloud, this));
 
     params_->addParam("Z Filter", &enable_pass_through_z_)
-        .group(kOptPassThrough)
-        .updateFn(bind(&CiPcdViewerApp::updatePointCloud, this));
+    .group(kOptPassThrough)
+    .updateFn(bind(&CiPointCloudViewerApp::updatePointCloud, this));
 
     params_->addParam("Min Z", &min_pass_through_z_)
-        .min(-5.0f)
-        .max(5.0f)
-        .step(0.02f)
-        .group(kOptPassThrough)
-        .updateFn(bind(&CiPcdViewerApp::updatePointCloud, this));
+    .min(-5.0f)
+    .max(5.0f)
+    .step(0.02f)
+    .group(kOptPassThrough)
+    .updateFn(bind(&CiPointCloudViewerApp::updatePointCloud, this));
 
     params_->addParam("Max Z", &max_pass_through_z_)
-        .min(-5.0f)
-        .max(5.0f)
-        .step(0.02f)
-        .group(kOptPassThrough)
-        .updateFn(bind(&CiPcdViewerApp::updatePointCloud, this));
+    .min(-5.0f)
+    .max(5.0f)
+    .step(0.02f)
+    .group(kOptPassThrough)
+    .updateFn(bind(&CiPointCloudViewerApp::updatePointCloud, this));
 
     params_->addParam("Enable Voxel Filter", &enabled_voxel_filter_)
-        .group(kOptVoxel)
-        .updateFn(bind(&CiPcdViewerApp::updatePointCloud, this));
+    .group(kOptVoxel)
+    .updateFn(bind(&CiPointCloudViewerApp::updatePointCloud, this));
 
     params_->addParam("Voxel Size", &voxel_size_)
-        .min(0.001f)
-        .max(1.0f)
-        .step(0.001f)
-        .group(kOptVoxel)
-        .updateFn(bind(&CiPcdViewerApp::updatePointCloud, this));
+    .min(0.001f)
+    .max(1.0f)
+    .step(0.001f)
+    .group(kOptVoxel)
+    .updateFn(bind(&CiPointCloudViewerApp::updatePointCloud, this));
 
     params_->addParam("Enable SOR", &enabled_sor_)
-        .group(kOptSor)
-        .updateFn(bind(&CiPcdViewerApp::updatePointCloud, this));
+    .group(kOptSor)
+    .updateFn(bind(&CiPointCloudViewerApp::updatePointCloud, this));
 
     params_->addParam("MeanK", &sor_meank_)
-        .min(1)
-        .max(100)
-        .step(1)
-        .group(kOptSor)
-        .updateFn(bind(&CiPcdViewerApp::updatePointCloud, this));
+    .min(1)
+    .max(100)
+    .step(1)
+    .group(kOptSor)
+    .updateFn(bind(&CiPointCloudViewerApp::updatePointCloud, this));
 
     params_->addParam("StddevMulThresh", &sor_std_dev_mul_th_)
-        .min(0.0f)
-        .max(10.0f)
-        .step(0.1f)
-        .group(kOptSor)
-        .updateFn(bind(&CiPcdViewerApp::updatePointCloud, this));
+    .min(0.0f)
+    .max(10.0f)
+    .step(0.1f)
+    .group(kOptSor)
+    .updateFn(bind(&CiPointCloudViewerApp::updatePointCloud, this));
 
     params_->addSeparator();
     params_->addText("fps", "label=`FPS: `");
@@ -203,7 +203,7 @@ void CiPcdViewerApp::setup()
     gl::enableDepthWrite();
 }
 
-void CiPcdViewerApp::updatePointCloud() {
+void CiPointCloudViewerApp::updatePointCloud() {
     batch_->clear();
 
     pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZRGBA>);
@@ -275,18 +275,18 @@ void CiPcdViewerApp::updatePointCloud() {
     params_->setOptions("filtered_cloud_size", ss_filtered.str());
 }
 
-void CiPcdViewerApp::mouseDown( MouseEvent event )
+void CiPointCloudViewerApp::mouseDown( MouseEvent event )
 {
 }
 
-void CiPcdViewerApp::update()
+void CiPointCloudViewerApp::update()
 {
     stringstream ss;
     ss << "label=`FPS: " << getAverageFps() << "`";
     params_->setOptions("fps", ss.str());
 }
 
-void CiPcdViewerApp::draw()
+void CiPointCloudViewerApp::draw()
 {
     gl::clear(bg_color_);
 
@@ -312,8 +312,9 @@ void CiPcdViewerApp::draw()
     params_->draw();
 }
 
-CINDER_APP( CiPcdViewerApp, RendererGl, [](App::Settings *settings) {
+CINDER_APP( CiPointCloudViewerApp, RendererGl, [](App::Settings *settings) {
     settings->setHighDensityDisplayEnabled();
     settings->setWindowSize(1280, 960);
     settings->setFrameRate(240.0f);
 })
+
