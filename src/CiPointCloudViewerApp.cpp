@@ -33,36 +33,36 @@ private:
     const string kOptPassThrough = "PassThrough Filter";
 
     params::InterfaceGlRef params_;
-
-    CameraPersp camera_;
-    vec3 camera_target_;
-    vec3 camera_eye_point_;
-
+                          
     map<fs::path, shared_ptr<grabber::PointCloudGrabber>> grabbers_;
 
     gl::VertBatchRef batch_;
 
-    float point_size_;
-    bool visible_grid_;
+    CameraPersp camera_;
+    vec3 camera_target_     = vec3(0, 0.5, 0);
+    vec3 camera_eye_point_  = vec3(4, 2, -4);
+
+    float point_size_   = 1.0f;
+    bool visible_grid_  = true;
 
     Color bg_color_ = Color(0, 0, 0);
 
-    float voxel_size_;
-    bool enabled_voxel_filter_;
+    float voxel_size_           = 0.01f;
+    bool enabled_voxel_filter_  = false;
 
     bool enable_pass_through_x_ = false;
-    float min_pass_through_x_ = -1.0f;
-    float max_pass_through_x_ = 1.0f;
+    float min_pass_through_x_   = -1.0f;
+    float max_pass_through_x_   = 1.0f;
     bool enable_pass_through_y_ = false;
-    float min_pass_through_y_ = -1.0f;
-    float max_pass_through_y_ = 1.0f;
+    float min_pass_through_y_   = -1.0f;
+    float max_pass_through_y_   = 1.0f;
     bool enable_pass_through_z_ = false;
-    float min_pass_through_z_ = -1.0f;
-    float max_pass_through_z_ = 1.0f;
+    float min_pass_through_z_   = -1.0f;
+    float max_pass_through_z_   = 1.0f;
 
-    int sor_meank_;
-    float sor_std_dev_mul_th_;
-    bool enabled_sor_;
+    int sor_meank_              = 50;
+    float sor_std_dev_mul_th_   = 1.0f;
+    bool enabled_sor_           = false;
 
     void updatePointCloud();
 };
@@ -70,18 +70,6 @@ private:
 void CiPointCloudViewerApp::setup()
 {
     batch_ = gl::VertBatch::create(GL_POINTS);
-
-    point_size_ = 1.0f;
-    visible_grid_ = true;
-
-    camera_target_ = vec3(0, 0.5, 0);
-    camera_eye_point_ = vec3(4, 2, -4);
-
-    voxel_size_ = 0.05f;
-    enabled_voxel_filter_ = false;
-    sor_meank_ = 50;
-    sor_std_dev_mul_th_ = 1.0f;
-    enabled_sor_ = false;
 
     params_ = params::InterfaceGl::create(getWindow(), "CiPointCloudViewer", toPixels(ivec2(200, 640)));
 
