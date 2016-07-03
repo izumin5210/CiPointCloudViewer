@@ -39,6 +39,12 @@ private:
     vec3 camera_target_     = vec3(0, 0.5, 0);
     vec3 camera_eye_point_  = vec3(4, 2, -4);
 
+    bool visible_camera_window_     = true;
+    bool visible_appearance_window_ = true;
+    bool visible_filters_window_    = true;
+    bool visible_clouds_window_     = true;
+    bool visible_debug_window_      = true;
+
     int cloud_size_ = 0;
     int filtered_cloud_size_ = 0;
 
@@ -173,11 +179,20 @@ void CiPointCloudViewerApp::update()
             ui::EndMenu();
         }
 
+        if (ui::BeginMenu("Window")) {
+            ui::MenuItem("Camera",      nullptr, &visible_camera_window_);
+            ui::MenuItem("Appearance",  nullptr, &visible_appearance_window_);
+            ui::MenuItem("Filter",      nullptr, &visible_filters_window_);
+            ui::MenuItem("Clouds",      nullptr, &visible_clouds_window_);
+            ui::MenuItem("Debug",       nullptr, &visible_debug_window_);
+            ui::EndMenu();
+        }
+
         windowPos.y += ui::GetItemRectSize().y;
         ui::SetNextWindowPos(windowPos);
         ui::SetNextWindowSize(vec2(kWindowWidth, 0));
     }
-    {
+    if (visible_camera_window_) {
         ui::ScopedWindow window("Camera");
         ui::DragFloat3("Look at", &camera_target_[0]);
         ui::DragFloat3("Eye point", &camera_eye_point_[0]);
@@ -186,7 +201,7 @@ void CiPointCloudViewerApp::update()
         ui::SetNextWindowPos(windowPos);
         ui::SetNextWindowSize(vec2(kWindowWidth, 0));
     }
-    {
+    if (visible_appearance_window_) {
         ui::ScopedWindow window("Appearance");
         ui::InputFloat("Point size", &point_size_, 0.1f);
         ui::ColorEdit3("Background color", &bg_color_[0]);
@@ -194,7 +209,7 @@ void CiPointCloudViewerApp::update()
         ui::SetNextWindowPos(windowPos);
         ui::SetNextWindowSize(vec2(kWindowWidth, 0));
     }
-    {
+    if (visible_filters_window_) {
         ui::ScopedWindow window("Filters");
         int id = 0;
         auto addFilter = [&](const char *label, std::function<void()> definition) {
@@ -274,7 +289,7 @@ void CiPointCloudViewerApp::update()
         ui::SetNextWindowPos(windowPos);
         ui::SetNextWindowSize(vec2(kWindowWidth, 0));
     }
-    {
+    if (visible_clouds_window_) {
         ui::ScopedWindow window("Clouds");
         ui::ListBoxHeader("");
         for (auto pair: grabbers_) {
@@ -286,8 +301,7 @@ void CiPointCloudViewerApp::update()
         ui::SetNextWindowPos(windowPos);
         ui::SetNextWindowSize(vec2(kWindowWidth, 0));
     }
-
-    {
+    if (visible_debug_window_) {
         ui::ScopedWindow window("Debug");
         ui::LabelText("FPS", "%f", getAverageFps());
         ui::LabelText("Cloud size", "%d", cloud_size_);
