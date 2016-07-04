@@ -11,6 +11,7 @@
 #include <pcl/filters/voxel_grid.h>
 #include <pcl/filters/statistical_outlier_removal.h>
 
+#include <set>
 #include <map>
 
 #include "CinderImGui.h"
@@ -48,6 +49,7 @@ private:
 
     map<fs::path, shared_ptr<grabber::PointCloudGrabber>> grabbers_;
     shared_ptr<grabber::PointCloudGrabber> grabber_selected_;
+    set<fs::path> hidden_clouds_;
 
     gl::VertBatchRef batch_;
 
@@ -145,8 +147,10 @@ void CiPointCloudViewerApp::updatePointCloud() {
     pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZRGBA>);
     pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud_tmp(new pcl::PointCloud<pcl::PointXYZRGBA>);
 
-    for (auto grabber_ : grabbers_) {
-        *cloud += *(grabber_.second->cloud());
+    for (auto grabber : grabbers_) {
+        if (hidden_clouds_.find(grabber.first) == hidden_clouds_.end()) {
+            *cloud += *(grabber.second->cloud());
+        }
     }
 
     cloud_size_ = cloud->size();
@@ -375,6 +379,19 @@ void CiPointCloudViewerApp::update()
                 grabbers_.erase(grabber_selected_->path());
                 grabber_selected_ = nullptr;
                 updated = true;
+            }
+
+            ui::SameLine();
+            if (hidden_clouds_.find(grabber_selected_->path()) != hidden_clouds_.end()) {
+                if (ui::Button("Show")) {
+                    hidden_clouds_.erase(grabber_selected_->path());
+                    updated = true;
+                }
+            } else {
+                if (ui::Button("Hide")) {
+                    hidden_clouds_.insert(grabber_selected_->path());
+                    updated = true;
+                }
             }
         }
 
