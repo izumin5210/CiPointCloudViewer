@@ -1,6 +1,7 @@
 #include "cinder/app/App.h"
 #include "cinder/app/RendererGl.h"
 #include "cinder/Camera.h"
+#include "cinder/CameraUi.h"
 #include "cinder/gl/gl.h"
 
 #include <pcl/point_cloud.h>
@@ -23,7 +24,9 @@ using namespace std;
 class CiPointCloudViewerApp : public App {
 public:
     void setup() override;
-    void mouseDown( MouseEvent event ) override;
+    void mouseDown(MouseEvent event) override;
+    void mouseDrag(MouseEvent event) override;
+    void mouseWheel(MouseEvent event) override;
     void update() override;
     void draw() override;
 
@@ -47,6 +50,7 @@ private:
     gl::VertBatchRef batch_;
 
     CameraPersp camera_;
+    CameraUi camera_ui_;
     vec3 camera_target_     = vec3(0, 0.5, 0);
     vec3 camera_eye_point_  = vec3(4, 2, -4);
 
@@ -87,6 +91,10 @@ private:
 void CiPointCloudViewerApp::setup()
 {
     batch_ = gl::VertBatch::create(GL_POINTS);
+    camera_ui_ = CameraUi(&camera_);
+
+    camera_.setEyePoint(camera_eye_point_);
+    camera_.lookAt(camera_eye_point_, camera_target_);
 
     auto options = ui::Options()
         .darkTheme()
@@ -197,14 +205,24 @@ void CiPointCloudViewerApp::updatePointCloud() {
     filtered_cloud_size_ = cloud->size();
 }
 
-void CiPointCloudViewerApp::mouseDown( MouseEvent event )
-{
+void CiPointCloudViewerApp::mouseDown(MouseEvent event) {
+    camera_ui_.mouseDown(event);
+}
+
+void CiPointCloudViewerApp::mouseDrag(MouseEvent event) {
+    camera_ui_.mouseDrag(event);
+}
+
+void CiPointCloudViewerApp::mouseWheel(MouseEvent event) {
+    camera_ui_.mouseWheel(event);
 }
 
 void CiPointCloudViewerApp::update()
 {
     auto windowPos = vec2(kWindowSpacing, kWindowSpacing);
     bool updated = false;
+    camera_eye_point_ = camera_.getEyePoint();
+    camera_target_ = camera_.getPivotPoint();
     {
         ui::ScopedMainMenuBar menuBar;
 
@@ -240,8 +258,12 @@ void CiPointCloudViewerApp::update()
     }
     if (visible_camera_window_) {
         ui::ScopedWindow window("Camera", kWindowFlags);
-        ui::DragFloat3("Look at", &camera_target_[0]);
-        ui::DragFloat3("Eye point", &camera_eye_point_[0]);
+        if (ui::DragFloat3("Look at", &camera_target_[0])) {
+            camera_.lookAt(camera_eye_point_, camera_target_);
+        }
+        if (ui::DragFloat3("Eye point", &camera_eye_point_[0])) {
+            camera_.setEyePoint(camera_eye_point_);
+        }
 
         windowPos.y += ui::GetWindowHeight() + kWindowSpacing;
         ui::SetNextWindowPos(windowPos);
@@ -363,7 +385,6 @@ void CiPointCloudViewerApp::draw()
 {
     gl::clear(bg_color_);
 
-    camera_.lookAt(camera_eye_point_, camera_target_);
     gl::setMatrices(camera_);
 
     gl::pointSize(point_size_);
