@@ -12,6 +12,8 @@
 #include <pcl/point_cloud.h>
 #include <pcl/point_types.h>
 
+#include <boost/filesystem.hpp>
+
 namespace grabber {
 
 class PointCloudGrabber {
@@ -19,14 +21,15 @@ public:
     typedef pcl::PointXYZRGBA PointT;
     typedef pcl::PointCloud<PointT> PointCloud;
     typedef typename PointCloud::Ptr PointCloudPtr;
+    typedef boost::filesystem::path bpath;
 
-    PointCloudGrabber(const boost::filesystem::path path)
+    PointCloudGrabber(const bpath path)
         : path_(path)
         , cloud_(new PointCloud)
     {
     }
 
-    inline boost::filesystem::path path() {
+    inline bpath path() {
         return path_;
     }
 
@@ -34,11 +37,10 @@ public:
         return cloud_;
     }
 
-    virtual void start(std::function<void()> &callback) {
-    }
+    virtual void start(std::function<void()> callback) = 0;
 
 protected:
-    boost::filesystem::path path_;
+    bpath path_;
     PointCloudPtr cloud_;
 };
 
