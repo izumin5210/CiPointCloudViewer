@@ -11,6 +11,7 @@
 #include <pcl/filters/voxel_grid.h>
 #include <pcl/filters/statistical_outlier_removal.h>
 
+#include <set>
 #include <map>
 
 #include "CinderImGui.h"
@@ -44,8 +45,11 @@ private:
     // rosso di toscana
     const ColorA8u kColorAccent     = ColorA8u(0xf1, 0x67, 0x3f, 0xee);
     const ColorA8u kColorAccentAcc  = ColorA8u(0xf1, 0x67, 0x3f, 0xcc);
+    const ColorA8u kColorAccentA99  = ColorA8u(0xf1, 0x67, 0x3f, 0x99);
 
     map<fs::path, shared_ptr<grabber::PointCloudGrabber>> grabbers_;
+    shared_ptr<grabber::PointCloudGrabber> grabber_selected_;
+    set<fs::path> hidden_clouds_;
 
     gl::VertBatchRef batch_;
 
@@ -114,10 +118,10 @@ void CiPointCloudViewerApp::setup()
         .color(ImGuiCol_CheckMark,              kColorAccent)
         .color(ImGuiCol_SliderGrab,             kColorPrimaryA99)
         .color(ImGuiCol_SliderGrabActive,       kColorPrimary)
-        .color(ImGuiCol_Button,                 kColorBlackA55)
+        .color(ImGuiCol_Button,                 kColorPrimaryA22)
         .color(ImGuiCol_ButtonHovered,          kColorAccentAcc)
         .color(ImGuiCol_ButtonActive,           kColorAccent)
-        .color(ImGuiCol_Header,                 kColorBlackA55)
+        .color(ImGuiCol_Header,                 kColorAccentA99)
         .color(ImGuiCol_HeaderHovered,          kColorAccentAcc)
         .color(ImGuiCol_HeaderActive,           kColorAccent)
         .color(ImGuiCol_Column,                 kColorBlackA55)
@@ -143,8 +147,10 @@ void CiPointCloudViewerApp::updatePointCloud() {
     pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZRGBA>);
     pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud_tmp(new pcl::PointCloud<pcl::PointXYZRGBA>);
 
-    for (auto grabber_ : grabbers_) {
-        *cloud += *(grabber_.second->cloud());
+    for (auto grabber : grabbers_) {
+        if (hidden_clouds_.find(grabber.first) == hidden_clouds_.end()) {
+            *cloud += *(grabber.second->cloud());
+        }
     }
 
     cloud_size_ = cloud->size();
@@ -357,11 +363,43 @@ void CiPointCloudViewerApp::update()
         ui::SetNextWindowPos(windowPos);
         ui::SetNextWindowSize(vec2(kWindowWidth, 0));
     }
+
     if (visible_clouds_window_) {
         ui::ScopedWindow window("Clouds", kWindowFlags);
-        ui::ListBoxHeader("");          
+
+        if (ui::Button("Clear")) {
+            grabbers_.clear();
+            grabber_selected_ = nullptr;
+            updated = true;
+        }
+
+        if (grabber_selected_) {
+            ui::SameLine();
+            if (ui::Button("Remove")) {
+                grabbers_.erase(grabber_selected_->path());
+                grabber_selected_ = nullptr;
+                updated = true;
+            }
+
+            ui::SameLine();
+            if (hidden_clouds_.find(grabber_selected_->path()) != hidden_clouds_.end()) {
+                if (ui::Button("Show")) {
+                    hidden_clouds_.erase(grabber_selected_->path());
+                    updated = true;
+                }
+            } else {
+                if (ui::Button("Hide")) {
+                    hidden_clouds_.insert(grabber_selected_->path());
+                    updated = true;
+                }
+            }
+        }
+
+        ui::ListBoxHeader("");
         for (auto pair: grabbers_) {
-            ui::Selectable(pair.first.filename().c_str());
+            if (ui::Selectable(pair.first.filename().c_str(), grabber_selected_ && (grabber_selected_->path() == pair.first))) {
+                grabber_selected_ = pair.second;
+            }
         }
         ui::ListBoxFooter();
 
