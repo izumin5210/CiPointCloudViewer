@@ -22,6 +22,8 @@ using namespace ci;
 using namespace ci::app;
 using namespace std;
 
+namespace bfs = boost::filesystem;
+
 class CiPointCloudViewerApp : public App {
 public:
     void setup() override;
@@ -234,12 +236,14 @@ void CiPointCloudViewerApp::update()
 
         if (ui::BeginMenu("File")) {
             if (ui::MenuItem("Open *.pcd file")) {
-                auto pcdfile = getOpenFilePath();
-                auto grabber = std::make_shared<grabber::PcdGrabber>(pcdfile);
-                grabbers_[pcdfile] = grabber;
-                grabber->start([this]() {
-                    updatePointCloud();
-                });
+                auto pcdfile = getOpenFilePath(bfs::path(), {"pcd"});
+                if (bfs::exists(pcdfile)) {
+                    auto grabber = std::make_shared<grabber::PcdGrabber>(pcdfile);
+                    grabbers_[pcdfile] = grabber;
+                    grabber->start([this]() {
+                        updatePointCloud();
+                    });
+                }
             }
             ui::EndMenu();
         }
