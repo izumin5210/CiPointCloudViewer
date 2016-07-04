@@ -44,8 +44,10 @@ private:
     // rosso di toscana
     const ColorA8u kColorAccent     = ColorA8u(0xf1, 0x67, 0x3f, 0xee);
     const ColorA8u kColorAccentAcc  = ColorA8u(0xf1, 0x67, 0x3f, 0xcc);
+    const ColorA8u kColorAccentA99  = ColorA8u(0xf1, 0x67, 0x3f, 0x99);
 
     map<fs::path, shared_ptr<grabber::PointCloudGrabber>> grabbers_;
+    shared_ptr<grabber::PointCloudGrabber> grabber_selected_;
 
     gl::VertBatchRef batch_;
 
@@ -114,10 +116,10 @@ void CiPointCloudViewerApp::setup()
         .color(ImGuiCol_CheckMark,              kColorAccent)
         .color(ImGuiCol_SliderGrab,             kColorPrimaryA99)
         .color(ImGuiCol_SliderGrabActive,       kColorPrimary)
-        .color(ImGuiCol_Button,                 kColorBlackA55)
+        .color(ImGuiCol_Button,                 kColorPrimaryA22)
         .color(ImGuiCol_ButtonHovered,          kColorAccentAcc)
         .color(ImGuiCol_ButtonActive,           kColorAccent)
-        .color(ImGuiCol_Header,                 kColorBlackA55)
+        .color(ImGuiCol_Header,                 kColorAccentA99)
         .color(ImGuiCol_HeaderHovered,          kColorAccentAcc)
         .color(ImGuiCol_HeaderActive,           kColorAccent)
         .color(ImGuiCol_Column,                 kColorBlackA55)
@@ -357,11 +359,30 @@ void CiPointCloudViewerApp::update()
         ui::SetNextWindowPos(windowPos);
         ui::SetNextWindowSize(vec2(kWindowWidth, 0));
     }
+
     if (visible_clouds_window_) {
         ui::ScopedWindow window("Clouds", kWindowFlags);
-        ui::ListBoxHeader("");          
+
+        if (ui::Button("Clear")) {
+            grabbers_.clear();
+            grabber_selected_ = nullptr;
+            updated = true;
+        }
+
+        if (grabber_selected_) {
+            ui::SameLine();
+            if (ui::Button("Remove")) {
+                grabbers_.erase(grabber_selected_->path());
+                grabber_selected_ = nullptr;
+                updated = true;
+            }
+        }
+
+        ui::ListBoxHeader("");
         for (auto pair: grabbers_) {
-            ui::Selectable(pair.first.filename().c_str());
+            if (ui::Selectable(pair.first.filename().c_str(), grabber_selected_ && (grabber_selected_->path() == pair.first))) {
+                grabber_selected_ = pair.second;
+            }
         }
         ui::ListBoxFooter();
 
