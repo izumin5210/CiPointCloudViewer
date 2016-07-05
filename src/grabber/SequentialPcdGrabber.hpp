@@ -33,9 +33,8 @@ public:
 
     ~SequentialPcdGrabber() {
         worker_canceled_ = true;
-        for (auto &worker : workers_) {
-            worker.join();
-        }
+        loader_worker_.join();
+        player_worker_.join();
     }
 
     inline void start(std::function<void()> &callback) override {
@@ -46,8 +45,12 @@ public:
         start(time_in_nanos(started_at), callback);
     }
 
+    inline void stop() override {
+        player_worker_.join();
+    }
+
     inline void initialize(std::function<void(bpath, int, int)> &callback) {
-        workers_.push_back(std::thread([&]{
+        loader_worker_ = std::thread([&]{
             for (auto file : boost::make_iterator_range(ditr(path_), ditr())) {
                 if (file.path().extension().string() == ".pcd") {
                     const auto stamp = bpt::from_iso_string(file.path().stem().string());
@@ -63,31 +66,59 @@ public:
                 i++;
                 callback(path_, i, files_.size());
             }
-        }));
+        });
     }
+
+    inline bool isLoaded(const uint64_t started_at) {
+        return clouds_.find(started_at) != clouds_.end();
+    }
+
+    inline uint64_t elapsedTime() {
+        return current_time_in_nanos() - started_at_in_real_;
+    }
+
 
 private:
     std::map<uint64_t, PointCloudPtr> clouds_;
     std::map<uint64_t, bpath> files_;
-             
-    std::vector<std::thread> workers_;
+
     std::atomic<bool> worker_canceled_;
+    std::atomic<bool> waiting_;
+
+    std::thread loader_worker_;
+    std::thread player_worker_;
+
+    std::atomic<uint64_t> started_at_in_real_;
+    std::atomic<uint64_t> waited_since_;
 
     inline void start(const uint64_t started_at, std::function<void()> &callback) {
-        workers_.push_back(std::thread([this, started_at, &callback] {
-            const auto started_at_in_real = time_in_nanos(current_time());
+        player_worker_ = std::thread([this, started_at, &callback] {
+            auto started_at_in_real_ = time_in_nanos(current_time());
             auto itr = files_.begin();
+            waiting_ = false;
             while (!worker_canceled_) {
-                if ((itr->first - started_at) <= (current_time_in_nanos() - started_at_in_real)) {
+                if (!isLoaded(itr->first)) {
+                    if (waiting_) {
+                        waited_since_ = current_time_in_nanos();
+                    } else {
+                        waiting_ = true;
+                    }
+                    continue;
+                } else if (waiting_) {
+                    started_at_in_real_ += current_time_in_nanos() - waited_since_;
+                    waiting_ = false;
+                }
+                if ((itr->first - started_at) <= elapsedTime()) {
                     cloud_ = clouds_[itr->first];
                     callback();
                     itr++;
                 }
                 if (itr == files_.end()) {
                     itr = files_.begin();
+                    started_at_in_real_ = time_in_nanos(current_time());
                 }
             }
-        }));
+        });
     }
 };
 

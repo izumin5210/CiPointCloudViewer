@@ -47,6 +47,8 @@ public:
 
     virtual void start(bpt::ptime started_at, std::function<void()> &callback) = 0;
 
+    virtual void stop() = 0;
+
 protected:
     bpath path_;
     PointCloudPtr cloud_;

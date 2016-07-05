@@ -28,6 +28,10 @@ public:
     inline void start(bpt::ptime started_at, std::function<void()> &callback) override {
         callback();
     }
+
+    inline void stop() override {
+        // do nothing
+    }
 };
 
 }
