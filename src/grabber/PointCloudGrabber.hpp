@@ -13,6 +13,9 @@
 #include <pcl/point_types.h>
 
 #include <boost/filesystem.hpp>
+#include <boost/date_time/posix_time/posix_time.hpp>
+
+namespace bpt = boost::posix_time;
 
 namespace grabber {
 
@@ -37,11 +40,19 @@ public:
         return cloud_;
     }
 
-    virtual void start(std::function<void()> callback) = 0;
+    virtual inline void start(std::function<void()> &callback) {
+        start(current_time(), callback);
+    }
+
+    virtual void start(bpt::ptime started_at, std::function<void()> &callback) = 0;
 
 protected:
     bpath path_;
     PointCloudPtr cloud_;
+
+    inline bpt::ptime current_time() {
+        return bpt::microsec_clock::local_time();
+    }
 };
 
 }
