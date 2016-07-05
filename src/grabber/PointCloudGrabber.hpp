@@ -14,6 +14,7 @@
 
 #include <boost/filesystem.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
+#include <boost/date_time/gregorian/gregorian.hpp>
 
 namespace bpt = boost::posix_time;
 
@@ -52,6 +53,14 @@ protected:
 
     inline bpt::ptime current_time() {
         return bpt::microsec_clock::local_time();
+    }
+
+    inline long long current_time_in_nanos() {
+        return time_in_nanos(current_time());
+    }
+
+    inline long long time_in_nanos(bpt::ptime time) {
+        return (time - bpt::ptime(boost::gregorian::date(1970, 1, 1))).total_nanoseconds();
     }
 };
 
