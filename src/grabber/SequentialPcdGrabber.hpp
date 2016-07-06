@@ -35,7 +35,9 @@ public:
     ~SequentialPcdGrabber() {
         stop();
         loader_worker_canceled_ = true;
-        loader_worker_.join();
+        if (loader_worker_.joinable()) {
+            loader_worker_.join();
+        }
     }
 
     inline void start(std::function<void()> &callback) override {
@@ -48,7 +50,9 @@ public:
 
     inline void stop() override {
         player_worker_canceled_ = true;
-        player_worker_.join();
+        if (player_worker_.joinable()) {
+            player_worker_.join();
+        }
     }
 
     inline bool isPlaying() override {
