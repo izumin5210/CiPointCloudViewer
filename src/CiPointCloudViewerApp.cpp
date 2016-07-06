@@ -57,6 +57,7 @@ private:
     set<fs::path> hidden_clouds_;
 
     gl::VertBatchRef batch_;
+    gl::VertBatchRef grid_batch_;
 
     CameraPersp camera_;
     CameraUi camera_ui_;
@@ -111,7 +112,18 @@ private:
 void CiPointCloudViewerApp::setup()
 {
     batch_ = gl::VertBatch::create(GL_POINTS);
+    grid_batch_ = gl::VertBatch::create(GL_LINES);
     camera_ui_ = CameraUi(&camera_);
+
+    grid_batch_->color(1, 1, 1, 0.3);
+    for (float i = -5; i <= 5.0; i += 0.5) {
+        for (float j = -5; j <= 5.0; j += 0.5) {
+            grid_batch_->vertex(vec3( i, 0, -j));
+            grid_batch_->vertex(vec3( i, 0,  j));
+            grid_batch_->vertex(vec3(-i, 0,  j));
+            grid_batch_->vertex(vec3( i, 0,  j));
+        }
+    }
 
     camera_.setEyePoint(camera_eye_point_);
     camera_.lookAt(camera_eye_point_, camera_target_);
@@ -490,15 +502,7 @@ void CiPointCloudViewerApp::draw()
     gl::pointSize(point_size_);
 
     if (visible_grid_) {
-        gl::pushMatrices();
-        gl::color(1, 1, 1, 0.3);
-        gl::rotate(M_PI_2, vec3(1, 0, 0));
-        for (float i = -5; i < 5; i += 0.5) {
-            for (float j = -5; j < 5; j += 0.5) {
-                gl::drawStrokedRect(Rectf(i, j, i + 0.5, j + 0.5));
-            }
-        }
-        gl::popMatrices();
+        grid_batch_->draw();
     }
 
     batch_->draw();
