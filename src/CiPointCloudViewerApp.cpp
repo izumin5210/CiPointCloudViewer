@@ -153,6 +153,7 @@ void CiPointCloudViewerApp::setup()
         .frameRounding(0.0f);
     ui::initialize(options);
 
+    disableFrameRate();
     gl::enableDepthRead();
     gl::enableDepthWrite();
 }
@@ -504,6 +505,5 @@ void CiPointCloudViewerApp::draw()
 CINDER_APP( CiPointCloudViewerApp, RendererGl, [](App::Settings *settings) {
     settings->setHighDensityDisplayEnabled();
     settings->setWindowSize(1280, 960);
-    settings->setFrameRate(240.0f);
 })
 
