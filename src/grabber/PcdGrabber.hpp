@@ -17,14 +17,24 @@ namespace grabber {
 
 class PcdGrabber : public PointCloudGrabber {
 public:
+    using PointCloudGrabber::start;
+
     PcdGrabber(const bpath path)
         : PointCloudGrabber(path)
     {
         pcl::io::loadPCDFile(path_.string(), *cloud_);
     }
 
-    inline void start(std::function<void()> callback) override {
+    inline void start(bpt::ptime started_at, std::function<void()> &callback) override {
         callback();
+    }
+
+    inline void stop() override {
+        // do nothing
+    }
+
+    inline bool isPlaying() override {
+        return true;
     }
 };
 

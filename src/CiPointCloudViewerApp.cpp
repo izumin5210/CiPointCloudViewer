@@ -17,12 +17,14 @@
 #include "CinderImGui.h"
 
 #include "grabber/PcdGrabber.hpp"
+#include "grabber/SequentialPcdGrabber.hpp"
 
 using namespace ci;
 using namespace ci::app;
 using namespace std;
 
 namespace bfs = boost::filesystem;
+typedef bfs::path bpath;
 
 class CiPointCloudViewerApp : public App {
 public:
@@ -37,6 +39,7 @@ private:
     const ImGuiWindowFlags kWindowFlags = ImGuiWindowFlags_ShowBorders;
     const int kWindowSpacing = 8;
     const int kWindowWidth = 360;
+    const int kPlayerWindowHeight = 48;
 
     const ColorA8u kColorBlackA55   = ColorA8u(0x22, 0x22, 0x22, 0x55);
     const ColorA8u kColorBlackAcc   = ColorA8u(0x22, 0x22, 0x22, 0xcc);
@@ -91,6 +94,17 @@ private:
     float sor_std_dev_mul_th_   = 1.0f;
     bool enabled_sor_           = false;
 
+    std::atomic<bool> updated_;
+
+    function<void()> on_cloud_updated_ = [this]() { updated_ = true; };
+
+    map<fs::path, vec2> loading_progresses_;
+    function<void(fs::path, int, int)> on_pcd_loaded_ =
+        [this](fs::path path, int count, int max) {
+            loading_progresses_[path] = vec2(count, max);
+        };
+
+
     void updatePointCloud();
 };
 
@@ -144,6 +158,8 @@ void CiPointCloudViewerApp::setup()
 }
 
 void CiPointCloudViewerApp::updatePointCloud() {
+    updated_ = false;
+
     batch_->clear();
 
     pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZRGBA>);
@@ -228,7 +244,6 @@ void CiPointCloudViewerApp::mouseWheel(MouseEvent event) {
 void CiPointCloudViewerApp::update()
 {
     auto windowPos = vec2(kWindowSpacing, kWindowSpacing);
-    bool updated = false;
     camera_eye_point_ = camera_.getEyePoint();
     camera_target_ = camera_.getPivotPoint();
     {
@@ -240,9 +255,19 @@ void CiPointCloudViewerApp::update()
                 if (bfs::exists(pcdfile)) {
                     auto grabber = std::make_shared<grabber::PcdGrabber>(pcdfile);
                     grabbers_[pcdfile] = grabber;
-                    grabber->start([this]() {
-                        updatePointCloud();
-                    });
+                    grabber->start(on_cloud_updated_);
+                }
+            }
+            if(ui::MenuItem("Open directory")) {
+                auto dir = getFolderPath();
+                if (bfs::is_directory(dir)) {
+                    auto grabber = std::make_shared<grabber::SequentialPcdGrabber>(dir);
+                    grabbers_[dir] = grabber;
+                    grabber->initialize(on_pcd_loaded_);
+                    // TODO: startボタンみたいなのつくって，そこに移動
+//                    grabber->start([this]() {
+//                        // TODO: not yet implemented
+//                    });
                 }
             }
             ui::EndMenu();
@@ -305,7 +330,7 @@ void CiPointCloudViewerApp::update()
             ui::TextUnformatted(label);
             ui::NextColumn();
             ui::PushItemWidth(-1);
-            updated = updated || updater();
+            updated_ = updated_ || updater();
             ui::PopItemWidth();
             ui::NextColumn();
             ui::PopID();
@@ -373,28 +398,32 @@ void CiPointCloudViewerApp::update()
 
         if (ui::Button("Clear")) {
             grabbers_.clear();
+            loading_progresses_.clear();
             grabber_selected_ = nullptr;
-            updated = true;
+            updated_ = true;
         }
 
         if (grabber_selected_) {
             ui::SameLine();
             if (ui::Button("Remove")) {
                 grabbers_.erase(grabber_selected_->path());
+                loading_progresses_.erase(grabber_selected_->path());
                 grabber_selected_ = nullptr;
-                updated = true;
+                updated_ = true;
             }
+        }
 
+        if (grabber_selected_) {
             ui::SameLine();
             if (hidden_clouds_.find(grabber_selected_->path()) != hidden_clouds_.end()) {
                 if (ui::Button("Show")) {
                     hidden_clouds_.erase(grabber_selected_->path());
-                    updated = true;
+                    updated_ = true;
                 }
             } else {
                 if (ui::Button("Hide")) {
                     hidden_clouds_.insert(grabber_selected_->path());
-                    updated = true;
+                    updated_ = true;
                 }
             }
         }
@@ -411,6 +440,32 @@ void CiPointCloudViewerApp::update()
         ui::SetNextWindowPos(windowPos);
         ui::SetNextWindowSize(vec2(kWindowWidth, 0));
     }
+    {
+        ui::ScopedWindow window("Player", kWindowFlags);
+
+        for (auto pair : loading_progresses_) {
+            ui::TextUnformatted(pair.first.filename().c_str());
+            auto prg = pair.second;
+            ui::Columns(2);
+            ui::ProgressBar(((float) prg[0]) / prg[1]);
+            ui::NextColumn();
+            ui::Text("%04d / %04d", (int) prg[0], (int) prg[1]);
+            ui::SameLine();
+            auto grabber = grabbers_[pair.first];
+            if (grabber->isPlaying()) {
+                if (ui::Button("Stop")) {
+                    grabber->stop();
+                }
+            } else if (ui::Button("Play")) {
+                grabber->start(on_cloud_updated_);
+            }
+            ui::Columns(1);
+        }
+
+        windowPos.y += ui::GetWindowHeight() + kWindowSpacing;
+        ui::SetNextWindowPos(windowPos);
+        ui::SetNextWindowSize(vec2(kWindowWidth, 0));
+    }
     if (visible_debug_window_) {
         ui::ScopedWindow window("Information", kWindowFlags);
         ui::LabelText("FPS", "%f", getAverageFps());
@@ -418,7 +473,7 @@ void CiPointCloudViewerApp::update()
         ui::LabelText("Filtered", "%d", filtered_cloud_size_);
     }
 
-    if (updated) {
+    if (updated_) {
         updatePointCloud();
     }
 }
