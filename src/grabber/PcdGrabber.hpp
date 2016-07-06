@@ -32,6 +32,10 @@ public:
     inline void stop() override {
         // do nothing
     }
+
+    inline bool isPlaying() override {
+        return true;
+    }
 };
 
 }

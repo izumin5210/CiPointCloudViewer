@@ -27,14 +27,15 @@ public:
 
     SequentialPcdGrabber(const bpath path)
         : PointCloudGrabber(path)
-        , worker_canceled_(false)
+        , player_worker_canceled_(true)
+        , loader_worker_canceled_(true)
     {
     }
 
     ~SequentialPcdGrabber() {
-        worker_canceled_ = true;
+        stop();
+        loader_worker_canceled_ = true;
         loader_worker_.join();
-        player_worker_.join();
     }
 
     inline void start(std::function<void()> &callback) override {
@@ -46,10 +47,16 @@ public:
     }
 
     inline void stop() override {
+        player_worker_canceled_ = true;
         player_worker_.join();
     }
 
+    inline bool isPlaying() override {
+        return !player_worker_canceled_;
+    }
+
     inline void initialize(std::function<void(bpath, int, int)> &callback) {
+        loader_worker_canceled_ = false;
         loader_worker_ = std::thread([&]{
             for (auto file : boost::make_iterator_range(ditr(path_), ditr())) {
                 if (file.path().extension().string() == ".pcd") {
@@ -59,7 +66,7 @@ public:
             }
             int i = 0;
             for (auto pair : files_) {
-                if (worker_canceled_) { break; }
+                if (loader_worker_canceled_) { break; }
                 const auto cloud = PointCloudPtr(new PointCloud);
                 pcl::io::loadPCDFile(pair.second.string(), *cloud);
                 clouds_[pair.first] = cloud;
@@ -77,26 +84,27 @@ public:
         return current_time_in_nanos() - started_at_in_real_;
     }
 
-
 private:
     std::map<uint64_t, PointCloudPtr> clouds_;
     std::map<uint64_t, bpath> files_;
 
-    std::atomic<bool> worker_canceled_;
     std::atomic<bool> waiting_;
 
     std::thread loader_worker_;
+    std::atomic<bool> loader_worker_canceled_;
     std::thread player_worker_;
+    std::atomic<bool> player_worker_canceled_;
 
     std::atomic<uint64_t> started_at_in_real_;
     std::atomic<uint64_t> waited_since_;
 
     inline void start(const uint64_t started_at, std::function<void()> &callback) {
+        player_worker_canceled_ = false;
         player_worker_ = std::thread([this, started_at, &callback] {
-            auto started_at_in_real_ = time_in_nanos(current_time());
             auto itr = files_.begin();
+            started_at_in_real_ = time_in_nanos(current_time());
             waiting_ = false;
-            while (!worker_canceled_) {
+            while (!player_worker_canceled_) {
                 if (!isLoaded(itr->first)) {
                     if (waiting_) {
                         waited_since_ = current_time_in_nanos();

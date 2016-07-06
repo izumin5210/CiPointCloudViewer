@@ -102,9 +102,6 @@ private:
     function<void(fs::path, int, int)> on_pcd_loaded_ =
         [this](fs::path path, int count, int max) {
             loading_progresses_[path] = vec2(count, max);
-            if (count == 30) {
-                grabbers_[path]->start(on_cloud_updated_);
-            }
         };
 
 
@@ -453,6 +450,15 @@ void CiPointCloudViewerApp::update()
             ui::ProgressBar(((float) prg[0]) / prg[1]);
             ui::NextColumn();
             ui::Text("%04d / %04d", (int) prg[0], (int) prg[1]);
+            ui::SameLine();
+            auto grabber = grabbers_[pair.first];
+            if (grabber->isPlaying()) {
+                if (ui::Button("Stop")) {
+                    grabber->stop();
+                }
+            } else if (ui::Button("Play")) {
+                grabber->start(on_cloud_updated_);
+            }
             ui::Columns(1);
         }
 

@@ -49,6 +49,8 @@ public:
 
     virtual void stop() = 0;
 
+    virtual bool isPlaying() = 0;
+
 protected:
     bpath path_;
     PointCloudPtr cloud_;
