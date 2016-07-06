@@ -153,6 +153,8 @@ void CiPointCloudViewerApp::setup()
         .frameRounding(0.0f);
     ui::initialize(options);
 
+    gl::enableFaceCulling(true);
+    gl::enableVerticalSync(false);
     disableFrameRate();
     gl::enableDepthRead();
     gl::enableDepthWrite();
