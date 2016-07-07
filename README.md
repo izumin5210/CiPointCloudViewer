@@ -39,7 +39,37 @@ $ git submodule init && git submodule update
 ```
 
 ### Build on Linux
-TBD
+#### Build cinder
+
+```
+$ cd ~/src/github.com/cinder/Cinder
+
+$ git fetch
+
+$ git checkout -b android_linux origin/android_linux
+
+$ mkdir build && cd build
+
+$ cmake -DCINDER_BOOST_USE_SYSTEM ..
+
+$ make -j$(nproc)
+```
+
+#### Build this app
+
+```
+$ cd ~/src/github.com/izumin5210/CiPointCloudViewer
+
+$ cd proj/cmake
+
+$ mkdir build && cd build
+
+$ cmake  ..
+
+$ make -j$(nproc)
+
+$ ./Debug/CiPointCloudViewer
+```
 
 ### Build on Mac OSX/macOS
 TBD
