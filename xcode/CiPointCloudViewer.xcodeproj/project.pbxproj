@@ -91,6 +91,10 @@
 		E79347BC1D2A6EE8003739B5 /* PointCloudGrabber.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = PointCloudGrabber.hpp; path = ../src/grabber/PointCloudGrabber.hpp; sourceTree = "<group>"; };
 		E79347BE1D2A7F34003739B5 /* SequentialPcdGrabber.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = SequentialPcdGrabber.hpp; path = ../src/grabber/SequentialPcdGrabber.hpp; sourceTree = "<group>"; };
 		E7C1EA831D2E7ACC00B037D7 /* Filter.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = Filter.hpp; path = ../src/filter/Filter.hpp; sourceTree = "<group>"; };
+		E7C1EA841D2E7ACC00B037D7 /* PassThroughFilter.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = PassThroughFilter.hpp; path = ../src/filter/PassThroughFilter.hpp; sourceTree = "<group>"; };
+		E7C1EA8A1D2E8E6400B037D7 /* CloudListPanel.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = CloudListPanel.hpp; path = ../src/ui/panel/CloudListPanel.hpp; sourceTree = "<group>"; };
+		E7C1EA8D1D2E95A900B037D7 /* VoxelFilter.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = VoxelFilter.hpp; path = ../src/filter/VoxelFilter.hpp; sourceTree = "<group>"; };
+		E7C1EA901D2E969200B037D7 /* StatisticalOutlierRemovalFilter.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = StatisticalOutlierRemovalFilter.hpp; path = ../src/filter/StatisticalOutlierRemovalFilter.hpp; sourceTree = "<group>"; };
 		EA44C7073B384A7CB360F590 /* SuperLUSupport */ = {isa = PBXFileReference; lastKnownFileType = "\"\""; name = SuperLUSupport; path = ../blocks/PCL/include/Eigen/SuperLUSupport; sourceTree = "<group>"; };
 		ED9EE83C8AA04B1588F58A8E /* SparseCore */ = {isa = PBXFileReference; lastKnownFileType = "\"\""; name = SparseCore; path = ../blocks/PCL/include/Eigen/SparseCore; sourceTree = "<group>"; };
 		EDDBA50428884B589C57C294 /* Geometry */ = {isa = PBXFileReference; lastKnownFileType = "\"\""; name = Geometry; path = ../blocks/PCL/include/Eigen/Geometry; sourceTree = "<group>"; };
@@ -346,6 +350,9 @@
 			isa = PBXGroup;
 			children = (
 				E7C1EA831D2E7ACC00B037D7 /* Filter.hpp */,
+				E7C1EA841D2E7ACC00B037D7 /* PassThroughFilter.hpp */,
+				E7C1EA8D1D2E95A900B037D7 /* VoxelFilter.hpp */,
+				E7C1EA901D2E969200B037D7 /* StatisticalOutlierRemovalFilter.hpp */,
 			);
 			name = filter;
 			sourceTree = "<group>";
