@@ -7,9 +7,6 @@
 #include <pcl/point_cloud.h>
 #include <pcl/point_types.h>
 #include <pcl/io/pcd_io.h>
-#include <pcl/filters/passthrough.h>
-#include <pcl/filters/voxel_grid.h>
-#include <pcl/filters/statistical_outlier_removal.h>
 
 #include <set>
 #include <map>
@@ -18,6 +15,10 @@
 
 #include "grabber/PcdGrabber.hpp"
 #include "grabber/SequentialPcdGrabber.hpp"
+
+#include "filter/PassThroughFilter.hpp"
+#include "filter/VoxelFilter.hpp"
+#include "filter/StatisticalOutlierRemovalFilter.hpp"
 
 using namespace ci;
 using namespace ci::app;
@@ -28,6 +29,8 @@ typedef bfs::path bpath;
 
 class CiPointCloudViewerApp : public App {
 public:
+    CiPointCloudViewerApp();
+
     void setup() override;
     void mouseDown(MouseEvent event) override;
     void mouseDrag(MouseEvent event) override;
@@ -78,23 +81,6 @@ private:
 
     Color bg_color_ = Color8u(0x11, 0x11, 0x11);
 
-    float voxel_size_           = 0.01f;
-    bool enabled_voxel_filter_  = false;
-
-    bool enable_pass_through_x_ = false;
-    float min_pass_through_x_   = -1.0f;
-    float max_pass_through_x_   = 1.0f;
-    bool enable_pass_through_y_ = false;
-    float min_pass_through_y_   = -1.0f;
-    float max_pass_through_y_   = 1.0f;
-    bool enable_pass_through_z_ = false;
-    float min_pass_through_z_   = -1.0f;
-    float max_pass_through_z_   = 1.0f;
-
-    int sor_meank_              = 50;
-    float sor_std_dev_mul_th_   = 1.0f;
-    bool enabled_sor_           = false;
-
     std::atomic<bool> updated_;
 
     function<void()> on_cloud_updated_ = [this]() { updated_ = true; };
@@ -105,9 +91,23 @@ private:
             loading_progresses_[path] = vec2(count, max);
         };
 
+    filter::PassThroughFilter<pcl::PointXYZRGBA> x_pass_through_filter_;
+    filter::PassThroughFilter<pcl::PointXYZRGBA> y_pass_through_filter_;
+    filter::PassThroughFilter<pcl::PointXYZRGBA> z_pass_through_filter_;
+    filter::VoxelFilter<pcl::PointXYZRGBA> voxel_filter_;
+    filter::StatisticalOutlierRemovalFilter<pcl::PointXYZRGBA> sor_filter_;
+
 
     void updatePointCloud();
 };
+
+CiPointCloudViewerApp::CiPointCloudViewerApp()
+    : x_pass_through_filter_("x")
+    , y_pass_through_filter_("y")
+    , z_pass_through_filter_("z")
+    , voxel_filter_()
+    , sor_filter_()
+{}
 
 void CiPointCloudViewerApp::setup()
 {
@@ -182,7 +182,6 @@ void CiPointCloudViewerApp::updatePointCloud() {
     batch_->clear();
 
     pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZRGBA>);
-    pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud_tmp(new pcl::PointCloud<pcl::PointXYZRGBA>);
 
     for (auto grabber : grabbers_) {
         if (hidden_clouds_.find(grabber.first) == hidden_clouds_.end()) {
@@ -192,52 +191,24 @@ void CiPointCloudViewerApp::updatePointCloud() {
 
     cloud_size_ = cloud->size();
 
-    if (enable_pass_through_x_) {
-        pcl::PassThrough<pcl::PointXYZRGBA> pass_x;
-        pass_x.setInputCloud(cloud);
-        pass_x.setFilterFieldName("x");
-        pass_x.setFilterLimits(min_pass_through_x_, max_pass_through_x_);
-        pass_x.filter(*cloud_tmp);
-    } else {
-        pcl::copyPointCloud(*cloud, *cloud_tmp);
+    if (x_pass_through_filter_.params_.enable) {
+        x_pass_through_filter_.filter(cloud);
     }
 
-    if (enable_pass_through_y_) {
-        pcl::PassThrough<pcl::PointXYZRGBA> pass_y;
-        pass_y.setInputCloud(cloud_tmp);
-        pass_y.setFilterFieldName("y");
-        pass_y.setFilterLimits(min_pass_through_y_, max_pass_through_y_);
-        pass_y.filter(*cloud);
-    } else {
-        pcl::copyPointCloud(*cloud_tmp, *cloud);
+    if (y_pass_through_filter_.params_.enable) {
+        y_pass_through_filter_.filter(cloud);
     }
 
-    if (enable_pass_through_z_) {
-        pcl::PassThrough<pcl::PointXYZRGBA> pass_z;
-        pass_z.setInputCloud(cloud);
-        pass_z.setFilterFieldName("z");
-        pass_z.setFilterLimits(min_pass_through_z_, max_pass_through_z_);
-        pass_z.filter(*cloud_tmp);
-    } else {
-        pcl::copyPointCloud(*cloud, *cloud_tmp);
+    if (z_pass_through_filter_.params_.enable) {
+        z_pass_through_filter_.filter(cloud);
     }
 
-    if (enabled_voxel_filter_) {
-        pcl::VoxelGrid<pcl::PointXYZRGBA> sor;
-        sor.setInputCloud(cloud_tmp);
-        sor.setLeafSize(voxel_size_, voxel_size_, voxel_size_);
-        sor.filter(*cloud);
-    } else {
-        pcl::copyPointCloud(*cloud_tmp, *cloud);
+    if (voxel_filter_.params_.enable) {
+        voxel_filter_.filter(cloud);
     }
 
-    if (enabled_sor_) {
-        pcl::StatisticalOutlierRemoval<pcl::PointXYZRGBA> sor;
-        sor.setInputCloud(cloud);
-        sor.setMeanK(sor_meank_);
-        sor.setStddevMulThresh(sor_std_dev_mul_th_);
-        sor.filter(*cloud_tmp);
-        pcl::copyPointCloud(*cloud_tmp, *cloud);
+    if (sor_filter_.params_.enable) {
+        sor_filter_.filter(cloud);
     }
 
     for (auto point : cloud->points) {
@@ -355,55 +326,49 @@ void CiPointCloudViewerApp::update()
             ui::PopID();
         };
         addFilter("Pass-through X", [&](){
+            auto params = &x_pass_through_filter_.params_;
             addUi("Enable", [&](){
-                return ui::Checkbox("##value", &enable_pass_through_x_);
+                return ui::Checkbox("##value", &params->enable);
             });
-            addUi("Min X", [&](){
-                return ui::SliderFloat("##value", &min_pass_through_x_, -10, max_pass_through_x_);
-            });
-            addUi("Max X", [&](){
-                return ui::SliderFloat("##value", &max_pass_through_x_, min_pass_through_x_, 10);
+            addUi("Range", [&](){
+                return ui::DragFloatRange2("##value", &params->min, &params->max, 0.05f);
             });
         });
         addFilter("Pass-through Y", [&](){
+            auto params = &y_pass_through_filter_.params_;
             addUi("Enable", [&](){
-                return ui::Checkbox("##value", &enable_pass_through_y_);
+                return ui::Checkbox("##value", &params->enable);
             });
-            addUi("Min Y", [&](){
-                return ui::SliderFloat("##value", &min_pass_through_y_, -10, max_pass_through_y_);
-            });
-            addUi("Max Y", [&](){
-                return ui::SliderFloat("##value", &max_pass_through_y_, min_pass_through_y_, 10);
+            addUi("Range", [&](){
+                return ui::DragFloatRange2("##value", &params->min, &params->max, 0.05f);
             });
         });
         addFilter("Pass-through Z", [&](){
+            auto params = &z_pass_through_filter_.params_;
             addUi("Enable", [&](){
-                return ui::Checkbox("##value", &enable_pass_through_z_);
+                return ui::Checkbox("##value", &params->enable);
             });
-            addUi("Min Z", [&](){
-                return ui::SliderFloat("##value", &min_pass_through_z_, -10, max_pass_through_z_);
-            });
-            addUi("Max Z", [&](){
-                return ui::SliderFloat("##value", &max_pass_through_z_, min_pass_through_z_, 10);
+            addUi("Range", [&](){
+                return ui::DragFloatRange2("##value", &params->min, &params->max, 0.05f);
             });
         });
         addFilter("Voxel filter", [&](){
             addUi("Enable", [&](){
-                return ui::Checkbox("##value", &enabled_voxel_filter_);
+                return ui::Checkbox("##value", &voxel_filter_.params_.enable);
             });
             addUi("Voxel size", [&](){
-                return ui::InputFloat("##value", &voxel_size_, 0.0001f);
+                return ui::DragFloat("##value", &voxel_filter_.params_.size, 0.001f, 0.0f);
             });
         });
         addFilter("Statistical outlier removal", [&](){
             addUi("Enable", [&](){
-                return ui::Checkbox("##value", &enabled_sor_);
+                return ui::Checkbox("##value", &sor_filter_.params_.enable);
             });
             addUi("MeanK", [&](){
-                return ui::InputInt("##value", &sor_meank_, 1);
+                return ui::InputInt("##value", &sor_filter_.params_.mean_k, 1);
             });
             addUi("StddevMulThresh", [&](){
-                return ui::InputFloat("##value", &sor_std_dev_mul_th_, 0.1f);
+                return ui::InputFloat("##value", &sor_filter_.params_.stddev_mul_threshold, 0.1f);
             });
         });
 
