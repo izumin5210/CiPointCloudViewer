@@ -4,6 +4,7 @@ project(CiPointCloudViewerApp)
 set(CMAKE_VERBOSE_MAKEFILE ON)
 set(CINDER_VERBOSE ON)
 
+find_package(Qt5 REQUIRED COMPONENTS Core Widgets)
 
 find_package(PCL 1.8 REQUIRED)
 link_directories(${PCL_LIBRARY_DIRS})
