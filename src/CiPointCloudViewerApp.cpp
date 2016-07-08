@@ -279,6 +279,12 @@ void CiPointCloudViewerApp::update()
 //                    });
                 }
             }
+            if (ui::MenuItem("Open calibration yaml file")) {
+                auto yamlfile = getOpenFilePath(bfs::path(), {"yaml", "yml"});
+                if (bfs::exists(yamlfile)) {
+                    sensor_device_manager_.loadCalibrationMatrix(yamlfile.string());
+                }
+            }
             ui::EndMenu();
         }
 
