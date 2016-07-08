@@ -201,11 +201,15 @@ void CiPointCloudViewerApp::updatePointCloud() {
 
     pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZRGBA>);
 
-    for (auto grabber : grabbers_) {
-        if (hidden_clouds_.find(grabber.first) == hidden_clouds_.end()) {
-            *cloud += *(grabber.second->cloud());
-        }
-    }
+    cloud = sensor_device_manager_.cloud();
+
+    /*
+     * for (auto grabber : grabbers_) {
+     *     if (hidden_clouds_.find(grabber.first) == hidden_clouds_.end()) {
+     *         *cloud += *(grabber.second->cloud());
+     *     }
+     * }
+     */
 
     cloud_size_ = cloud->size();
 
@@ -454,8 +458,7 @@ void CiPointCloudViewerApp::update()
 
         ui::ListBoxHeader("");
         for (auto pair : sensor_device_manager_.devices()) {
-            // ui::Selectable(pair.second->serial());
-            cout << pair.second->serial() << endl;
+            ui::Selectable(pair.second->serial().c_str());
         }
         ui::ListBoxFooter();
 
@@ -499,9 +502,9 @@ void CiPointCloudViewerApp::update()
         leftWindowPos.y += ui::GetWindowHeight() + kWindowSpacing;
     }
 
-    if (updated_) {
+    // if (updated_) {
         updatePointCloud();
-    }
+    // }
 }
 
 void CiPointCloudViewerApp::draw()
