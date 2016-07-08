@@ -20,6 +20,8 @@
 #include "filter/VoxelFilter.hpp"
 #include "filter/StatisticalOutlierRemovalFilter.hpp"
 
+#include "io/SensorDeviceManager.hpp"
+
 using namespace ci;
 using namespace ci::app;
 using namespace std;
@@ -30,6 +32,7 @@ typedef bfs::path bpath;
 class CiPointCloudViewerApp : public App {
 public:
     CiPointCloudViewerApp();
+    ~CiPointCloudViewerApp();
 
     void setup() override;
     void mouseDown(MouseEvent event) override;
@@ -98,6 +101,7 @@ private:
     filter::VoxelFilter<pcl::PointXYZRGBA> voxel_filter_;
     filter::StatisticalOutlierRemovalFilter<pcl::PointXYZRGBA> sor_filter_;
 
+    io::SensorDeviceManager sensor_device_manager_;
 
     void updatePointCloud();
 };
@@ -108,10 +112,17 @@ CiPointCloudViewerApp::CiPointCloudViewerApp()
     , z_pass_through_filter_("z")
     , voxel_filter_()
     , sor_filter_()
+    , sensor_device_manager_()
 {}
+
+CiPointCloudViewerApp::~CiPointCloudViewerApp() {
+    sensor_device_manager_.stop();
+}
 
 void CiPointCloudViewerApp::setup()
 {
+    sensor_device_manager_.start();
+
     batch_ = gl::VertBatch::create(GL_POINTS);
     grid_batch_ = gl::VertBatch::create(GL_LINES);
     camera_ui_ = CameraUi(&camera_);
@@ -425,6 +436,20 @@ void CiPointCloudViewerApp::update()
             if (ui::Selectable(pair.first.filename().c_str(), grabber_selected_ && (grabber_selected_->path() == pair.first))) {
                 grabber_selected_ = pair.second;
             }
+        }
+        ui::ListBoxFooter();
+
+        ui::SetWindowPos(leftWindowPos);
+        ui::SetWindowSize(vec2(kWindowWidth, 0));
+        leftWindowPos.y += ui::GetWindowHeight() + kWindowSpacing;
+    }
+    {
+        ui::ScopedWindow window("Connected devices", kWindowFlags);
+
+        ui::ListBoxHeader("");
+        for (auto pair : sensor_device_manager_.devices()) {
+            // ui::Selectable(pair.second->serial());
+            cout << pair.second->serial() << endl;
         }
         ui::ListBoxFooter();
 
