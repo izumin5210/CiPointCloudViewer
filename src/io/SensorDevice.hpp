@@ -75,7 +75,7 @@ public:
       return !worker_canceled_;
     }
 
-    inline void setCalibrationParams(CalibrationParams& params) {
+    inline void setCalibrationParams(std::shared_ptr<CalibrationParams> params) {
         params_ = params;
     }
 
@@ -111,7 +111,7 @@ private:
     std::string uri_;
     std::string serial_;
     std::string name_;
-    CalibrationParams params_;
+    std::shared_ptr<CalibrationParams> params_;
 
     pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud_;
 
@@ -277,8 +277,8 @@ private:
             float xw, yw, zw;
             zw = depth[x];
             zw /= 1000;
-            xw = (x - params_.cx_) * zw / params_.fx_;
-            yw = (y - params_.cy_) * zw / params_.fy_;
+            xw = (x - params_->cx_) * zw / params_->fx_;
+            yw = (y - params_->cy_) * zw / params_->fy_;
             pcl::PointXYZRGBA point;
             point.x = xw;
             point.y = yw;
@@ -291,7 +291,7 @@ private:
         }
       }
 
-      pcl::transformPointCloud(*cloud_, *cloud_, params_.calib_matrix_);
+      pcl::transformPointCloud(*cloud_, *cloud_, params_->calib_matrix_);
 
     }
 };

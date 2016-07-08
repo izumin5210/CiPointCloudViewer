@@ -67,17 +67,12 @@ public:
     inline void loadCalibrationMatrix(std::string path, std::string prefix = "kinect2_") {
         cv::FileStorage fs(path, cv::FileStorage::READ);
         for (auto node : fs.root()) {
-          std::string serial = node.name().substr(strlen(prefix.c_str()));
-            // calib_params_list_[serial] = std::make_shared<CalibrationParams>();
-            // calib_params_list_[serial]->initialize(node);
-            CalibrationParams params;
-            params.initialize(node);
-            std::cout << serial << std::endl;
+            std::string serial = node.name().substr(strlen(prefix.c_str()));
+            calib_params_list_[serial] = std::make_shared<CalibrationParams>();
+            calib_params_list_[serial]->initialize(node);
             for (auto pair : devices_) {
               if (pair.second->serial() == serial) {
-                std::cout << "exists" << std::endl;
-                // devices_[serial]->setCalibrationParams(calib_params_list_[serial]);
-                devices_[serial]->setCalibrationParams(params);
+                devices_[serial]->setCalibrationParams(calib_params_list_[serial]);
                 devices_[serial]->start([this]() { update(); });
               }
             }
@@ -88,6 +83,7 @@ public:
     inline pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud() {
       return cloud_;
     }
+
 
 private:
     std::map<std::string, std::shared_ptr<SensorDevice>> devices_;
