@@ -8,9 +8,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=native")
 set(CMAKE_VERBOSE_MAKEFILE ON)
 set(CINDER_VERBOSE ON)
 
-if(LINUX)
-  find_package(Qt5 REQUIRED COMPONENTS Core Widgets)
-endif()
+find_package(Qt5 REQUIRED COMPONENTS Core Widgets)
 
 find_package(PCL 1.8 REQUIRED)
 link_directories(${PCL_LIBRARY_DIRS})
@@ -21,6 +19,9 @@ if(APPLE)
 elseif(LINUX)
   include_directories(/usr/include/openni2)
 endif()
+
+find_package        (CUDA QUIET)
+include_directories (/usr/local/cuda/include)
 
 find_package(OpenCV 3.0 REQUIRED)
 find_package(Boost COMPONENTS system filesystem program_options thread REQUIRED)
