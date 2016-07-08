@@ -52,7 +52,6 @@ public:
         calib_matrix_ = tmp_mat.inverse();
     }
 
-private:
     cv::Mat camera_matrix_;
     cv::Mat dist_coeffs_;
     cv::Mat r_mat_;
