@@ -18,12 +18,15 @@ namespace io {
 
 class CalibrationParams {
 public:
-    CalibrationParams(cv::FileNode &node)
+    CalibrationParams()
         : camera_matrix_(cv::Mat::eye(3, 3, CV_64FC1))
         , dist_coeffs_  (5, 1, CV_64FC1, cv::Scalar::all(0))
         , r_mat_        (3, 3, CV_64FC1, cv::Scalar::all(0))
         , t_            (3, 1, CV_64FC1, cv::Scalar::all(0))
     {
+    }
+
+    inline void initialize(cv::FileNode &node) {
         node["camera_matrix"]           >> camera_matrix_;
         node["distortion_coefficients"] >> dist_coeffs_;
         node["rotation"]                >> r_mat_;
@@ -48,7 +51,6 @@ public:
 
         calib_matrix_ = tmp_mat.inverse();
     }
-
 
 private:
     cv::Mat camera_matrix_;

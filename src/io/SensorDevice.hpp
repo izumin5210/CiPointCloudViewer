@@ -10,6 +10,7 @@
 #define SensorDevice_hpp
 
 #include <OpenNI.h>
+#include "CalibrationParams.hpp"
 
 namespace io {
 

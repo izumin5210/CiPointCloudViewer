@@ -39,8 +39,8 @@ public:
             while (!stopped_) {
                 openni::OpenNI::enumerateDevices(&device_info_list);
                 for (int i = 0; i < device_info_list.getSize(); i += 3) {
-                    auto uri = device_info_list[i].getUri();
-                    if (devices_.find(uri) != devices_.end()) {
+                    std::string uri = device_info_list[i].getUri();
+                    if (devices_.find(uri) == devices_.end()) {
                         open(uri);
                     }
                 }
@@ -55,16 +55,17 @@ public:
         }
     }
 
-    inline void open(const char *uri) {
+    inline void open(const std::string uri) {
         auto device = std::make_shared<SensorDevice>();
-        device->initialize(uri);
+        device->initialize(uri.c_str());
         devices_[uri] = device;
     }
 
     inline void loadCalibrationMatrix(std::string path, std::string serial_prefix = "kinect2_") {
         cv::FileStorage fs(path, cv::FileStorage::READ);
         for (auto node : fs.root()) {
-            calib_params_list_[node.name()] = std::make_shared<CalibrationParams>(node);
+            calib_params_list_[node.name()] = std::make_shared<CalibrationParams>();
+            calib_params_list_[node.name()]->initialize(node);
         }
     }
 
