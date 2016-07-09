@@ -56,7 +56,7 @@ public:
       }
     }
 
-    inline void initialize(const char *uri = openni::ANY_DEVICE) {
+    void initialize(const char *uri = openni::ANY_DEVICE) {
         uri_ = uri;
 
         checkStatus(device_.open(uri), "openni::Device::open() failed.");
@@ -65,35 +65,35 @@ public:
         } else {
             char serial[64];
             auto status = device_.getProperty(ONI_DEVICE_PROPERTY_SERIAL_NUMBER, &serial);
-            checkStatus(status, "Device has not serial number.");
+            // checkStatus(status, "Device has not serial number.");
             serial_.assign(serial, strlen(serial));
 
-            name_ = uri;
-            std::replace(name_.begin(), name_.end(), ':', ' ');
-            std::replace(name_.begin(), name_.end(), '@', ' ');
-            std::stringstream buf(name_);
-            buf >> name_;
+            name_ = serial_;
+            // name_ = uri;
+            // std::replace(name_.begin(), name_.end(), ':', ' ');
+            // std::replace(name_.begin(), name_.end(), '@', ' ');
+            // std::stringstream buf(name_);
+            // buf >> name_;
         }
     }
 
-    inline std::string uri() {
+    std::string uri() {
         return uri_;
     }
 
-    inline std::string serial() {
+    std::string serial() {
         return serial_;
     }
 
-    inline bool hasStarted() {
+    bool hasStarted() {
       return !worker_canceled_;
     }
 
-    inline void setCalibrationParams(std::shared_ptr<CalibrationParams> params) {
+    void setCalibrationParams(std::shared_ptr<CalibrationParams>& params) {
         params_ = params;
     }
 
-    inline void start(std::function<void()> on_update) {
-      std::cout << "start " << name_ << std::endl;
+    void start(std::function<void()> &on_update) {
       startColorStream();
       startDepthStream();
       startIrStream();
@@ -104,18 +104,18 @@ public:
         // TODO: record .oni file
       }
 
-      worker_ = std::thread([this, &on_update]() {
-          worker_canceled_ = false;
-          std::cout << "start worker: " << name_ << std::endl;
-          while (!worker_canceled_) {
-              update();
-              std::cout << "on updated: " << name_ << std::endl;
-              on_update();
-          }
+      worker_canceled_ = false;
+      worker_ = std::thread([&]() {
+        std::cout << "start worker: " << name_ << std::endl;
+        while (!worker_canceled_) {
+            update();
+            std::cout << "on updated: " << name_ << std::endl;
+            on_update();
+        }
       });
     }
 
-    inline pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud() {
+    pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud() {
       return cloud_;
     }
 
@@ -137,18 +137,16 @@ private:
     cv::UMat depth_image_;
     cv::UMat ir_image_;
 
-    boost::mutex mutex_;
-
     std::thread worker_;
     std::atomic<bool> worker_canceled_;
 
-    inline void checkStatus(openni::Status status, std::string msg) {
+    void checkStatus(openni::Status status, std::string msg) {
         if (status != openni::STATUS_OK) { 
             throw std::runtime_error(msg);
         }
     }
 
-    inline void startColorStream() {
+    void startColorStream() {
       if (device_.hasSensor(openni::SENSOR_COLOR)) {
         checkStatus(color_stream_.create(device_, openni::SENSOR_COLOR), "Color stream failed to create.");
         const openni::Array<openni::VideoMode> *supported_video_modes
@@ -161,7 +159,7 @@ private:
       }
     }
 
-    inline void startDepthStream() {
+    void startDepthStream() {
       if (device_.hasSensor(openni::SENSOR_DEPTH)) {
         checkStatus(depth_stream_.create(device_, openni::SENSOR_DEPTH), "Depth stream failed to create.");
         const openni::Array<openni::VideoMode> *supported_video_modes
@@ -174,7 +172,7 @@ private:
       }
     }
 
-    inline void startIrStream() {
+    void startIrStream() {
       if (device_.hasSensor(openni::SENSOR_IR) && name_ == "freenect2") {
         checkStatus(depth_stream_.create(device_, openni::SENSOR_IR), "IR stream failed to create.");
         const openni::Array<openni::VideoMode> *supported_video_modes
@@ -187,7 +185,7 @@ private:
       }
     }
 
-    inline void enableMirroring() {
+    void enableMirroring() {
       if (!device_.isFile()) {
         if (color_stream_.isValid()) {
           checkStatus(color_stream_.setMirroringEnabled(true), "Color sensor mirroring failed.");
@@ -201,7 +199,7 @@ private:
       }
     }
 
-    inline void enableDepthToColorRegistration() {
+    void enableDepthToColorRegistration() {
       if (color_stream_.isValid() && depth_stream_.isValid()) {
         checkStatus(device_.setDepthColorSyncEnabled(true), "Depth-Color sync failed.");
 
@@ -210,7 +208,7 @@ private:
       }
     }
 
-    inline void update() {
+    void update() {
       openni::VideoFrameRef color_frame;
       openni::VideoFrameRef depth_frame;
       openni::VideoFrameRef ir_frame;
@@ -232,7 +230,7 @@ private:
       updatePointCloud();
     }
 
-    inline cv::UMat updateColorImage(const openni::VideoFrameRef &color_frame) {
+    static cv::UMat updateColorImage(const openni::VideoFrameRef &color_frame) {
       cv::UMat color_image;
       cv::Mat(color_frame.getHeight(), color_frame.getWidth(), CV_8UC3,
               (unsigned char *) color_frame.getData()).copyTo(color_image);
@@ -240,7 +238,7 @@ private:
       return color_image;
     }
 
-    inline cv::UMat updateRawDepthImage(const openni::VideoFrameRef &depth_frame) {
+    static cv::UMat updateRawDepthImage(const openni::VideoFrameRef &depth_frame) {
       cv::UMat raw_depth_image;
       cv::Mat(depth_frame.getHeight(), depth_frame.getWidth(), CV_16UC1,
             (unsigned short *) depth_frame.getData()).copyTo(raw_depth_image);
@@ -249,7 +247,7 @@ private:
       return raw_depth_image(roi);
     }
 
-    inline cv::UMat updateDepthImage(const openni::VideoFrameRef &depth_frame) {
+    static cv::UMat updateDepthImage(const openni::VideoFrameRef &depth_frame) {
       cv::UMat depth_image;
       cv::Mat(depth_frame.getHeight(), depth_frame.getWidth(), CV_16UC1,
             (unsigned short *) depth_frame.getData()).copyTo(depth_image);
@@ -259,8 +257,7 @@ private:
       return depth_image(roi);
     }
 
-    inline cv::UMat updateIrImage(const openni::VideoFrameRef &ir_frame) {
-      boost::mutex::scoped_lock lock(mutex_);
+    static cv::UMat updateIrImage(const openni::VideoFrameRef &ir_frame) {
       cv::UMat ir_image;
       cv::Mat(ir_frame.getHeight(), ir_frame.getWidth(), CV_16UC1,
             (unsigned short *) ir_frame.getData()).copyTo(ir_image);
@@ -269,7 +266,7 @@ private:
       return ir_image;
      }
 
-    inline pcl::PointCloud<pcl::PointXYZRGBA>::Ptr updatePointCloud() {
+    pcl::PointCloud<pcl::PointXYZRGBA>::Ptr updatePointCloud() {
       int width   = color_image_.size().width;
       int height  = color_image_.size().height;
       // FIXME: hardcoding
@@ -305,7 +302,6 @@ private:
       }
 
       pcl::transformPointCloud(*cloud_, *cloud_, params_->calib_matrix_);
-
     }
 };
 
