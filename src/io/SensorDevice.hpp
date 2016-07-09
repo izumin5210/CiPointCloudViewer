@@ -37,6 +37,19 @@ public:
     }
 
     ~SensorDevice() {
+      if (color_stream_.isValid()) {
+        color_stream_.stop();
+        color_stream_.destroy();
+      }
+      if (depth_stream_.isValid()) {
+        depth_stream_.stop();
+        depth_stream_.destroy();
+      }
+      if (ir_stream_.isValid()) {
+        ir_stream_.stop();
+        ir_stream_.destroy();
+      }
+      device_.close();
       worker_canceled_ = true;
       if (worker_.joinable()) {
         worker_.join();
