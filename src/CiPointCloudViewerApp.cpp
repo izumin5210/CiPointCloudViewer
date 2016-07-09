@@ -41,7 +41,7 @@ public:
 private:
     const ImGuiWindowFlags kWindowFlags = ImGuiWindowFlags_ShowBorders;
     const int kWindowSpacing = 8;
-    const int kWindowWidth = 360;
+    const int kWindowWidth = 320;
     const int kPlayerWindowHeight = 48;
 
     const ColorA8u kColorBlackA55   = ColorA8u(0x22, 0x22, 0x22, 0x55);
@@ -72,6 +72,7 @@ private:
     bool visible_filters_window_    = true;
     bool visible_clouds_window_     = true;
     bool visible_debug_window_      = true;
+    bool visible_player_window_     = true;
 
     int cloud_size_ = 0;
     int filtered_cloud_size_ = 0;
@@ -122,6 +123,12 @@ void CiPointCloudViewerApp::setup()
             grid_batch_->vertex(vec3( i, 0,  j));
             grid_batch_->vertex(vec3(-i, 0,  j));
             grid_batch_->vertex(vec3( i, 0,  j));
+
+            gl::lineWidth(30);
+            grid_batch_->vertex(vec3(i, 0, j - 0.05));
+            grid_batch_->vertex(vec3(i, 0,  j));
+            grid_batch_->vertex(vec3(i - 0.05, 0,  j));
+            grid_batch_->vertex(vec3(i, 0,  j));
         }
     }
 
@@ -233,7 +240,8 @@ void CiPointCloudViewerApp::mouseWheel(MouseEvent event) {
 
 void CiPointCloudViewerApp::update()
 {
-    auto windowPos = vec2(kWindowSpacing, kWindowSpacing);
+    auto leftWindowPos = vec2(kWindowSpacing, kWindowSpacing);
+    auto rightWindowPos = vec2(getWindowWidth() - (kWindowWidth + kWindowSpacing), kWindowSpacing);
     camera_eye_point_ = camera_.getEyePoint();
     camera_target_ = camera_.getPivotPoint();
     {
@@ -274,12 +282,12 @@ void CiPointCloudViewerApp::update()
             ui::MenuItem("Filter",      nullptr, &visible_filters_window_);
             ui::MenuItem("Clouds",      nullptr, &visible_clouds_window_);
             ui::MenuItem("Debug",       nullptr, &visible_debug_window_);
+            ui::MenuItem("Player",      nullptr, &visible_player_window_);
             ui::EndMenu();
         }
 
-        windowPos.y += ui::GetItemRectSize().y;
-        ui::SetNextWindowPos(windowPos);
-        ui::SetNextWindowSize(vec2(kWindowWidth, 0));
+        leftWindowPos.y += ui::GetItemRectSize().y;
+        rightWindowPos.y += ui::GetItemRectSize().y;
     }
     if (visible_camera_window_) {
         ui::ScopedWindow window("Camera", kWindowFlags);
@@ -290,17 +298,17 @@ void CiPointCloudViewerApp::update()
             camera_.setEyePoint(camera_eye_point_);
         }
 
-        windowPos.y += ui::GetWindowHeight() + kWindowSpacing;
-        ui::SetNextWindowPos(windowPos);
-        ui::SetNextWindowSize(vec2(kWindowWidth, 0));
+        ui::SetWindowPos(leftWindowPos);
+        ui::SetWindowSize(vec2(kWindowWidth, 0));
+        leftWindowPos.y += ui::GetWindowHeight() + kWindowSpacing;
     }
     if (visible_appearance_window_) {
         ui::ScopedWindow window("Appearance", kWindowFlags);
         ui::InputFloat("Point size", &point_size_, 0.1f);
-        ui::ColorEdit3("Background color", &bg_color_[0]);
-        windowPos.y += ui::GetWindowHeight() + kWindowSpacing;
-        ui::SetNextWindowPos(windowPos);
-        ui::SetNextWindowSize(vec2(kWindowWidth, 0));
+        ui::ColorEdit3("Background", &bg_color_[0]);
+        ui::SetWindowPos(leftWindowPos);
+        ui::SetWindowSize(vec2(kWindowWidth, 0));
+        leftWindowPos.y += ui::GetWindowHeight() + kWindowSpacing;
     }
     if (visible_filters_window_) {
         ui::ScopedWindow window("Filters", kWindowFlags);
@@ -372,9 +380,9 @@ void CiPointCloudViewerApp::update()
             });
         });
 
-        windowPos.y += ui::GetWindowHeight() + kWindowSpacing;
-        ui::SetNextWindowPos(windowPos);
-        ui::SetNextWindowSize(vec2(kWindowWidth, 0));
+        ui::SetWindowPos(leftWindowPos);
+        ui::SetWindowSize(vec2(kWindowWidth, 0));
+        leftWindowPos.y += ui::GetWindowHeight() + kWindowSpacing;
     }
 
     if (visible_clouds_window_) {
@@ -420,11 +428,11 @@ void CiPointCloudViewerApp::update()
         }
         ui::ListBoxFooter();
 
-        windowPos.y += ui::GetWindowHeight() + kWindowSpacing;
-        ui::SetNextWindowPos(windowPos);
-        ui::SetNextWindowSize(vec2(kWindowWidth, 0));
+        ui::SetWindowPos(leftWindowPos);
+        ui::SetWindowSize(vec2(kWindowWidth, 0));
+        leftWindowPos.y += ui::GetWindowHeight() + kWindowSpacing;
     }
-    {
+    if (visible_player_window_) {
         ui::ScopedWindow window("Player", kWindowFlags);
 
         for (auto pair : loading_progresses_) {
@@ -446,15 +454,18 @@ void CiPointCloudViewerApp::update()
             ui::Columns(1);
         }
 
-        windowPos.y += ui::GetWindowHeight() + kWindowSpacing;
-        ui::SetNextWindowPos(windowPos);
-        ui::SetNextWindowSize(vec2(kWindowWidth, 0));
+        ui::SetWindowPos(rightWindowPos);
+        ui::SetWindowSize(vec2(kWindowWidth, 0));
+        rightWindowPos.y += ui::GetWindowHeight() + kWindowSpacing;
     }
     if (visible_debug_window_) {
         ui::ScopedWindow window("Information", kWindowFlags);
         ui::LabelText("FPS", "%f", getAverageFps());
         ui::LabelText("Cloud size", "%d", cloud_size_);
         ui::LabelText("Filtered", "%d", filtered_cloud_size_);
+        ui::SetWindowPos(leftWindowPos);
+        ui::SetWindowSize(vec2(kWindowWidth, 0));
+        leftWindowPos.y += ui::GetWindowHeight() + kWindowSpacing;
     }
 
     if (updated_) {
