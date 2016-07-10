@@ -74,6 +74,8 @@ private:
     bool visible_debug_window_      = true;
     bool visible_player_window_     = true;
 
+    bool enable_fullscreen_ = false;
+
     int cloud_size_ = 0;
     int filtered_cloud_size_ = 0;
 
@@ -97,7 +99,6 @@ private:
     filter::PassThroughFilter<pcl::PointXYZRGBA> z_pass_through_filter_;
     filter::VoxelFilter<pcl::PointXYZRGBA> voxel_filter_;
     filter::StatisticalOutlierRemovalFilter<pcl::PointXYZRGBA> sor_filter_;
-
 
     void updatePointCloud();
 };
@@ -283,6 +284,8 @@ void CiPointCloudViewerApp::update()
             ui::MenuItem("Clouds",      nullptr, &visible_clouds_window_);
             ui::MenuItem("Debug",       nullptr, &visible_debug_window_);
             ui::MenuItem("Player",      nullptr, &visible_player_window_);
+            ui::Separator();
+            ui::MenuItem("Fullscreen",  nullptr, &enable_fullscreen_);
             ui::EndMenu();
         }
 
@@ -471,6 +474,8 @@ void CiPointCloudViewerApp::update()
     if (updated_) {
         updatePointCloud();
     }
+
+    setFullScreen(enable_fullscreen_);
 }
 
 void CiPointCloudViewerApp::draw()
