@@ -19,9 +19,7 @@ namespace io {
 
 class SensorDeviceManager {
 public:
-    SensorDeviceManager()
-      : cloud_(new pcl::PointCloud<pcl::PointXYZRGBA>())
-    {
+    SensorDeviceManager() {
         openni::OpenNI::initialize();
     }
 
@@ -65,31 +63,12 @@ public:
         devices_[uri] = device;
     }
 
-    inline pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud() {
-      std::lock_guard<std::mutex> lg(mutex_);
-      return cloud_;
-    }
-
 
 private:
     std::map<std::string, std::shared_ptr<SensorDevice>> devices_;
     std::vector<CalibrationParams> calib_params_list_;
     std::atomic<bool> stopped_;
     std::thread device_check_worker_;
-
-    pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud_;
-
-    std::mutex mutex_;
-
-    std::function<void()> on_updated_ = [this]() {
-      std::lock_guard<std::mutex> lg(mutex_);
-      cloud_->clear();
-      for (auto pair : devices_) {
-        if (!pair.second->cloud()->empty()) {
-          *cloud_ += *(pair.second->cloud());
-        }
-      }
-    };
 
     void addCalibrationParams(CalibrationParams params) {
         calib_params_list_.push_back(params);

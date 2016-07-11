@@ -24,7 +24,7 @@
 
 #include <boost/thread/mutex.hpp>
 
-#include "signals.h"
+#include "model/CloudsManager.h"
 #include "io/CalibrationParamsManager.h"
 
 namespace io {
@@ -94,10 +94,13 @@ public:
     }
 
     void setCalibrationParams(CalibrationParams params) {
-        params_ = params;
+        if (params.serial == serial_) {
+            params_ = params;
+            start();
+        }
     }
 
-    void start(std::function<void()> &on_update) {
+    void start() {
       worker_ = std::thread([&]() {
         startColorStream();
         startDepthStream();
@@ -112,7 +115,7 @@ public:
         worker_canceled_ = false;
         while (!worker_canceled_) {
             update();
-            on_update();
+            models::CloudsManager::emitSignalCloudUpdated({name_, cloud_});
         }
       });
     }

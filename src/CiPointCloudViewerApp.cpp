@@ -21,6 +21,7 @@
 #include "filter/VoxelFilter.hpp"
 #include "filter/StatisticalOutlierRemovalFilter.hpp"
 
+#include "model/CloudsManager.h"
 #include "io/CalibrationParamsManager.h"
 #include "io/SensorDeviceManager.hpp"
 
@@ -105,6 +106,9 @@ private:
 
     io::SensorDeviceManager sensor_device_manager_;
 
+    map<std::string, pcl::PointCloud<pcl::PointXYZRGBA>::Ptr> clouds_;
+
+    void onCloudUpdated(const models::CloudEvent& event);
     void updatePointCloud();
 };
 
@@ -124,6 +128,8 @@ CiPointCloudViewerApp::~CiPointCloudViewerApp() {
 void CiPointCloudViewerApp::setup()
 {
     sensor_device_manager_.start();
+    models::CloudsManager::getSignalCloudUpdated()
+        .connect(signals::slot(this, &CiPointCloudViewerApp::onCloudUpdated));
 
     batch_ = gl::VertBatch::create(GL_POINTS);
     grid_batch_ = gl::VertBatch::create(GL_LINES);
@@ -190,14 +196,17 @@ void CiPointCloudViewerApp::setup()
     gl::enableDepthWrite();
 }
 
+void CiPointCloudViewerApp::onCloudUpdated(const models::CloudEvent& event) {
+    clouds_[event.key] = event.cloud;
+    updated_ = true;
+}
+
 void CiPointCloudViewerApp::updatePointCloud() {
     updated_ = false;
 
     batch_->clear();
 
     pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZRGBA>);
-
-    cloud = sensor_device_manager_.cloud();
 
     /*
      * for (auto grabber : grabbers_) {
@@ -206,6 +215,10 @@ void CiPointCloudViewerApp::updatePointCloud() {
      *     }
      * }
      */
+
+    for (auto pair : clouds_) {
+        *cloud += *(pair.second);
+    }
 
     cloud_size_ = cloud->size();
 
@@ -498,9 +511,9 @@ void CiPointCloudViewerApp::update()
         leftWindowPos.y += ui::GetWindowHeight() + kWindowSpacing;
     }
 
-    // if (updated_) {
+    if (updated_) {
         updatePointCloud();
-    // }
+    }
 }
 
 void CiPointCloudViewerApp::draw()
