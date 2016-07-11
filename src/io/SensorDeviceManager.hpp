@@ -60,7 +60,6 @@ public:
     inline void open(const std::string uri) {
         auto device = std::make_shared<SensorDevice>();
         device->initialize(uri.c_str());
-        std::cout << "Add " << device->serial() << std::endl;
         devices_[uri] = device;
     }
 
@@ -70,17 +69,20 @@ public:
             std::string serial = node.name().substr(strlen(prefix.c_str()));
             calib_params_list_[serial] = std::make_shared<CalibrationParams>();
             calib_params_list_[serial]->initialize(node);
-            for (auto pair : devices_) {
-              if (pair.second->serial() == serial) {
-                devices_[serial]->setCalibrationParams(calib_params_list_[serial]);
-                devices_[serial]->start([this]() { update(); });
-              }
-            }
         }
         fs.release();
+
+
+        for (auto pair : devices_) {
+          if (calib_params_list_.find(pair.second->serial()) != calib_params_list_.end()) {
+            pair.second->setCalibrationParams(calib_params_list_[pair.second->serial()]);
+            pair.second->start(on_updated_);
+          }
+        }
     }
 
     inline pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud() {
+      std::lock_guard<std::mutex> lg(mutex_);
       return cloud_;
     }
 
@@ -93,12 +95,17 @@ private:
 
     pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud_;
 
-    inline void update() {
+    std::mutex mutex_;
+
+    std::function<void()> on_updated_ = [this]() {
+      std::lock_guard<std::mutex> lg(mutex_);
       cloud_->clear();
       for (auto pair : devices_) {
-        *cloud_ += *pair.second->cloud();
+        if (!pair.second->cloud()->empty()) {
+          *cloud_ += *(pair.second->cloud());
+        }
       }
-    }
+    };
 };
 
 }

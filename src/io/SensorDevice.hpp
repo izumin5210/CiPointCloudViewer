@@ -94,28 +94,27 @@ public:
     }
 
     void start(std::function<void()> &on_update) {
-      startColorStream();
-      startDepthStream();
-      startIrStream();
-      enableMirroring();
-      enableDepthToColorRegistration();
-
-      if (!device_.isFile()) {
-        // TODO: record .oni file
-      }
-
-      worker_canceled_ = false;
       worker_ = std::thread([&]() {
-        std::cout << "start worker: " << name_ << std::endl;
+        startColorStream();
+        startDepthStream();
+        startIrStream();
+        enableMirroring();
+        enableDepthToColorRegistration();
+
+        if (!device_.isFile()) {
+          // TODO: record .oni file
+        }
+
+        worker_canceled_ = false;
         while (!worker_canceled_) {
             update();
-            std::cout << "on updated: " << name_ << std::endl;
             on_update();
         }
       });
     }
 
     pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud() {
+      std::lock_guard<std::mutex> lg(mutex_);
       return cloud_;
     }
 
@@ -139,6 +138,8 @@ private:
 
     std::thread worker_;
     std::atomic<bool> worker_canceled_;
+
+    std::mutex mutex_;
 
     void checkStatus(openni::Status status, std::string msg) {
         if (status != openni::STATUS_OK) { 
@@ -201,8 +202,9 @@ private:
 
     void enableDepthToColorRegistration() {
       if (color_stream_.isValid() && depth_stream_.isValid()) {
-        checkStatus(device_.setDepthColorSyncEnabled(true), "Depth-Color sync failed.");
+        // checkStatus(device_.setDepthColorSyncEnabled(true), "Depth-Color sync failed.");
 
+        device_.setDepthColorSyncEnabled(true);
         checkStatus(device_.setImageRegistrationMode(
               openni::IMAGE_REGISTRATION_DEPTH_TO_COLOR), "Color to depth registration failed.");
       }
@@ -266,11 +268,13 @@ private:
       return ir_image;
      }
 
-    pcl::PointCloud<pcl::PointXYZRGBA>::Ptr updatePointCloud() {
+    void updatePointCloud() {
       int width   = color_image_.size().width;
       int height  = color_image_.size().height;
       // FIXME: hardcoding
       int dwidth  = 640;
+
+      std::lock_guard<std::mutex> lg(mutex_);
 
       cloud_->clear();
       cloud_->reserve(width * height);
@@ -292,7 +296,7 @@ private:
             pcl::PointXYZRGBA point;
             point.x = xw;
             point.y = yw;
-            point.z = yw;
+            point.z = zw;
             point.b = color[x][0];
             point.g = color[x][1];
             point.r = color[x][2];

@@ -134,12 +134,6 @@ void CiPointCloudViewerApp::setup()
             grid_batch_->vertex(vec3( i, 0,  j));
             grid_batch_->vertex(vec3(-i, 0,  j));
             grid_batch_->vertex(vec3( i, 0,  j));
-
-            gl::lineWidth(30);
-            grid_batch_->vertex(vec3(i, 0, j - 0.05));
-            grid_batch_->vertex(vec3(i, 0,  j));
-            grid_batch_->vertex(vec3(i - 0.05, 0,  j));
-            grid_batch_->vertex(vec3(i, 0,  j));
         }
     }
 
