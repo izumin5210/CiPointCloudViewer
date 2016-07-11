@@ -8,7 +8,9 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=native")
 set(CMAKE_VERBOSE_MAKEFILE ON)
 set(CINDER_VERBOSE ON)
 
-find_package(Qt5 REQUIRED COMPONENTS Core Widgets)
+if(LINUX)
+  find_package(Qt5 REQUIRED COMPONENTS Core Widgets)
+endif()
 
 find_package(PCL 1.8 REQUIRED)
 link_directories(${PCL_LIBRARY_DIRS})
@@ -43,6 +45,7 @@ set(CINDER_IMGUI_SOURCES
 
 set(PROJECT_SOURCES
   ${PROJECT_DIR}/src/CiPointCloudViewerApp.cpp
+  ${PROJECT_DIR}/src/io/CalibrationParamsManager.cpp
   ${CINDER_IMGUI_SOURCES}
 )
 
@@ -50,7 +53,7 @@ include("${CINDER_PATH}/proj/cmake/modules/cinderMakeApp.cmake")
 
 ci_make_app(
   SOURCES           ${PROJECT_SOURCES}
-  INCLUDES          ${PCL_INCLUDE_DIRS}
+  INCLUDES          ${PROJECT_DIR}/include ${PCL_INCLUDE_DIRS}
   CINDER_PATH       ${CINDER_PATH}
   TARGET_LIBRARIES  ${Boost_LIBRARIES} ${PCL_LIBRARIES} ${OpenCV_LIBS} freenect2 yaml-cpp
 )

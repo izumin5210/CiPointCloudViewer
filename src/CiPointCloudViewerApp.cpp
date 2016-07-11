@@ -3,6 +3,7 @@
 #include "cinder/Camera.h"
 #include "cinder/CameraUi.h"
 #include "cinder/gl/gl.h"
+#include "cinder/Signals.h"
 
 #include <pcl/point_cloud.h>
 #include <pcl/point_types.h>
@@ -20,6 +21,7 @@
 #include "filter/VoxelFilter.hpp"
 #include "filter/StatisticalOutlierRemovalFilter.hpp"
 
+#include "io/CalibrationParamsManager.h"
 #include "io/SensorDeviceManager.hpp"
 
 using namespace ci;
@@ -280,7 +282,7 @@ void CiPointCloudViewerApp::update()
             if (ui::MenuItem("Open calibration yaml file")) {
                 auto yamlfile = getOpenFilePath(bfs::path(), {"yaml", "yml"});
                 if (bfs::exists(yamlfile)) {
-                    sensor_device_manager_.loadCalibrationMatrix(yamlfile.string());
+                  io::CalibrationParamsManager::load(yamlfile.string());
                 }
             }
             ui::EndMenu();

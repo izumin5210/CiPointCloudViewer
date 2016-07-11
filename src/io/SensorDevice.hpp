@@ -24,7 +24,8 @@
 
 #include <boost/thread/mutex.hpp>
 
-#include "CalibrationParams.hpp"
+#include "signals.h"
+#include "io/CalibrationParamsManager.h"
 
 namespace io {
 
@@ -59,6 +60,9 @@ public:
     void initialize(const char *uri = openni::ANY_DEVICE) {
         uri_ = uri;
 
+        CalibrationParamsManager::getSignalCalibrationParamsUpdated()
+          .connect(ci::signals::slot(this, &SensorDevice::setCalibrationParams));
+
         checkStatus(device_.open(uri), "openni::Device::open() failed.");
         if (device_.isFile()) {
             // TODO: not yet implemented
@@ -89,7 +93,7 @@ public:
       return !worker_canceled_;
     }
 
-    void setCalibrationParams(std::shared_ptr<CalibrationParams>& params) {
+    void setCalibrationParams(CalibrationParams params) {
         params_ = params;
     }
 
@@ -118,12 +122,13 @@ public:
       return cloud_;
     }
 
+
 private:
     openni::Device device_;
     std::string uri_;
     std::string serial_;
     std::string name_;
-    std::shared_ptr<CalibrationParams> params_;
+    CalibrationParams params_;
 
     pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud_;
 
@@ -291,8 +296,8 @@ private:
             float xw, yw, zw;
             zw = depth[x];
             zw /= 1000;
-            xw = (x - params_->cx_) * zw / params_->fx_;
-            yw = (y - params_->cy_) * zw / params_->fy_;
+            xw = (x - params_.cx) * zw / params_.fx;
+            yw = (y - params_.cy) * zw / params_.fy;
             pcl::PointXYZRGBA point;
             point.x = xw;
             point.y = yw;
@@ -305,7 +310,7 @@ private:
         }
       }
 
-      pcl::transformPointCloud(*cloud_, *cloud_, params_->calib_matrix_);
+      pcl::transformPointCloud(*cloud_, *cloud_, params_.calib_matrix);
     }
 };
 

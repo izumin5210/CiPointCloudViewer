@@ -13,7 +13,7 @@
 #include "opencv2/opencv.hpp"
 
 #include "SensorDevice.hpp"
-#include "CalibrationParams.hpp"
+#include "io/CalibrationParamsManager.h"
 
 namespace io {
 
@@ -36,6 +36,8 @@ public:
 
     inline void start() {
         stopped_ = false;
+        CalibrationParamsManager::getSignalCalibrationParamsUpdated()
+          .connect(ci::signals::slot(this, &SensorDeviceManager::addCalibrationParams));
         device_check_worker_ = std::thread([this]() {
             openni::Array<openni::DeviceInfo> device_info_list;
             while (!stopped_) {
@@ -63,24 +65,6 @@ public:
         devices_[uri] = device;
     }
 
-    inline void loadCalibrationMatrix(std::string path, std::string prefix = "kinect2_") {
-        cv::FileStorage fs(path, cv::FileStorage::READ);
-        for (auto node : fs.root()) {
-            std::string serial = node.name().substr(strlen(prefix.c_str()));
-            calib_params_list_[serial] = std::make_shared<CalibrationParams>();
-            calib_params_list_[serial]->initialize(node);
-        }
-        fs.release();
-
-
-        for (auto pair : devices_) {
-          if (calib_params_list_.find(pair.second->serial()) != calib_params_list_.end()) {
-            pair.second->setCalibrationParams(calib_params_list_[pair.second->serial()]);
-            pair.second->start(on_updated_);
-          }
-        }
-    }
-
     inline pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud() {
       std::lock_guard<std::mutex> lg(mutex_);
       return cloud_;
@@ -89,7 +73,7 @@ public:
 
 private:
     std::map<std::string, std::shared_ptr<SensorDevice>> devices_;
-    std::map<std::string, std::shared_ptr<CalibrationParams>> calib_params_list_;
+    std::vector<CalibrationParams> calib_params_list_;
     std::atomic<bool> stopped_;
     std::thread device_check_worker_;
 
@@ -106,6 +90,10 @@ private:
         }
       }
     };
+
+    void addCalibrationParams(CalibrationParams params) {
+        calib_params_list_.push_back(params);
+    }
 };
 
 }
