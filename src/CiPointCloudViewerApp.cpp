@@ -31,6 +31,7 @@ using namespace std;
 
 namespace bfs = boost::filesystem;
 typedef bfs::path bpath;
+typedef signals::Signal<void (const gl::VertBatchRef&)> EventSignalBatch;
 
 class CiPointCloudViewerApp : public App {
 public:
@@ -108,7 +109,11 @@ private:
 
     map<std::string, pcl::PointCloud<pcl::PointXYZRGBA>::Ptr> clouds_;
 
+    mutex vert_batch_mutex_;
+    EventSignalBatch signal_batch_updated_;
+
     void onCloudUpdated(const models::CloudEvent& event);
+    void onBatchUpdated(const gl::VertBatchRef& batch);
     void updatePointCloud();
 };
 
@@ -130,6 +135,8 @@ void CiPointCloudViewerApp::setup()
     sensor_device_manager_.start();
     models::CloudsManager::getSignalCloudUpdated()
         .connect(signals::slot(this, &CiPointCloudViewerApp::onCloudUpdated));
+    signal_batch_updated_
+        .connect(signals::slot(this, &CiPointCloudViewerApp::onBatchUpdated));
 
     batch_ = gl::VertBatch::create(GL_POINTS);
     grid_batch_ = gl::VertBatch::create(GL_LINES);
@@ -198,13 +205,17 @@ void CiPointCloudViewerApp::setup()
 
 void CiPointCloudViewerApp::onCloudUpdated(const models::CloudEvent& event) {
     clouds_[event.key] = event.cloud;
-    updated_ = true;
+    updatePointCloud();
+}
+
+void CiPointCloudViewerApp::onBatchUpdated(const gl::VertBatchRef& batch) {
+    lock_guard<mutex> lg(vert_batch_mutex_);
+    batch_ = batch;
 }
 
 void CiPointCloudViewerApp::updatePointCloud() {
     updated_ = false;
-
-    batch_->clear();
+    const gl::VertBatchRef batch = gl::VertBatch::create(GL_POINTS);
 
     pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZRGBA>);
 
@@ -243,11 +254,13 @@ void CiPointCloudViewerApp::updatePointCloud() {
     }
 
     for (auto point : cloud->points) {
-        batch_->color(ci::ColorA8u(point.r, point.g, point.b, point.a));
-        batch_->vertex(ci::vec3(point.x, point.y, point.z));
+        batch->color(ci::ColorA8u(point.r, point.g, point.b, point.a));
+        batch->vertex(ci::vec3(point.x, point.y, point.z));
     }
 
     filtered_cloud_size_ = cloud->size();
+
+    signal_batch_updated_.emit(batch);
 }
 
 void CiPointCloudViewerApp::mouseDown(MouseEvent event) {
@@ -528,7 +541,9 @@ void CiPointCloudViewerApp::draw()
         grid_batch_->draw();
     }
 
+    vert_batch_mutex_.lock();
     batch_->draw();
+    vert_batch_mutex_.unlock();
 }
 
 CINDER_APP( CiPointCloudViewerApp, RendererGl, [](App::Settings *settings) {
