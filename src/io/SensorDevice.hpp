@@ -22,6 +22,7 @@
 #include <opencv2/core/utility.hpp>
 #include <OpenNI.h>
 
+#include "Signal.h"
 #include "model/CloudsManager.h"
 #include "io/CalibrationParamsManager.h"
 
@@ -44,8 +45,7 @@ public:
     void initialize(const char *uri = openni::ANY_DEVICE) {
         uri_ = uri;
 
-        CalibrationParamsManager::getSignalCalibrationParamsUpdated()
-          .connect(ci::signals::slot(this, &SensorDevice::setCalibrationParams));
+        Signal<CalibrationParams>::connect(this, &SensorDevice::setCalibrationParams);
 
         checkStatus(device_.open(uri), "openni::Device::open() failed.");
         if (device_.isFile()) {
@@ -85,7 +85,7 @@ public:
         return calibrated_ && worker_canceled_;
     }
 
-    void setCalibrationParams(CalibrationParams params) {
+    void setCalibrationParams(const CalibrationParams& params) {
         if (params.serial == serial_) {
             calibrated_ = true;
             params_ = params;
@@ -107,7 +107,7 @@ public:
         worker_canceled_ = false;
         while (!worker_canceled_) {
             update();
-            models::CloudsManager::emitSignalCloudUpdated({name_, cloud_});
+            Signal<models::CloudEvent>::emit({name_, cloud_});
         }
       });
     }

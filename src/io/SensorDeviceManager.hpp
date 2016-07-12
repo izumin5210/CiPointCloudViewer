@@ -14,6 +14,7 @@
 
 #include "SensorDevice.hpp"
 #include "io/CalibrationParamsManager.h"
+#include "Signal.h"
 
 namespace io {
 
@@ -34,8 +35,7 @@ public:
 
     inline void start() {
         stopped_ = false;
-        CalibrationParamsManager::getSignalCalibrationParamsUpdated()
-          .connect(ci::signals::slot(this, &SensorDeviceManager::addCalibrationParams));
+        Signal<CalibrationParams>::connect(this, &SensorDeviceManager::addCalibrationParams);
         device_check_worker_ = std::thread([this]() {
             openni::Array<openni::DeviceInfo> device_info_list;
             while (!stopped_) {
@@ -73,7 +73,7 @@ private:
     std::atomic<bool> stopped_;
     std::thread device_check_worker_;
 
-    void addCalibrationParams(CalibrationParams params) {
+    void addCalibrationParams(const CalibrationParams& params) {
         calib_params_list_.push_back(params);
     }
 };

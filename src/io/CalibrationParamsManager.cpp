@@ -9,23 +9,24 @@
 #ifndef CalibrationParams_cpp
 #define CalibrationParams_cpp
 
+#include "Signal.h"
 #include "io/CalibrationParamsManager.h"
 
 namespace io {
 
 void
-CalibrationParamsManager::load(std::string path, std::string prefix) {
+CalibrationParams::load(std::string path, std::string prefix) {
     cv::FileStorage fs(path, cv::FileStorage::READ);
     for (auto node : fs.root()) {
         auto serial = node.name().substr(strlen(prefix.c_str()));
         auto params = createCalibrationParams(serial, node);
-        getSignalCalibrationParamsUpdated().emit(params);
+        Signal<CalibrationParams>::emit(params);
     }
     fs.release();
 }
 
 CalibrationParams
-CalibrationParamsManager::createCalibrationParams(std::string serial, cv::FileNode node) {
+CalibrationParams::createCalibrationParams(std::string serial, cv::FileNode node) {
     cv::Mat camera_matrix (cv::Mat::eye(3, 3, CV_64FC1));
     cv::Mat dist_coeffs   (5, 1, CV_64FC1, cv::Scalar::all(0));
     cv::Mat r_mat         (3, 3, CV_64FC1, cv::Scalar::all(0));

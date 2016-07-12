@@ -31,7 +31,6 @@ using namespace std;
 
 namespace bfs = boost::filesystem;
 typedef bfs::path bpath;
-typedef signals::Signal<void (const gl::VertBatchRef&)> EventSignalBatch;
 
 class CiPointCloudViewerApp : public App {
 public:
@@ -111,7 +110,6 @@ private:
     std::string cloud_selected_;
 
     mutex vert_batch_mutex_;
-    EventSignalBatch signal_batch_updated_;
 
     void onCloudUpdated(const models::CloudEvent& event);
     void onBatchUpdated(const gl::VertBatchRef& batch);
@@ -134,10 +132,8 @@ CiPointCloudViewerApp::~CiPointCloudViewerApp() {
 void CiPointCloudViewerApp::setup()
 {
     sensor_device_manager_.start();
-    models::CloudsManager::getSignalCloudUpdated()
-        .connect(signals::slot(this, &CiPointCloudViewerApp::onCloudUpdated));
-    signal_batch_updated_
-        .connect(signals::slot(this, &CiPointCloudViewerApp::onBatchUpdated));
+    Signal<models::CloudEvent>::connect(this, &CiPointCloudViewerApp::onCloudUpdated);
+    Signal<gl::VertBatchRef>::connect(this, &CiPointCloudViewerApp::onBatchUpdated);
 
     batch_ = gl::VertBatch::create(GL_POINTS);
     grid_batch_ = gl::VertBatch::create(GL_LINES);
@@ -263,7 +259,7 @@ void CiPointCloudViewerApp::updatePointCloud() {
 
     filtered_cloud_size_ = cloud->size();
 
-    signal_batch_updated_.emit(batch);
+    Signal<gl::VertBatchRef>::emit(batch);
 }
 
 void CiPointCloudViewerApp::mouseDown(MouseEvent event) {
@@ -311,7 +307,7 @@ void CiPointCloudViewerApp::update()
             if (ui::MenuItem("Open calibration yaml file")) {
                 auto yamlfile = getOpenFilePath(bfs::path(), {"yaml", "yml"});
                 if (bfs::exists(yamlfile)) {
-                  io::CalibrationParamsManager::load(yamlfile.string());
+                  io::CalibrationParams::load(yamlfile.string());
                 }
             }
             ui::EndMenu();
