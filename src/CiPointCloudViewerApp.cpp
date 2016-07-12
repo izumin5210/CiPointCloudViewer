@@ -108,6 +108,7 @@ private:
     io::SensorDeviceManager sensor_device_manager_;
 
     map<std::string, pcl::PointCloud<pcl::PointXYZRGBA>::Ptr> clouds_;
+    std::string cloud_selected_;
 
     mutex vert_batch_mutex_;
     EventSignalBatch signal_batch_updated_;
@@ -228,7 +229,9 @@ void CiPointCloudViewerApp::updatePointCloud() {
      */
 
     for (auto pair : clouds_) {
-        *cloud += *(pair.second);
+        if (hidden_clouds_.find(pair.first) == hidden_clouds_.end()) {
+            *cloud += *(pair.second);
+        }
     }
 
     cloud_size_ = cloud->size();
@@ -432,55 +435,54 @@ void CiPointCloudViewerApp::update()
         ui::ScopedWindow window("Clouds", kWindowFlags);
 
         if (ui::Button("Clear")) {
-            grabbers_.clear();
-            loading_progresses_.clear();
-            grabber_selected_ = nullptr;
+            clouds_.clear();
+            cloud_selected_ = std::string();
+            // grabbers_.clear();
+            // loading_progresses_.clear();
+            // grabber_selected_ = nullptr;
             updated_ = true;
         }
 
-        if (grabber_selected_) {
+        // if (grabber_selected_) {
+        if (!cloud_selected_.empty()) {
             ui::SameLine();
             if (ui::Button("Remove")) {
-                grabbers_.erase(grabber_selected_->path());
-                loading_progresses_.erase(grabber_selected_->path());
-                grabber_selected_ = nullptr;
+                clouds_.erase(cloud_selected_);
+                // grabbers_.erase(grabber_selected_->path());
+                // loading_progresses_.erase(grabber_selected_->path());
+                // grabber_selected_ = nullptr;
+                cloud_selected_ = std::string();
                 updated_ = true;
             }
         }
 
-        if (grabber_selected_) {
+        // if (grabber_selected_) {
+        if (!cloud_selected_.empty()) {
             ui::SameLine();
-            if (hidden_clouds_.find(grabber_selected_->path()) != hidden_clouds_.end()) {
+            // if (hidden_clouds_.find(grabber_selected_->path()) != hidden_clouds_.end()) {
+            if (hidden_clouds_.find(cloud_selected_) != hidden_clouds_.end()) {
                 if (ui::Button("Show")) {
-                    hidden_clouds_.erase(grabber_selected_->path());
+                    // hidden_clouds_.erase(grabber_selected_->path());
+                    hidden_clouds_.erase(cloud_selected_);
                     updated_ = true;
                 }
             } else {
                 if (ui::Button("Hide")) {
-                    hidden_clouds_.insert(grabber_selected_->path());
+                    // hidden_clouds_.insert(grabber_selected_->path());
+                    hidden_clouds_.insert(cloud_selected_);
                     updated_ = true;
                 }
             }
         }
 
         ui::ListBoxHeader("");
-        for (auto pair: grabbers_) {
-            if (ui::Selectable(pair.first.filename().c_str(), grabber_selected_ && (grabber_selected_->path() == pair.first))) {
-                grabber_selected_ = pair.second;
+        // for (auto pair: grabbers_) {
+        for (auto pair : clouds_) {
+            // if (ui::Selectable(pair.first.filename().c_str(), grabber_selected_ && (grabber_selected_->path() == pair.first))) {
+            if (ui::Selectable(pair.first.c_str(), !cloud_selected_.empty() && (cloud_selected_ == pair.first))) {
+                // grabber_selected_ = pair.second;
+                cloud_selected_ = pair.first;
             }
-        }
-        ui::ListBoxFooter();
-
-        ui::SetWindowPos(leftWindowPos);
-        ui::SetWindowSize(vec2(kWindowWidth, 0));
-        leftWindowPos.y += ui::GetWindowHeight() + kWindowSpacing;
-    }
-    {
-        ui::ScopedWindow window("Connected devices", kWindowFlags);
-
-        ui::ListBoxHeader("");
-        for (auto pair : sensor_device_manager_.devices()) {
-            ui::Selectable(pair.second->serial().c_str());
         }
         ui::ListBoxFooter();
 
@@ -508,6 +510,48 @@ void CiPointCloudViewerApp::update()
                 grabber->start(on_cloud_updated_);
             }
             ui::Columns(1);
+        }
+
+        ui::SetWindowPos(rightWindowPos);
+        ui::SetWindowSize(vec2(kWindowWidth, 0));
+        rightWindowPos.y += ui::GetWindowHeight() + kWindowSpacing;
+    }
+    {
+        ui::ScopedWindow window("Connected devices", kWindowFlags);
+
+        ui::Columns(3);
+        for (auto pair : sensor_device_manager_.devices()) {
+            ui::Selectable(pair.second->serial().c_str());
+            ui::NextColumn();
+            ui::Text("%s", pair.second->hasCalibrationParams() ? "o" : "x");
+            ui::NextColumn();
+            if (pair.second->hasStarted()) {
+              if (ui::Button("Stop")) {
+                  pair.second->stop();
+              }
+            } else if (ui::Button("Start")) {
+                pair.second->start();
+            }
+            ui::NextColumn();
+        }
+
+        ui::Columns(1);
+        ui::Separator();
+
+        if (ui::Button("Start All")) {
+            for (auto pair : sensor_device_manager_.devices()) {
+                if (pair.second->isReady()) {
+                    pair.second->start();
+                }
+            }
+        }
+        ui::SameLine();
+        if (ui::Button("Stop All")) {
+            for (auto pair : sensor_device_manager_.devices()) {
+                if (pair.second->hasStarted()) {
+                    pair.second->stop();
+                }
+            }
         }
 
         ui::SetWindowPos(rightWindowPos);

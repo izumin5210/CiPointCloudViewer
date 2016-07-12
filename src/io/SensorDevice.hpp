@@ -22,8 +22,6 @@
 #include <opencv2/core/utility.hpp>
 #include <OpenNI.h>
 
-#include <boost/thread/mutex.hpp>
-
 #include "model/CloudsManager.h"
 #include "io/CalibrationParamsManager.h"
 
@@ -34,27 +32,13 @@ public:
     SensorDevice()
       : cloud_(new pcl::PointCloud<pcl::PointXYZRGBA>())
       , worker_canceled_(true)
+      , calibrated_(false)
     {
     }
 
     ~SensorDevice() {
-      if (color_stream_.isValid()) {
-        color_stream_.stop();
-        color_stream_.destroy();
-      }
-      if (depth_stream_.isValid()) {
-        depth_stream_.stop();
-        depth_stream_.destroy();
-      }
-      if (ir_stream_.isValid()) {
-        ir_stream_.stop();
-        ir_stream_.destroy();
-      }
-      device_.close();
-      worker_canceled_ = true;
-      if (worker_.joinable()) {
-        worker_.join();
-      }
+        stop();
+        device_.close();
     }
 
     void initialize(const char *uri = openni::ANY_DEVICE) {
@@ -90,13 +74,21 @@ public:
     }
 
     bool hasStarted() {
-      return !worker_canceled_;
+        return !worker_canceled_;
+    }
+
+    bool hasCalibrationParams() {
+        return calibrated_;
+    }
+
+    bool isReady() {
+        return calibrated_ && worker_canceled_;
     }
 
     void setCalibrationParams(CalibrationParams params) {
         if (params.serial == serial_) {
+            calibrated_ = true;
             params_ = params;
-            start();
         }
     }
 
@@ -120,9 +112,23 @@ public:
       });
     }
 
-    pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud() {
-      std::lock_guard<std::mutex> lg(mutex_);
-      return cloud_;
+    void stop() {
+        worker_canceled_ = true;
+        if (worker_.joinable()) {
+            worker_.join();
+        }
+        if (color_stream_.isValid()) {
+            color_stream_.stop();
+            color_stream_.destroy();
+        }
+        if (depth_stream_.isValid()) {
+            depth_stream_.stop();
+            depth_stream_.destroy();
+        }
+        if (ir_stream_.isValid()) {
+            ir_stream_.stop();
+            ir_stream_.destroy();
+        }
     }
 
 
@@ -146,8 +152,8 @@ private:
 
     std::thread worker_;
     std::atomic<bool> worker_canceled_;
+    std::atomic<bool> calibrated_;
 
-    std::mutex mutex_;
 
     void checkStatus(openni::Status status, std::string msg) {
         if (status != openni::STATUS_OK) { 
@@ -281,8 +287,6 @@ private:
       int height  = color_image_.size().height;
       // FIXME: hardcoding
       int dwidth  = 640;
-
-      std::lock_guard<std::mutex> lg(mutex_);
 
       cloud_->clear();
       cloud_->reserve(width * height);

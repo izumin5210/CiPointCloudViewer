@@ -55,6 +55,9 @@ public:
         if (device_check_worker_.joinable()) {
             device_check_worker_.join();
         }
+        for (auto pair : devices_) {
+            pair.second->stop();
+        }
     }
 
     inline void open(const std::string uri) {
