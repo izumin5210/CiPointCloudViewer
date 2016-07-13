@@ -11,6 +11,8 @@
 
 #include <pcl/io/pcd_io.h>
 
+#include "Signal.h"
+#include "model/CloudsManager.h"
 #include "PointCloudGrabber.hpp"
 
 namespace grabber {
@@ -22,11 +24,11 @@ public:
     PcdGrabber(const bpath path)
         : PointCloudGrabber(path)
     {
-        pcl::io::loadPCDFile(path_.string(), *cloud_);
     }
 
-    inline void start(bpt::ptime started_at, std::function<void()> &callback) override {
-        callback();
+    inline void start(bpt::ptime started_at) override {
+        pcl::io::loadPCDFile(path_.string(), *cloud_);
+        Signal<models::CloudEvent>::emit({path_.string(), cloud_});
     }
 
     inline void stop() override {

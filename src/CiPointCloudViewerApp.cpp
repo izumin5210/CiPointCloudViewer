@@ -11,6 +11,7 @@
 
 #include <set>
 #include <map>
+#include <Signal.h>
 
 #include "CinderImGui.h"
 
@@ -34,6 +35,10 @@ typedef bfs::path bpath;
 
 class CiPointCloudViewerApp : public App {
 public:
+    using PointT        = pcl::PointXYZRGBA;
+    using PointCloud    = pcl::PointCloud<PointT>;
+    using PointCloudPtr = PointCloud::Ptr;
+
     CiPointCloudViewerApp();
     ~CiPointCloudViewerApp();
 
@@ -90,8 +95,6 @@ private:
 
     std::atomic<bool> updated_;
 
-    function<void()> on_cloud_updated_ = [this]() { updated_ = true; };
-
     map<fs::path, vec2> loading_progresses_;
     function<void(fs::path, int, int)> on_pcd_loaded_ =
         [this](fs::path path, int count, int max) {
@@ -109,10 +112,9 @@ private:
     map<std::string, pcl::PointCloud<pcl::PointXYZRGBA>::Ptr> clouds_;
     std::string cloud_selected_;
 
-    mutex vert_batch_mutex_;
+    mutex batch_mutex_;
 
     void onCloudUpdated(const models::CloudEvent& event);
-    void onBatchUpdated(const gl::VertBatchRef& batch);
     void updatePointCloud();
 };
 
@@ -120,9 +122,9 @@ CiPointCloudViewerApp::CiPointCloudViewerApp()
     : x_pass_through_filter_("x")
     , y_pass_through_filter_("y")
     , z_pass_through_filter_("z")
-    , voxel_filter_()
-    , sor_filter_()
-    , sensor_device_manager_()
+    , grid_batch_(gl::VertBatch::create(GL_LINES))
+    , batch_(gl::VertBatch::create(GL_POINTS))
+    , camera_ui_(&camera_)
 {}
 
 CiPointCloudViewerApp::~CiPointCloudViewerApp() {
@@ -133,11 +135,6 @@ void CiPointCloudViewerApp::setup()
 {
     sensor_device_manager_.start();
     Signal<models::CloudEvent>::connect(this, &CiPointCloudViewerApp::onCloudUpdated);
-    Signal<gl::VertBatchRef>::connect(this, &CiPointCloudViewerApp::onBatchUpdated);
-
-    batch_ = gl::VertBatch::create(GL_POINTS);
-    grid_batch_ = gl::VertBatch::create(GL_LINES);
-    camera_ui_ = CameraUi(&camera_);
 
     grid_batch_->color(1, 1, 1, 0.3);
     for (float i = -5; i <= 5.0; i += 0.5) {
@@ -205,24 +202,10 @@ void CiPointCloudViewerApp::onCloudUpdated(const models::CloudEvent& event) {
     updatePointCloud();
 }
 
-void CiPointCloudViewerApp::onBatchUpdated(const gl::VertBatchRef& batch) {
-    lock_guard<mutex> lg(vert_batch_mutex_);
-    batch_ = batch;
-}
-
 void CiPointCloudViewerApp::updatePointCloud() {
     updated_ = false;
-    const gl::VertBatchRef batch = gl::VertBatch::create(GL_POINTS);
 
-    pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZRGBA>);
-
-    /*
-     * for (auto grabber : grabbers_) {
-     *     if (hidden_clouds_.find(grabber.first) == hidden_clouds_.end()) {
-     *         *cloud += *(grabber.second->cloud());
-     *     }
-     * }
-     */
+    PointCloudPtr cloud(new PointCloud);
 
     for (auto pair : clouds_) {
         if (hidden_clouds_.find(pair.first) == hidden_clouds_.end()) {
@@ -252,14 +235,14 @@ void CiPointCloudViewerApp::updatePointCloud() {
         sor_filter_.filter(cloud);
     }
 
-    for (auto point : cloud->points) {
-        batch->color(ci::ColorA8u(point.r, point.g, point.b, point.a));
-        batch->vertex(ci::vec3(point.x, point.y, point.z));
-    }
-
     filtered_cloud_size_ = cloud->size();
 
-    Signal<gl::VertBatchRef>::emit(batch);
+    lock_guard<mutex> lg(batch_mutex_);
+    batch_->clear();
+    for (auto point : cloud->points) {
+        batch_->color(ci::ColorA8u(point.r, point.g, point.b, point.a));
+        batch_->vertex(ci::vec3(point.x, point.y, point.z));
+    }
 }
 
 void CiPointCloudViewerApp::mouseDown(MouseEvent event) {
@@ -289,7 +272,7 @@ void CiPointCloudViewerApp::update()
                 if (bfs::exists(pcdfile)) {
                     auto grabber = std::make_shared<grabber::PcdGrabber>(pcdfile);
                     grabbers_[pcdfile] = grabber;
-                    grabber->start(on_cloud_updated_);
+                    grabber->start();
                 }
             }
             if(ui::MenuItem("Open directory")) {
@@ -298,10 +281,6 @@ void CiPointCloudViewerApp::update()
                     auto grabber = std::make_shared<grabber::SequentialPcdGrabber>(dir);
                     grabbers_[dir] = grabber;
                     grabber->initialize(on_pcd_loaded_);
-                    // TODO: startボタンみたいなのつくって，そこに移動
-//                    grabber->start([this]() {
-//                        // TODO: not yet implemented
-//                    });
                 }
             }
             if (ui::MenuItem("Open calibration yaml file")) {
@@ -433,38 +412,27 @@ void CiPointCloudViewerApp::update()
         if (ui::Button("Clear")) {
             clouds_.clear();
             cloud_selected_ = std::string();
-            // grabbers_.clear();
-            // loading_progresses_.clear();
-            // grabber_selected_ = nullptr;
             updated_ = true;
         }
 
-        // if (grabber_selected_) {
         if (!cloud_selected_.empty()) {
             ui::SameLine();
             if (ui::Button("Remove")) {
                 clouds_.erase(cloud_selected_);
-                // grabbers_.erase(grabber_selected_->path());
-                // loading_progresses_.erase(grabber_selected_->path());
-                // grabber_selected_ = nullptr;
                 cloud_selected_ = std::string();
                 updated_ = true;
             }
         }
 
-        // if (grabber_selected_) {
         if (!cloud_selected_.empty()) {
             ui::SameLine();
-            // if (hidden_clouds_.find(grabber_selected_->path()) != hidden_clouds_.end()) {
             if (hidden_clouds_.find(cloud_selected_) != hidden_clouds_.end()) {
                 if (ui::Button("Show")) {
-                    // hidden_clouds_.erase(grabber_selected_->path());
                     hidden_clouds_.erase(cloud_selected_);
                     updated_ = true;
                 }
             } else {
                 if (ui::Button("Hide")) {
-                    // hidden_clouds_.insert(grabber_selected_->path());
                     hidden_clouds_.insert(cloud_selected_);
                     updated_ = true;
                 }
@@ -472,11 +440,8 @@ void CiPointCloudViewerApp::update()
         }
 
         ui::ListBoxHeader("");
-        // for (auto pair: grabbers_) {
         for (auto pair : clouds_) {
-            // if (ui::Selectable(pair.first.filename().c_str(), grabber_selected_ && (grabber_selected_->path() == pair.first))) {
             if (ui::Selectable(pair.first.c_str(), !cloud_selected_.empty() && (cloud_selected_ == pair.first))) {
-                // grabber_selected_ = pair.second;
                 cloud_selected_ = pair.first;
             }
         }
@@ -503,7 +468,7 @@ void CiPointCloudViewerApp::update()
                     grabber->stop();
                 }
             } else if (ui::Button("Play")) {
-                grabber->start(on_cloud_updated_);
+                grabber->start();
             }
             ui::Columns(1);
         }
@@ -581,9 +546,8 @@ void CiPointCloudViewerApp::draw()
         grid_batch_->draw();
     }
 
-    vert_batch_mutex_.lock();
+    lock_guard<mutex> lg(batch_mutex_);
     batch_->draw();
-    vert_batch_mutex_.unlock();
 }
 
 CINDER_APP( CiPointCloudViewerApp, RendererGl, [](App::Settings *settings) {
