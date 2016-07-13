@@ -45,6 +45,7 @@ set(CINDER_IMGUI_SOURCES
 
 set(PROJECT_SOURCES
   ${PROJECT_DIR}/src/CiPointCloudViewerApp.cpp
+  ${PROJECT_DIR}/src/FpsCounter.cpp
   ${PROJECT_DIR}/src/io/CalibrationParamsManager.cpp
   ${CINDER_IMGUI_SOURCES}
 )

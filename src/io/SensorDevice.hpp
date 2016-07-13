@@ -22,6 +22,7 @@
 #include <opencv2/core/utility.hpp>
 #include <OpenNI.h>
 
+#include "FpsCounter.h"
 #include "Signal.h"
 #include "model/CloudsManager.h"
 #include "io/CalibrationParamsManager.h"
@@ -34,6 +35,7 @@ public:
       : cloud_(new pcl::PointCloud<pcl::PointXYZRGBA>())
       , worker_canceled_(true)
       , calibrated_(false)
+      , fps_(0.0f)
     {
     }
 
@@ -46,6 +48,7 @@ public:
         uri_ = uri;
 
         Signal<CalibrationParams>::connect(this, &SensorDevice::setCalibrationParams);
+        Signal<FpsCounter::Event>::connect(this, &SensorDevice::updateFps);
 
         checkStatus(device_.open(uri), "openni::Device::open() failed.");
         if (device_.isFile()) {
@@ -71,6 +74,10 @@ public:
 
     std::string serial() {
         return serial_;
+    }
+
+    float fps() {
+        return fps_;
     }
 
     bool hasStarted() {
@@ -104,10 +111,12 @@ public:
           // TODO: record .oni file
         }
 
+        fps_counter_.start(serial_);
         worker_canceled_ = false;
         while (!worker_canceled_) {
             update();
             Signal<models::CloudEvent>::emit({name_, cloud_});
+            fps_counter_.passFrame();
         }
       });
     }
@@ -139,6 +148,8 @@ private:
     std::string name_;
     CalibrationParams params_;
 
+    FpsCounter fps_counter_;
+
     pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud_;
 
     openni::VideoStream color_stream_;
@@ -154,6 +165,13 @@ private:
     std::atomic<bool> worker_canceled_;
     std::atomic<bool> calibrated_;
 
+    float fps_;
+
+    void updateFps(const FpsCounter::Event& event) {
+        if (event.key == serial_) {
+            fps_ = event.fps;
+        }
+    }
 
     void checkStatus(openni::Status status, std::string msg) {
         if (status != openni::STATUS_OK) { 

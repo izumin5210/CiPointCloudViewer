@@ -480,11 +480,13 @@ void CiPointCloudViewerApp::update()
     {
         ui::ScopedWindow window("Connected devices", kWindowFlags);
 
-        ui::Columns(3);
+        ui::Columns(4);
         for (auto pair : sensor_device_manager_.devices()) {
             ui::Selectable(pair.second->serial().c_str());
             ui::NextColumn();
             ui::Text("%s", pair.second->hasCalibrationParams() ? "o" : "x");
+            ui::NextColumn();
+            ui::Text("%f", pair.second->fps());
             ui::NextColumn();
             if (pair.second->hasStarted()) {
               if (ui::Button("Stop")) {
