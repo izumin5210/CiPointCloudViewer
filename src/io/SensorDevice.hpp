@@ -32,8 +32,7 @@ namespace io {
 class SensorDevice {
 public:
     SensorDevice()
-      : cloud_(new pcl::PointCloud<pcl::PointXYZRGBA>())
-      , worker_canceled_(true)
+      : worker_canceled_(true)
       , calibrated_(false)
       , fps_(0.0f)
     {
@@ -115,7 +114,6 @@ public:
         worker_canceled_ = false;
         while (!worker_canceled_) {
             update();
-            Signal<models::CloudEvent>::emit({name_, cloud_});
             fps_counter_.passFrame();
         }
       });
@@ -149,8 +147,6 @@ private:
     CalibrationParams params_;
 
     FpsCounter fps_counter_;
-
-    pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud_;
 
     openni::VideoStream color_stream_;
     openni::VideoStream depth_stream_;
@@ -306,11 +302,12 @@ private:
       // FIXME: hardcoding
       int dwidth  = 640;
 
-      cloud_->clear();
-      cloud_->reserve(width * height);
-
       auto cv_depth_image = raw_depth_image_.getMat(cv::ACCESS_READ);
       auto cv_color_image = color_image_.getMat(cv::ACCESS_READ);
+
+      const pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZRGBA>);
+      cloud->clear();
+      cloud->reserve(width * height);
 
       for (int y = 0; y < height; y++) {
         unsigned short *depth = (unsigned short *) cv_depth_image.ptr(y);
@@ -330,12 +327,13 @@ private:
             point.b = color[x][0];
             point.g = color[x][1];
             point.r = color[x][2];
-            cloud_->push_back(point);
+            cloud->push_back(point);
           }
         }
       }
 
-      pcl::transformPointCloud(*cloud_, *cloud_, params_.calib_matrix);
+      pcl::transformPointCloud(*cloud, *cloud, params_.calib_matrix);
+      Signal<models::CloudEvent>::emit({name_, cloud});
     }
 };
 
