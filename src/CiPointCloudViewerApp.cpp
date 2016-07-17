@@ -115,6 +115,7 @@ private:
     filter::StatisticalOutlierRemovalFilter<pcl::PointXYZRGBA> sor_filter_;
 
     io::SensorDeviceManager sensor_device_manager_;
+    std::string device_selected_;
 
     map<std::string, pcl::PointCloud<pcl::PointXYZRGBA>::Ptr> clouds_;
     std::string cloud_selected_;
@@ -507,27 +508,6 @@ void CiPointCloudViewerApp::update()
     {
         ui::ScopedWindow window("Connected devices", kWindowFlags);
 
-        ui::Columns(4);
-        for (auto pair : sensor_device_manager_.devices()) {
-            ui::Selectable(pair.second->serial().c_str());
-            ui::NextColumn();
-            ui::Text("%s", pair.second->hasCalibrationParams() ? "o" : "x");
-            ui::NextColumn();
-            ui::Text("%f", pair.second->fps());
-            ui::NextColumn();
-            if (pair.second->hasStarted()) {
-              if (ui::Button("Stop")) {
-                  pair.second->stop();
-              }
-            } else if (ui::Button("Start")) {
-                pair.second->start();
-            }
-            ui::NextColumn();
-        }
-
-        ui::Columns(1);
-        ui::Separator();
-
         if (ui::Button("Start All")) {
             for (auto pair : sensor_device_manager_.devices()) {
                 if (pair.second->isReady()) {
@@ -543,6 +523,68 @@ void CiPointCloudViewerApp::update()
                 }
             }
         }
+
+        if (ui::Button("Record All")) {
+            for (auto pair : sensor_device_manager_.devices()) {
+                if (!pair.second->isRecording()) {
+                    // TODO: fix path
+                    pair.second->record(getAssetDirectories()[0]);
+                }
+            }
+        }
+        ui::SameLine();
+        if (ui::Button("Stop recording all")) {
+            for (auto pair : sensor_device_manager_.devices()) {
+                if (pair.second->isRecording()) {
+                    pair.second->stopRecording();
+                }
+            }
+        }
+
+        ui::Separator();
+
+        if (!device_selected_.empty()) {
+            auto device = sensor_device_manager_.devices()[device_selected_];
+            if (device->hasStarted()) {
+                if (ui::Button("Stop")) {
+                    device->stop();
+                }
+                ui::SameLine();
+                if (device->isRecording()) {
+                    if (ui::Button("Stop recording")) {
+                        device->stopRecording();
+                    }
+                } else if (ui::Button("Start recording")) {
+                    // TODO: fix path
+                    device->record(getAssetDirectories()[0]);
+                }
+            } else if (ui::Button("Start")) {
+                device->start();
+            }
+        }
+
+        ui::Separator();
+        ui::Columns(3, "Connected devices", true);
+        ui::Text("serial");
+        ui::NextColumn();
+        ui::Text("state");
+        ui::NextColumn();
+        ui::Text("fps");
+        ui::NextColumn();
+        ui::Separator();
+        for (auto pair : sensor_device_manager_.devices()) {
+            auto selected = !device_selected_.empty() && (device_selected_ == pair.first);
+            if (ui::Selectable(pair.second->serial().c_str(), selected, ImGuiSelectableFlags_SpanAllColumns)) {
+                device_selected_ = pair.first;
+            }
+            ui::NextColumn();
+            ui::Text("%s", pair.second->stateString().c_str());
+            ui::NextColumn();
+            ui::Text("%f", pair.second->fps());
+            ui::NextColumn();
+        }
+        ui::Separator();
+        ui::Columns(1);
 
         ui::SetWindowPos(rightWindowPos);
         ui::SetWindowSize(vec2(kWindowWidth, 0));

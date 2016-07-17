@@ -31,10 +31,22 @@ namespace io {
 
 class SensorDevice {
 public:
+    enum State {
+      NOT_INITIALIZED,
+      INITIALIZED,
+      CALIBRATED,
+      STARTING,
+      PLAYING,
+      RECORDING,
+      STOPPING
+    };
+
     SensorDevice()
       : worker_canceled_(true)
       , calibrated_(false)
+      , recording_(false)
       , fps_(0.0f)
+      , state_(NOT_INITIALIZED)
     {
     }
 
@@ -65,6 +77,8 @@ public:
             // std::stringstream buf(name_);
             // buf >> name_;
         }
+
+        state_ = INITIALIZED;
     }
 
     std::string uri() {
@@ -91,14 +105,30 @@ public:
         return calibrated_ && worker_canceled_;
     }
 
+    bool isRecording() {
+        return recording_;
+    }
+
+    State state() {
+        return state_;
+    }
+
+    std::string stateString() {
+        return kStateString[state_];
+    }
+
     void setCalibrationParams(const CalibrationParams& params) {
         if (params.serial == serial_) {
+            if (state_ == INITIALIZED) {
+                state_ = CALIBRATED;
+            }
             calibrated_ = true;
             params_ = params;
         }
     }
 
     void start() {
+      state_ = STARTING;
       worker_ = std::thread([&]() {
         startColorStream();
         startDepthStream();
@@ -112,6 +142,7 @@ public:
 
         fps_counter_.start(serial_);
         worker_canceled_ = false;
+        state_ = PLAYING;
         while (!worker_canceled_) {
             update();
             fps_counter_.passFrame();
@@ -120,7 +151,9 @@ public:
     }
 
     void stop() {
+        state_ = STOPPING;
         worker_canceled_ = true;
+        stopRecording();
         if (worker_.joinable()) {
             worker_.join();
         }
@@ -136,10 +169,44 @@ public:
             ir_stream_.stop();
             ir_stream_.destroy();
         }
+        state_ = calibrated_ ? CALIBRATED : INITIALIZED;
+    }
+
+    void record(boost::filesystem::path dir) {
+        std::ostringstream ss;
+        auto now = boost::posix_time::microsec_clock::universal_time();
+        ss << boost::posix_time::to_iso_string(now) << "_" << serial_ << ".oni";
+        checkStatus(recorder_.create(ss.str().c_str()), "Creating recorder failed.");
+        checkStatus(recorder_.attach(color_stream_, TRUE), "Attaching color stream to recorder failed.");
+        checkStatus(recorder_.attach(depth_stream_, FALSE), "Attaching depth stream to recorder failed.");
+        checkStatus(recorder_.start(), "Recording failed.");
+        recording_ = true;
+        state_ = RECORDING;
+    }
+
+    void stopRecording() {
+        if (recorder_.isValid()) {
+            recorder_.stop();
+            recorder_.destroy();
+            if (state_ == RECORDING) {
+                state_ = PLAYING;
+            }
+            recording_ = false;
+        }
     }
 
 
 private:
+    std::map<State, std::string> kStateString = {
+      { NOT_INITIALIZED,  "NOT_INITIALIZED" },
+      { INITIALIZED,      "INITIALIZED" },
+      { CALIBRATED,       "CALIBRATED" },
+      { STARTING,         "STARTING" },
+      { PLAYING,          "PLAYING" },
+      { RECORDING,        "RECORDING" },
+      { STOPPING,         "STOPPING" }
+    };
+
     openni::Device device_;
     std::string uri_;
     std::string serial_;
@@ -152,14 +219,19 @@ private:
     openni::VideoStream depth_stream_;
     openni::VideoStream ir_stream_;
 
+    openni::Recorder recorder_;
+
     cv::UMat color_image_;
     cv::UMat raw_depth_image_;
     cv::UMat depth_image_;
     cv::UMat ir_image_;
 
+    State state_;
+
     std::thread worker_;
     std::atomic<bool> worker_canceled_;
     std::atomic<bool> calibrated_;
+    std::atomic<bool> recording_;
 
     float fps_;
 
