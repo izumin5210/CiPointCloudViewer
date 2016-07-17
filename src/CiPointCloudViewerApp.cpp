@@ -73,6 +73,10 @@ private:
     gl::VertBatchRef batch_;
     gl::VertBatchRef grid_batch_;
 
+    gl::GlslProgRef render_prog_;
+    gl::VaoRef vao_;
+    gl::VboRef vbo_;
+
     CameraPersp camera_;
     CameraUi camera_ui_;
     vec3 camera_target_     = vec3(0, 0.5, 0);
@@ -85,6 +89,8 @@ private:
     bool visible_debug_window_      = true;
     bool visible_player_window_     = true;
 
+    PointCloudPtr cloud_;
+
     int cloud_size_ = 0;
     int filtered_cloud_size_ = 0;
 
@@ -94,6 +100,7 @@ private:
     Color bg_color_ = Color8u(0x11, 0x11, 0x11);
 
     std::atomic<bool> updated_;
+    std::atomic<bool> cloud_updated_;
 
     map<fs::path, vec2> loading_progresses_;
     function<void(fs::path, int, int)> on_pcd_loaded_ =
@@ -116,6 +123,7 @@ private:
 
     void onCloudUpdated(const models::CloudEvent& event);
     void updatePointCloud();
+    void updateVbo();
 };
 
 CiPointCloudViewerApp::CiPointCloudViewerApp()
@@ -125,6 +133,17 @@ CiPointCloudViewerApp::CiPointCloudViewerApp()
     , grid_batch_(gl::VertBatch::create(GL_LINES))
     , batch_(gl::VertBatch::create(GL_POINTS))
     , camera_ui_(&camera_)
+    , render_prog_(
+        gl::GlslProg::create(
+            gl::GlslProg::Format()
+                .vertex(loadAsset("pointcloud.vert"))
+                .fragment(loadAsset("pointcloud.frag"))
+        )
+    )
+    , vao_(gl::Vao::create())
+      , vbo_(gl::Vbo::create(GL_ARRAY_BUFFER, 0, nullptr, GL_STATIC_DRAW))
+    , cloud_(new PointCloud)
+    , cloud_updated_(false)
 {}
 
 CiPointCloudViewerApp::~CiPointCloudViewerApp() {
@@ -205,43 +224,51 @@ void CiPointCloudViewerApp::onCloudUpdated(const models::CloudEvent& event) {
 void CiPointCloudViewerApp::updatePointCloud() {
     updated_ = false;
 
-    PointCloudPtr cloud(new PointCloud);
+    lock_guard<mutex> lg(batch_mutex_);
+    cloud_->clear();
 
     for (auto pair : clouds_) {
         if (hidden_clouds_.find(pair.first) == hidden_clouds_.end()) {
-            *cloud += *(pair.second);
+            *cloud_ += *(pair.second);
         }
     }
 
-    cloud_size_ = cloud->size();
+    cloud_size_ = cloud_->size();
 
     if (x_pass_through_filter_.params_.enable) {
-        x_pass_through_filter_.filter(cloud);
+        x_pass_through_filter_.filter(cloud_);
     }
 
     if (y_pass_through_filter_.params_.enable) {
-        y_pass_through_filter_.filter(cloud);
+        y_pass_through_filter_.filter(cloud_);
     }
 
     if (z_pass_through_filter_.params_.enable) {
-        z_pass_through_filter_.filter(cloud);
+        z_pass_through_filter_.filter(cloud_);
     }
 
     if (voxel_filter_.params_.enable) {
-        voxel_filter_.filter(cloud);
+        voxel_filter_.filter(cloud_);
     }
 
     if (sor_filter_.params_.enable) {
-        sor_filter_.filter(cloud);
+        sor_filter_.filter(cloud_);
     }
 
-    filtered_cloud_size_ = cloud->size();
+    filtered_cloud_size_ = cloud_->size();
+    cloud_updated_ = true;
+}
 
-    lock_guard<mutex> lg(batch_mutex_);
-    batch_->clear();
-    for (auto point : cloud->points) {
-        batch_->color(ci::ColorA8u(point.r, point.g, point.b, point.a));
-        batch_->vertex(ci::vec3(point.x, point.y, point.z));
+void CiPointCloudViewerApp::updateVbo() {
+    cloud_updated_ = false;
+    vbo_->copyData(cloud_->points.size() * sizeof(PointT), cloud_->points.data());
+    {
+        gl::ScopedVao vao(vao_);
+        gl::ScopedBuffer vbo(vbo_);
+        gl::enableVertexAttribArray(0);
+        gl::enableVertexAttribArray(1);
+        gl::vertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, sizeof(PointT), (const GLvoid*)offsetof(PointT, data));
+        gl::vertexAttribPointer(1, 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(PointT), (const GLvoid*)offsetof(PointT, rgba));
     }
 }
 
@@ -534,6 +561,9 @@ void CiPointCloudViewerApp::update()
     if (updated_) {
         updatePointCloud();
     }
+    if (cloud_updated_) {
+        updateVbo();
+    }
 }
 
 void CiPointCloudViewerApp::draw()
@@ -549,7 +579,12 @@ void CiPointCloudViewerApp::draw()
     }
 
     lock_guard<mutex> lg(batch_mutex_);
-    batch_->draw();
+    {
+        gl::ScopedGlslProg render(render_prog_);
+        gl::ScopedVao vao(vao_);
+        gl::context()->setDefaultShaderVars();
+        gl::drawArrays(GL_POINTS, 0, filtered_cloud_size_);
+    }
 }
 
 CINDER_APP( CiPointCloudViewerApp, RendererGl, [](App::Settings *settings) {
