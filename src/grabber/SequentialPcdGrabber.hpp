@@ -29,8 +29,8 @@ public:
 
     SequentialPcdGrabber(const bpath path)
         : PointCloudGrabber(path)
-        , player_worker_canceled_(true)
         , loader_worker_canceled_(true)
+        , player_worker_canceled_(true)
     {
     }
 

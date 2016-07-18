@@ -26,8 +26,8 @@ public:
     Params params_;
 
     VoxelFilter()
-        : filter_(new pcl::VoxelGrid<PointT>())
-        , params_()
+        : params_()
+        , filter_(new pcl::VoxelGrid<PointT>())
     {
     }
 

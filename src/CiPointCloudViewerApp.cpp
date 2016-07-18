@@ -55,7 +55,6 @@ private:
     const ImGuiWindowFlags kWindowFlags = ImGuiWindowFlags_ShowBorders;
     const int kWindowSpacing = 8;
     const int kWindowWidth = 320;
-    const int kPlayerWindowHeight = 48;
 
     const ColorA8u kColorBlackA55   = ColorA8u(0x22, 0x22, 0x22, 0x55);
     const ColorA8u kColorBlackAcc   = ColorA8u(0x22, 0x22, 0x22, 0xcc);
@@ -74,7 +73,6 @@ private:
     shared_ptr<grabber::PointCloudGrabber> grabber_selected_;
     set<fs::path> hidden_clouds_;
 
-    gl::VertBatchRef batch_;
     gl::VertBatchRef grid_batch_;
 
     gl::GlslProgRef render_prog_;
@@ -134,12 +132,7 @@ private:
 
 CiPointCloudViewerApp::CiPointCloudViewerApp()
     : config_(getAssetPath(""))
-    , x_pass_through_filter_("x")
-    , y_pass_through_filter_("y")
-    , z_pass_through_filter_("z")
     , grid_batch_(gl::VertBatch::create(GL_LINES))
-    , batch_(gl::VertBatch::create(GL_POINTS))
-    , camera_ui_(&camera_)
     , render_prog_(
         gl::GlslProg::create(
             gl::GlslProg::Format()
@@ -149,8 +142,12 @@ CiPointCloudViewerApp::CiPointCloudViewerApp()
     )
     , vao_(gl::Vao::create())
     , vbo_(gl::Vbo::create(GL_ARRAY_BUFFER, 0, nullptr, GL_STATIC_DRAW))
+    , camera_ui_(&camera_)
     , cloud_(new PointCloud)
     , cloud_updated_(false)
+    , x_pass_through_filter_("x")
+    , y_pass_through_filter_("y")
+    , z_pass_through_filter_("z")
 {}
 
 CiPointCloudViewerApp::~CiPointCloudViewerApp() {

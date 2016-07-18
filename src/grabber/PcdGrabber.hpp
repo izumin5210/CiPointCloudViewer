@@ -27,6 +27,7 @@ public:
     }
 
     inline void start(bpt::ptime started_at) override {
+        (void) started_at;
         pcl::io::loadPCDFile(path_.string(), *cloud_);
         Signal<models::CloudEvent>::emit({path_.string(), cloud_});
     }

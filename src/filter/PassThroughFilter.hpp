@@ -27,8 +27,8 @@ public:
     Params params_;
 
     PassThroughFilter(const std::string field_name)
-        : filter_(new pcl::PassThrough<PointT>())
-        , params_()
+        : params_()
+        , filter_(new pcl::PassThrough<PointT>())
     {
         filter_->setFilterFieldName(field_name);
     }

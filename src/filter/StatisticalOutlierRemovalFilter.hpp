@@ -27,8 +27,8 @@ public:
     Params params_;
 
     StatisticalOutlierRemovalFilter()
-        : filter_(new pcl::StatisticalOutlierRemoval<PointT>())
-        , params_()
+        : params_()
+        , filter_(new pcl::StatisticalOutlierRemoval<PointT>())
     {
     }
 
