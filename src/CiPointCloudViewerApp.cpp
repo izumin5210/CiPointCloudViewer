@@ -94,6 +94,7 @@ private:
     bool visible_player_window_     = true;
 
     PointCloudPtr cloud_;
+    bool enable_fullscreen_ = false;
 
     int cloud_size_ = 0;
     int filtered_cloud_size_ = 0;
@@ -346,6 +347,8 @@ void CiPointCloudViewerApp::update()
             ui::MenuItem("Clouds",      nullptr, &visible_clouds_window_);
             ui::MenuItem("Debug",       nullptr, &visible_debug_window_);
             ui::MenuItem("Player",      nullptr, &visible_player_window_);
+            ui::Separator();
+            ui::MenuItem("Fullscreen",  nullptr, &enable_fullscreen_);
             ui::EndMenu();
         }
 
@@ -634,6 +637,8 @@ void CiPointCloudViewerApp::update()
     if (cloud_updated_) {
         updateVbo();
     }
+
+    setFullScreen(enable_fullscreen_);
 }
 
 void CiPointCloudViewerApp::draw()
