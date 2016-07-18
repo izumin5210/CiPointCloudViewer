@@ -18,31 +18,31 @@ namespace filter {
 template<typename PointT>
 class StatisticalOutlierRemovalFilter : public Filter<PointT> {
 public:
-    struct Params {
-        bool enable = false;
-        int mean_k  = 50;
-        float stddev_mul_threshold = 1.0f;
-    };
+  struct Params {
+    bool enable = false;
+    int mean_k  = 50;
+    float stddev_mul_threshold = 1.0f;
+  };
 
-    Params params_;
+  Params params_;
 
-    StatisticalOutlierRemovalFilter()
-        : params_()
-        , filter_(new pcl::StatisticalOutlierRemoval<PointT>())
-    {
-    }
+  StatisticalOutlierRemovalFilter()
+    : params_()
+    , filter_(new pcl::StatisticalOutlierRemoval<PointT>())
+  {
+  }
 
 
 protected:
-    inline std::shared_ptr<pcl::Filter<PointT>> buildFilter() override {
-        filter_->setMeanK(params_.mean_k);
-        filter_->setStddevMulThresh(params_.stddev_mul_threshold);
-        return filter_;
-    }
+  inline std::shared_ptr<pcl::Filter<PointT>> buildFilter() override {
+    filter_->setMeanK(params_.mean_k);
+    filter_->setStddevMulThresh(params_.stddev_mul_threshold);
+    return filter_;
+  }
 
 
 private:
-    std::shared_ptr<pcl::StatisticalOutlierRemoval<PointT>> filter_;
+  std::shared_ptr<pcl::StatisticalOutlierRemoval<PointT>> filter_;
 };
 
 }

@@ -19,26 +19,26 @@ namespace grabber {
 
 class PcdGrabber : public PointCloudGrabber {
 public:
-    using PointCloudGrabber::start;
+  using PointCloudGrabber::start;
 
-    PcdGrabber(const bpath path)
-        : PointCloudGrabber(path)
-    {
-    }
+  PcdGrabber(const bpath path)
+    : PointCloudGrabber(path)
+  {
+  }
 
-    inline void start(bpt::ptime started_at) override {
-        (void) started_at;
-        pcl::io::loadPCDFile(path_.string(), *cloud_);
-        Signal<models::CloudEvent>::emit({path_.string(), cloud_});
-    }
+  inline void start(bpt::ptime started_at) override {
+    (void) started_at;
+    pcl::io::loadPCDFile(path_.string(), *cloud_);
+    Signal<models::CloudEvent>::emit({path_.string(), cloud_});
+  }
 
-    inline void stop() override {
-        // do nothing
-    }
+  inline void stop() override {
+    // do nothing
+  }
 
-    inline bool isPlaying() override {
-        return true;
-    }
+  inline bool isPlaying() override {
+    return true;
+  }
 };
 
 }

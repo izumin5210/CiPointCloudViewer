@@ -18,29 +18,29 @@ namespace filter {
 template<typename PointT>
 class VoxelFilter : public Filter<PointT> {
 public:
-    struct Params {
-        bool enable = false;
-        float size  = 0.01f;
-    };
+  struct Params {
+    bool enable = false;
+    float size  = 0.01f;
+  };
 
-    Params params_;
+  Params params_;
 
-    VoxelFilter()
-        : params_()
-        , filter_(new pcl::VoxelGrid<PointT>())
-    {
-    }
+  VoxelFilter()
+    : params_()
+    , filter_(new pcl::VoxelGrid<PointT>())
+  {
+  }
 
 
 protected:
-    inline std::shared_ptr<pcl::Filter<PointT>> buildFilter() override {
-        filter_->setLeafSize(params_.size, params_.size, params_.size);
-        return filter_;
-    }
+  inline std::shared_ptr<pcl::Filter<PointT>> buildFilter() override {
+    filter_->setLeafSize(params_.size, params_.size, params_.size);
+    return filter_;
+  }
 
 
 private:
-    std::shared_ptr<pcl::VoxelGrid<PointT>> filter_;
+  std::shared_ptr<pcl::VoxelGrid<PointT>> filter_;
 };
 
 }
