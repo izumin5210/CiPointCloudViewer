@@ -13,6 +13,8 @@
 
 #include <map>
 
+#include "cinder/Signals.h"
+
 #include "PointCloudGrabber.hpp"
 
 namespace bfs = boost::filesystem;
@@ -40,12 +42,12 @@ public:
         }
     }
 
-    inline void start(std::function<void()> &callback) override {
-        start(files_.begin()->first, callback);
+    inline void start() override {
+        start(files_.begin()->first);
     }                
 
-    inline void start(bptime started_at, std::function<void()> &callback) override {
-        start(time_in_nanos(started_at), callback);
+    inline void start(bptime started_at) override {
+        start(time_in_nanos(started_at));
     }
 
     inline void stop() override {
@@ -102,9 +104,9 @@ private:
     std::atomic<uint64_t> started_at_in_real_;
     std::atomic<uint64_t> waited_since_;
 
-    inline void start(const uint64_t started_at, std::function<void()> &callback) {
+    inline void start(const uint64_t started_at) {
         player_worker_canceled_ = false;
-        player_worker_ = std::thread([this, started_at, &callback] {
+        player_worker_ = std::thread([this, started_at] {
             auto itr = files_.begin();
             started_at_in_real_ = time_in_nanos(current_time());
             waiting_ = false;
@@ -122,7 +124,7 @@ private:
                 }
                 if ((itr->first - started_at) <= elapsedTime()) {
                     cloud_ = clouds_[itr->first];
-                    callback();
+                    Signal<models::CloudEvent>::emit({path_.string(), cloud_});
                     itr++;
                 }
                 if (itr == files_.end()) {

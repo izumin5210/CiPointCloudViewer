@@ -3,6 +3,7 @@
 #include "cinder/Camera.h"
 #include "cinder/CameraUi.h"
 #include "cinder/gl/gl.h"
+#include "cinder/Signals.h"
 
 #include <pcl/point_cloud.h>
 #include <pcl/point_types.h>
@@ -10,8 +11,11 @@
 
 #include <set>
 #include <map>
+#include <Signal.h>
 
 #include "CinderImGui.h"
+
+#include "Configure.h"
 
 #include "grabber/PcdGrabber.hpp"
 #include "grabber/SequentialPcdGrabber.hpp"
@@ -19,6 +23,10 @@
 #include "filter/PassThroughFilter.hpp"
 #include "filter/VoxelFilter.hpp"
 #include "filter/StatisticalOutlierRemovalFilter.hpp"
+
+#include "model/CloudsManager.h"
+#include "io/CalibrationParamsManager.h"
+#include "io/SensorDeviceManager.hpp"
 
 using namespace ci;
 using namespace ci::app;
@@ -29,7 +37,12 @@ typedef bfs::path bpath;
 
 class CiPointCloudViewerApp : public App {
 public:
+    using PointT        = pcl::PointXYZRGBA;
+    using PointCloud    = pcl::PointCloud<PointT>;
+    using PointCloudPtr = PointCloud::Ptr;
+
     CiPointCloudViewerApp();
+    ~CiPointCloudViewerApp();
 
     void setup() override;
     void mouseDown(MouseEvent event) override;
@@ -41,7 +54,7 @@ public:
 private:
     const ImGuiWindowFlags kWindowFlags = ImGuiWindowFlags_ShowBorders;
     const int kWindowSpacing = 8;
-    const int kWindowWidth = 360;
+    const int kWindowWidth = 320;
     const int kPlayerWindowHeight = 48;
 
     const ColorA8u kColorBlackA55   = ColorA8u(0x22, 0x22, 0x22, 0x55);
@@ -55,12 +68,18 @@ private:
     const ColorA8u kColorAccentAcc  = ColorA8u(0xf1, 0x67, 0x3f, 0xcc);
     const ColorA8u kColorAccentA99  = ColorA8u(0xf1, 0x67, 0x3f, 0x99);
 
+    Configure config_;
+
     map<fs::path, shared_ptr<grabber::PointCloudGrabber>> grabbers_;
     shared_ptr<grabber::PointCloudGrabber> grabber_selected_;
     set<fs::path> hidden_clouds_;
 
     gl::VertBatchRef batch_;
     gl::VertBatchRef grid_batch_;
+
+    gl::GlslProgRef render_prog_;
+    gl::VaoRef vao_;
+    gl::VboRef vbo_;
 
     CameraPersp camera_;
     CameraUi camera_ui_;
@@ -72,6 +91,9 @@ private:
     bool visible_filters_window_    = true;
     bool visible_clouds_window_     = true;
     bool visible_debug_window_      = true;
+    bool visible_player_window_     = true;
+
+    PointCloudPtr cloud_;
 
     int cloud_size_ = 0;
     int filtered_cloud_size_ = 0;
@@ -82,8 +104,7 @@ private:
     Color bg_color_ = Color8u(0x11, 0x11, 0x11);
 
     std::atomic<bool> updated_;
-
-    function<void()> on_cloud_updated_ = [this]() { updated_ = true; };
+    std::atomic<bool> cloud_updated_;
 
     map<fs::path, vec2> loading_progresses_;
     function<void(fs::path, int, int)> on_pcd_loaded_ =
@@ -97,23 +118,50 @@ private:
     filter::VoxelFilter<pcl::PointXYZRGBA> voxel_filter_;
     filter::StatisticalOutlierRemovalFilter<pcl::PointXYZRGBA> sor_filter_;
 
+    io::SensorDeviceManager sensor_device_manager_;
+    std::string device_selected_;
 
+    map<std::string, pcl::PointCloud<pcl::PointXYZRGBA>::Ptr> clouds_;
+    std::string cloud_selected_;
+
+    mutex batch_mutex_;
+
+    void onCloudUpdated(const models::CloudEvent& event);
     void updatePointCloud();
+    void updateVbo();
 };
 
 CiPointCloudViewerApp::CiPointCloudViewerApp()
-    : x_pass_through_filter_("x")
+    : config_(getAssetPath(""))
+    , x_pass_through_filter_("x")
     , y_pass_through_filter_("y")
     , z_pass_through_filter_("z")
-    , voxel_filter_()
-    , sor_filter_()
+    , grid_batch_(gl::VertBatch::create(GL_LINES))
+    , batch_(gl::VertBatch::create(GL_POINTS))
+    , camera_ui_(&camera_)
+    , render_prog_(
+        gl::GlslProg::create(
+            gl::GlslProg::Format()
+                .vertex(loadAsset("pointcloud.vert"))
+                .fragment(loadAsset("pointcloud.frag"))
+        )
+    )
+    , vao_(gl::Vao::create())
+    , vbo_(gl::Vbo::create(GL_ARRAY_BUFFER, 0, nullptr, GL_STATIC_DRAW))
+    , cloud_(new PointCloud)
+    , cloud_updated_(false)
 {}
+
+CiPointCloudViewerApp::~CiPointCloudViewerApp() {
+    sensor_device_manager_.stop();
+}
 
 void CiPointCloudViewerApp::setup()
 {
-    batch_ = gl::VertBatch::create(GL_POINTS);
-    grid_batch_ = gl::VertBatch::create(GL_LINES);
-    camera_ui_ = CameraUi(&camera_);
+    config_.initialize();
+
+    sensor_device_manager_.start();
+    Signal<models::CloudEvent>::connect(this, &CiPointCloudViewerApp::onCloudUpdated);
 
     grid_batch_->color(1, 1, 1, 0.3);
     for (float i = -5; i <= 5.0; i += 0.5) {
@@ -176,47 +224,60 @@ void CiPointCloudViewerApp::setup()
     gl::enableDepthWrite();
 }
 
+void CiPointCloudViewerApp::onCloudUpdated(const models::CloudEvent& event) {
+    clouds_[event.key] = event.cloud;
+    updatePointCloud();
+}
+
 void CiPointCloudViewerApp::updatePointCloud() {
     updated_ = false;
 
-    batch_->clear();
+    lock_guard<mutex> lg(batch_mutex_);
+    cloud_->clear();
 
-    pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZRGBA>);
-
-    for (auto grabber : grabbers_) {
-        if (hidden_clouds_.find(grabber.first) == hidden_clouds_.end()) {
-            *cloud += *(grabber.second->cloud());
+    for (auto pair : clouds_) {
+        if (hidden_clouds_.find(pair.first) == hidden_clouds_.end()) {
+            *cloud_ += *(pair.second);
         }
     }
 
-    cloud_size_ = cloud->size();
+    cloud_size_ = cloud_->size();
 
     if (x_pass_through_filter_.params_.enable) {
-        x_pass_through_filter_.filter(cloud);
+        x_pass_through_filter_.filter(cloud_);
     }
 
     if (y_pass_through_filter_.params_.enable) {
-        y_pass_through_filter_.filter(cloud);
+        y_pass_through_filter_.filter(cloud_);
     }
 
     if (z_pass_through_filter_.params_.enable) {
-        z_pass_through_filter_.filter(cloud);
+        z_pass_through_filter_.filter(cloud_);
     }
 
     if (voxel_filter_.params_.enable) {
-        voxel_filter_.filter(cloud);
+        voxel_filter_.filter(cloud_);
     }
 
     if (sor_filter_.params_.enable) {
-        sor_filter_.filter(cloud);
+        sor_filter_.filter(cloud_);
     }
 
-    for (auto point : cloud->points) {
-        batch_->color(ci::ColorA8u(point.r, point.g, point.b, point.a));
-        batch_->vertex(ci::vec3(point.x, point.y, point.z));
-    }
+    filtered_cloud_size_ = cloud_->size();
+    cloud_updated_ = true;
+}
 
-    filtered_cloud_size_ = cloud->size();
+void CiPointCloudViewerApp::updateVbo() {
+    cloud_updated_ = false;
+    vbo_->copyData(cloud_->points.size() * sizeof(PointT), cloud_->points.data());
+    {
+        gl::ScopedVao vao(vao_);
+        gl::ScopedBuffer vbo(vbo_);
+        gl::enableVertexAttribArray(0);
+        gl::enableVertexAttribArray(1);
+        gl::vertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, sizeof(PointT), (const GLvoid*)offsetof(PointT, data));
+        gl::vertexAttribPointer(1, 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(PointT), (const GLvoid*)offsetof(PointT, rgba));
+    }
 }
 
 void CiPointCloudViewerApp::mouseDown(MouseEvent event) {
@@ -233,7 +294,8 @@ void CiPointCloudViewerApp::mouseWheel(MouseEvent event) {
 
 void CiPointCloudViewerApp::update()
 {
-    auto windowPos = vec2(kWindowSpacing, kWindowSpacing);
+    auto leftWindowPos = vec2(kWindowSpacing, kWindowSpacing);
+    auto rightWindowPos = vec2(getWindowWidth() - (kWindowWidth + kWindowSpacing), kWindowSpacing);
     camera_eye_point_ = camera_.getEyePoint();
     camera_target_ = camera_.getPivotPoint();
     {
@@ -245,7 +307,7 @@ void CiPointCloudViewerApp::update()
                 if (bfs::exists(pcdfile)) {
                     auto grabber = std::make_shared<grabber::PcdGrabber>(pcdfile);
                     grabbers_[pcdfile] = grabber;
-                    grabber->start(on_cloud_updated_);
+                    grabber->start();
                 }
             }
             if(ui::MenuItem("Open directory")) {
@@ -254,10 +316,19 @@ void CiPointCloudViewerApp::update()
                     auto grabber = std::make_shared<grabber::SequentialPcdGrabber>(dir);
                     grabbers_[dir] = grabber;
                     grabber->initialize(on_pcd_loaded_);
-                    // TODO: startボタンみたいなのつくって，そこに移動
-//                    grabber->start([this]() {
-//                        // TODO: not yet implemented
-//                    });
+                }
+            }
+            if (ui::MenuItem("Open calibration yaml file")) {
+                auto yamlfile = getOpenFilePath(bfs::path(), {"yaml", "yml"});
+                if (bfs::exists(yamlfile)) {
+                  io::CalibrationParams::load(yamlfile.string());
+                }
+            }
+            ui::Separator();
+            if (ui::MenuItem("Save *.oni to ...")) {
+                auto dir = getFolderPath(config_.getSaveOniFilesTo());
+                if (fs::is_directory(dir)) {
+                    config_.setSaveOniFilesTo(dir.string());
                 }
             }
             ui::EndMenu();
@@ -274,12 +345,12 @@ void CiPointCloudViewerApp::update()
             ui::MenuItem("Filter",      nullptr, &visible_filters_window_);
             ui::MenuItem("Clouds",      nullptr, &visible_clouds_window_);
             ui::MenuItem("Debug",       nullptr, &visible_debug_window_);
+            ui::MenuItem("Player",      nullptr, &visible_player_window_);
             ui::EndMenu();
         }
 
-        windowPos.y += ui::GetItemRectSize().y;
-        ui::SetNextWindowPos(windowPos);
-        ui::SetNextWindowSize(vec2(kWindowWidth, 0));
+        leftWindowPos.y += ui::GetItemRectSize().y;
+        rightWindowPos.y += ui::GetItemRectSize().y;
     }
     if (visible_camera_window_) {
         ui::ScopedWindow window("Camera", kWindowFlags);
@@ -290,17 +361,17 @@ void CiPointCloudViewerApp::update()
             camera_.setEyePoint(camera_eye_point_);
         }
 
-        windowPos.y += ui::GetWindowHeight() + kWindowSpacing;
-        ui::SetNextWindowPos(windowPos);
-        ui::SetNextWindowSize(vec2(kWindowWidth, 0));
+        ui::SetWindowPos(leftWindowPos);
+        ui::SetWindowSize(vec2(kWindowWidth, 0));
+        leftWindowPos.y += ui::GetWindowHeight() + kWindowSpacing;
     }
     if (visible_appearance_window_) {
         ui::ScopedWindow window("Appearance", kWindowFlags);
         ui::InputFloat("Point size", &point_size_, 0.1f);
-        ui::ColorEdit3("Background color", &bg_color_[0]);
-        windowPos.y += ui::GetWindowHeight() + kWindowSpacing;
-        ui::SetNextWindowPos(windowPos);
-        ui::SetNextWindowSize(vec2(kWindowWidth, 0));
+        ui::ColorEdit3("Background", &bg_color_[0]);
+        ui::SetWindowPos(leftWindowPos);
+        ui::SetWindowSize(vec2(kWindowWidth, 0));
+        leftWindowPos.y += ui::GetWindowHeight() + kWindowSpacing;
     }
     if (visible_filters_window_) {
         ui::ScopedWindow window("Filters", kWindowFlags);
@@ -372,59 +443,57 @@ void CiPointCloudViewerApp::update()
             });
         });
 
-        windowPos.y += ui::GetWindowHeight() + kWindowSpacing;
-        ui::SetNextWindowPos(windowPos);
-        ui::SetNextWindowSize(vec2(kWindowWidth, 0));
+        ui::SetWindowPos(leftWindowPos);
+        ui::SetWindowSize(vec2(kWindowWidth, 0));
+        leftWindowPos.y += ui::GetWindowHeight() + kWindowSpacing;
     }
 
     if (visible_clouds_window_) {
         ui::ScopedWindow window("Clouds", kWindowFlags);
 
         if (ui::Button("Clear")) {
-            grabbers_.clear();
-            loading_progresses_.clear();
-            grabber_selected_ = nullptr;
+            clouds_.clear();
+            cloud_selected_ = std::string();
             updated_ = true;
         }
 
-        if (grabber_selected_) {
+        if (!cloud_selected_.empty()) {
             ui::SameLine();
             if (ui::Button("Remove")) {
-                grabbers_.erase(grabber_selected_->path());
-                loading_progresses_.erase(grabber_selected_->path());
-                grabber_selected_ = nullptr;
+                clouds_.erase(cloud_selected_);
+                cloud_selected_ = std::string();
                 updated_ = true;
             }
         }
 
-        if (grabber_selected_) {
+        if (!cloud_selected_.empty()) {
             ui::SameLine();
-            if (hidden_clouds_.find(grabber_selected_->path()) != hidden_clouds_.end()) {
+            if (hidden_clouds_.find(cloud_selected_) != hidden_clouds_.end()) {
                 if (ui::Button("Show")) {
-                    hidden_clouds_.erase(grabber_selected_->path());
+                    hidden_clouds_.erase(cloud_selected_);
                     updated_ = true;
                 }
             } else {
                 if (ui::Button("Hide")) {
-                    hidden_clouds_.insert(grabber_selected_->path());
+                    hidden_clouds_.insert(cloud_selected_);
                     updated_ = true;
                 }
             }
         }
 
         ui::ListBoxHeader("");
-        for (auto pair: grabbers_) {
-            if (ui::Selectable(pair.first.filename().c_str(), grabber_selected_ && (grabber_selected_->path() == pair.first))) {
-                grabber_selected_ = pair.second;
+        for (auto pair : clouds_) {
+            if (ui::Selectable(pair.first.c_str(), !cloud_selected_.empty() && (cloud_selected_ == pair.first))) {
+                cloud_selected_ = pair.first;
             }
         }
         ui::ListBoxFooter();
 
-        windowPos.y += ui::GetWindowHeight() + kWindowSpacing;
-        ui::SetNextWindowPos(windowPos);
-        ui::SetNextWindowSize(vec2(kWindowWidth, 0));
+        ui::SetWindowPos(leftWindowPos);
+        ui::SetWindowSize(vec2(kWindowWidth, 0));
+        leftWindowPos.y += ui::GetWindowHeight() + kWindowSpacing;
     }
-    {
+    if (visible_player_window_) {
         ui::ScopedWindow window("Player", kWindowFlags);
 
         for (auto pair : loading_progresses_) {
@@ -441,24 +510,129 @@ void CiPointCloudViewerApp::update()
                     grabber->stop();
                 }
             } else if (ui::Button("Play")) {
-                grabber->start(on_cloud_updated_);
+                grabber->start();
             }
             ui::Columns(1);
         }
 
-        windowPos.y += ui::GetWindowHeight() + kWindowSpacing;
-        ui::SetNextWindowPos(windowPos);
-        ui::SetNextWindowSize(vec2(kWindowWidth, 0));
+        ui::SetWindowPos(rightWindowPos);
+        ui::SetWindowSize(vec2(kWindowWidth, 0));
+        rightWindowPos.y += ui::GetWindowHeight() + kWindowSpacing;
+    }
+    {
+        ui::ScopedWindow window("Connected devices", kWindowFlags);
+
+        if (ui::Button("Start All")) {
+            for (auto pair : sensor_device_manager_.devices()) {
+                if (pair.second->isReady()) {
+                    pair.second->start();
+                }
+            }
+        }
+        ui::SameLine();
+        if (ui::Button("Stop All")) {
+            for (auto pair : sensor_device_manager_.devices()) {
+                if (pair.second->hasStarted()) {
+                    pair.second->stop();
+                }
+            }
+        }
+
+        if (ui::Button("Record All")) {
+            for (auto pair : sensor_device_manager_.devices()) {
+                if (!pair.second->isRecording()) {
+                    // TODO: fix path
+                    pair.second->record(config_.getSaveOniFilesTo());
+                }
+            }
+        }
+        ui::SameLine();
+        if (ui::Button("Stop recording all")) {
+            for (auto pair : sensor_device_manager_.devices()) {
+                if (pair.second->isRecording()) {
+                    pair.second->stopRecording();
+                }
+            }
+        }
+
+        if (!device_selected_.empty()) {
+            ui::Separator();
+            auto device = sensor_device_manager_.devices()[device_selected_];
+            if (device->hasStarted()) {
+                if (ui::Button("Stop")) {
+                    device->stop();
+                }
+                ui::SameLine();
+                if (device->isRecording()) {
+                    if (ui::Button("Stop recording")) {
+                        device->stopRecording();
+                    }
+                } else if (ui::Button("Start recording")) {
+                    device->record(config_.getSaveOniFilesTo());
+                }
+            } else if (ui::Button("Start")) {
+                device->start();
+            }
+        }
+
+        ui::Dummy(vec2(kWindowSpacing, kWindowSpacing));
+
+        ui::Separator();
+        ui::Columns(3, "Connected devices", true);
+        ui::Text("serial");
+        ui::NextColumn();
+        ui::Text("state");
+        ui::NextColumn();
+        ui::Text("fps");
+        ui::NextColumn();
+        ui::Separator();
+        for (auto pair : sensor_device_manager_.devices()) {
+            auto selected = !device_selected_.empty() && (device_selected_ == pair.first);
+            if (ui::Selectable(pair.second->serial().c_str(), selected, ImGuiSelectableFlags_SpanAllColumns)) {
+                device_selected_ = pair.first;
+            }
+            ui::NextColumn();
+            ui::Text("%s", pair.second->stateString().c_str());
+            ui::NextColumn();
+            ui::Text("%f", pair.second->fps());
+            ui::NextColumn();
+        }
+        if (sensor_device_manager_.devices().empty()) {
+            ui::Text("...");
+            ui::NextColumn();
+            ui::Text("NO DEVICES");
+            ui::NextColumn();
+            ui::Text("0");
+            ui::NextColumn();
+        }
+        ui::Separator();
+        ui::Columns(1);
+
+        ui::Dummy(vec2(kWindowSpacing, kWindowSpacing));
+
+        if (ui::Button("Refresh list")) {
+            sensor_device_manager_.refresh();
+        }
+
+        ui::SetWindowPos(rightWindowPos);
+        ui::SetWindowSize(vec2(kWindowWidth, 0));
+        rightWindowPos.y += ui::GetWindowHeight() + kWindowSpacing;
     }
     if (visible_debug_window_) {
         ui::ScopedWindow window("Information", kWindowFlags);
         ui::LabelText("FPS", "%f", getAverageFps());
         ui::LabelText("Cloud size", "%d", cloud_size_);
         ui::LabelText("Filtered", "%d", filtered_cloud_size_);
+        ui::SetWindowPos(leftWindowPos);
+        ui::SetWindowSize(vec2(kWindowWidth, 0));
+        leftWindowPos.y += ui::GetWindowHeight() + kWindowSpacing;
     }
 
     if (updated_) {
         updatePointCloud();
+    }
+    if (cloud_updated_) {
+        updateVbo();
     }
 }
 
@@ -474,7 +648,13 @@ void CiPointCloudViewerApp::draw()
         grid_batch_->draw();
     }
 
-    batch_->draw();
+    lock_guard<mutex> lg(batch_mutex_);
+    {
+        gl::ScopedGlslProg render(render_prog_);
+        gl::ScopedVao vao(vao_);
+        gl::context()->setDefaultShaderVars();
+        gl::drawArrays(GL_POINTS, 0, filtered_cloud_size_);
+    }
 }
 
 CINDER_APP( CiPointCloudViewerApp, RendererGl, [](App::Settings *settings) {
