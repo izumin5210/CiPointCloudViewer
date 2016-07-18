@@ -35,8 +35,8 @@ set(PROJECT_SOURCES
 include("${CINDER_PATH}/proj/cmake/modules/cinderMakeApp.cmake")
 
 ci_make_app(
-  SOURCES           ${PROJECT_SOURCES}
-  INCLUDES          ${PCL_INCLUDE_DIRS}
-  CINDER_PATH       ${CINDER_PATH}
-  TARGET_LIBRARIES  ${Boost_LIBRARIES} ${PCL_LIBRARIES}
+  SOURCES       ${PROJECT_SOURCES}
+  INCLUDES      ${PCL_INCLUDE_DIRS}
+  CINDER_PATH   ${CINDER_PATH}
+  LIBRARIES     ${Boost_LIBRARIES} ${PCL_LIBRARIES}
 )
