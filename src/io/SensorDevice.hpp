@@ -169,6 +169,7 @@ public:
             ir_stream_.stop();
             ir_stream_.destroy();
         }
+        fps_counter_.stop();
         state_ = calibrated_ ? CALIBRATED : INITIALIZED;
     }
 
@@ -221,10 +222,10 @@ private:
 
     openni::Recorder recorder_;
 
-    cv::UMat color_image_;
-    cv::UMat raw_depth_image_;
-    cv::UMat depth_image_;
-    cv::UMat ir_image_;
+    cv::Mat color_image_;
+    cv::Mat raw_depth_image_;
+    cv::Mat depth_image_;
+    cv::Mat ir_image_;
 
     State state_;
 
@@ -256,6 +257,7 @@ private:
         if (num_of_video_modes == 0) {
           throw std::runtime_error("VideoMode failed.");
         }
+        checkStatus(color_stream_.setVideoMode((* supported_video_modes)[1]), "Set video mode to color stream failed");
         checkStatus(color_stream_.start(), "Color stream failed to start.");
       }
     }
@@ -269,7 +271,8 @@ private:
         if (num_of_video_modes == 0) {
           throw std::runtime_error("VideoMode failed.");
         }
-        checkStatus(depth_stream_.start(), "Color stream failed to start.");
+        checkStatus(depth_stream_.setVideoMode((* supported_video_modes)[0]), "Set video mode to depth stream failed");
+        checkStatus(depth_stream_.start(), "Depth stream failed to start.");
       }
     }
 
@@ -317,90 +320,78 @@ private:
 
       if (color_stream_.isValid()) {
         checkStatus(color_stream_.readFrame(&color_frame), "Failed to read color frame.");
-        color_image_ = updateColorImage(color_frame);
+        updateColorImage(color_frame);
       }
       if (depth_stream_.isValid()) {
         checkStatus(depth_stream_.readFrame(&depth_frame), "Failed to read depth frame.");
-        raw_depth_image_ = updateRawDepthImage(depth_frame);
-        depth_image_ = updateDepthImage(depth_frame);
+        updateRawDepthImage(depth_frame);
+//        updateDepthImage(depth_frame);
       }
-      if (ir_stream_.isValid()) {
-        checkStatus(ir_stream_.readFrame(&ir_frame), "Failed to read ir frame.");
-        ir_image_ = updateIrImage(ir_frame);
-      }
+//      if (ir_stream_.isValid()) {
+//        checkStatus(ir_stream_.readFrame(&ir_frame), "Failed to read ir frame.");
+//        updateIrImage(ir_frame);
+//      }
 
       updatePointCloud();
     }
 
-    static cv::UMat updateColorImage(const openni::VideoFrameRef &color_frame) {
-      cv::UMat color_image;
-      cv::Mat(color_frame.getHeight(), color_frame.getWidth(), CV_8UC3,
-              (unsigned char *) color_frame.getData()).copyTo(color_image);
-      cv::cvtColor(color_image, color_image, CV_RGB2BGR);
-      return color_image;
+    void updateColorImage(const openni::VideoFrameRef &color_frame) {
+      auto color_image = cv::Mat(color_frame.getHeight(), color_frame.getWidth(),
+                                 CV_8UC3, (unsigned char*) color_frame.getData());
+      cv::cvtColor(color_image, color_image_, CV_RGB2BGR);
     }
 
-    static cv::UMat updateRawDepthImage(const openni::VideoFrameRef &depth_frame) {
-      cv::UMat raw_depth_image;
-      cv::Mat(depth_frame.getHeight(), depth_frame.getWidth(), CV_16UC1,
-            (unsigned short *) depth_frame.getData()).copyTo(raw_depth_image);
-      // FIXME: hardcoding?
-      cv::Rect roi(0, 0, 512, 424);
-      return raw_depth_image(roi);
+    void updateRawDepthImage(const openni::VideoFrameRef &depth_frame) {
+      raw_depth_image_ = cv::Mat(depth_frame.getHeight(), depth_frame.getWidth(),
+                                 CV_16UC1,
+                                 (unsigned short *) depth_frame.getData());
     }
 
-    static cv::UMat updateDepthImage(const openni::VideoFrameRef &depth_frame) {
-      cv::UMat depth_image;
+    void updateDepthImage(const openni::VideoFrameRef &depth_frame) {
+      cv::Mat depth_image;
       cv::Mat(depth_frame.getHeight(), depth_frame.getWidth(), CV_16UC1,
             (unsigned short *) depth_frame.getData()).copyTo(depth_image);
       depth_image.convertTo(depth_image, CV_8U, 255.0 / 10000);
       // FIXME: hardcoding?
       cv::Rect roi(0, 0, 512, 424);
-      return depth_image(roi);
+      depth_image_ = depth_image(roi);
     }
 
-    static cv::UMat updateIrImage(const openni::VideoFrameRef &ir_frame) {
-      cv::UMat ir_image;
+    void updateIrImage(const openni::VideoFrameRef &ir_frame) {
+      cv::Mat ir_image;
       cv::Mat(ir_frame.getHeight(), ir_frame.getWidth(), CV_16UC1,
             (unsigned short *) ir_frame.getData()).copyTo(ir_image);
       ir_image.convertTo(ir_image, CV_8U, 255.0 / 10000);
       cv::cvtColor(ir_image, ir_image, CV_GRAY2RGB);
-      return ir_image;
-     }
+      ir_image_ = ir_image;
+    }
 
     void updatePointCloud() {
-      int width   = color_image_.size().width;
-      int height  = color_image_.size().height;
-      // FIXME: hardcoding
-      int dwidth  = 640;
+      int width   = raw_depth_image_.size().width;
+      int height  = raw_depth_image_.size().height;
 
-      auto cv_depth_image = raw_depth_image_.getMat(cv::ACCESS_READ);
-      auto cv_color_image = color_image_.getMat(cv::ACCESS_READ);
+      unsigned char* color = (unsigned char*) color_image_.data;
+      unsigned short* depth = (unsigned short*) raw_depth_image_.data;
 
       const pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZRGBA>);
       cloud->clear();
       cloud->reserve(width * height);
 
-      for (int y = 0; y < height; y++) {
-        unsigned short *depth = (unsigned short *) cv_depth_image.ptr(y);
-        cv::Vec3b *color = (cv::Vec3b *) cv_color_image.ptr(y);
-
-        for (int x = 0; x < width; x++) {
-          if (depth[x] != 0 && (color[x][0] != 0 || color[x][1] != 0 || color[x][2] != 0)) {
-            float xw, yw, zw;
-            zw = depth[x];
-            zw /= 1000;
-            xw = (x - params_.cx) * zw / params_.fx;
-            yw = (y - params_.cy) * zw / params_.fy;
-            pcl::PointXYZRGBA point;
-            point.x = xw;
-            point.y = yw;
-            point.z = zw;
-            point.b = color[x][0];
-            point.g = color[x][1];
-            point.r = color[x][2];
-            cloud->push_back(point);
-          }
+      for (int i = 0; i < width * height; i++) {
+        if (depth[i] != 0 && (color[i*3] != 0 || color[i*3+1] != 0 || color[i*3+2] != 0)) {
+          int x = i % width;
+          int y = i / width;
+          float zw = depth[i] / 1000.0;
+          float xw = (x - params_.cx) * zw / params_.fx;
+          float yw = (y - params_.cy) * zw / params_.fy;
+          pcl::PointXYZRGBA point;
+          point.x = xw;
+          point.y = yw;
+          point.z = zw;
+          point.r = color[i * 3 + 2];
+          point.g = color[i * 3 + 1];
+          point.b = color[i * 3];
+          cloud->push_back(point);
         }
       }
 

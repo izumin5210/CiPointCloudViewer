@@ -20,6 +20,7 @@ public:
   FpsCounter(int interval = 10);
 
   void start(std::string key);
+  void stop();
   void passFrame();
 
 

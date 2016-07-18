@@ -20,6 +20,11 @@ void FpsCounter::start(std::string key) {
   now_  = prev_;
 }
 
+void FpsCounter::stop() {
+  fps_ = 0;
+  emitSignal();
+}
+
 void FpsCounter::passFrame() {
   now_ = now();
   if (++count_ == interval_) {
