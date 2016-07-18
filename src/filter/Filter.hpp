@@ -18,19 +18,19 @@ namespace filter {
 template<typename PointT>
 class Filter {
 public:
-    typedef pcl::PointCloud<PointT> PointCloud;
-    typedef typename PointCloud::Ptr PointCloudPtr;
+  typedef pcl::PointCloud<PointT> PointCloud;
+  typedef typename PointCloud::Ptr PointCloudPtr;
 
-    void filter(PointCloudPtr cloud) {
-        PointCloudPtr cloud_filtered(new PointCloud);
-        auto filter = buildFilter();
-        filter->setInputCloud(cloud);
-        filter->filter(*cloud_filtered);
-        pcl::copyPointCloud(*cloud_filtered, *cloud);
-    }
+  void filter(PointCloudPtr cloud) {
+    PointCloudPtr cloud_filtered(new PointCloud);
+    auto filter = buildFilter();
+    filter->setInputCloud(cloud);
+    filter->filter(*cloud_filtered);
+    pcl::copyPointCloud(*cloud_filtered, *cloud);
+  }
 
 protected:
-    virtual std::shared_ptr<pcl::Filter<PointT>> buildFilter() = 0;
+  virtual std::shared_ptr<pcl::Filter<PointT>> buildFilter() = 0;
 };
 
 }

@@ -22,50 +22,50 @@ namespace grabber {
 
 class PointCloudGrabber {
 public:
-    typedef pcl::PointXYZRGBA PointT;
-    typedef pcl::PointCloud<PointT> PointCloud;
-    typedef typename PointCloud::Ptr PointCloudPtr;
-    typedef boost::filesystem::path bpath;
+  typedef pcl::PointXYZRGBA PointT;
+  typedef pcl::PointCloud<PointT> PointCloud;
+  typedef typename PointCloud::Ptr PointCloudPtr;
+  typedef boost::filesystem::path bpath;
 
-    PointCloudGrabber(const bpath path)
-        : path_(path)
-        , cloud_(new PointCloud)
-    {
-    }
+  PointCloudGrabber(const bpath path)
+    : path_(path)
+    , cloud_(new PointCloud)
+  {
+  }
 
-    inline bpath path() {
-        return path_;
-    }
+  inline bpath path() {
+    return path_;
+  }
 
-    inline PointCloudPtr cloud() {
-        return cloud_;
-    }
+  inline PointCloudPtr cloud() {
+    return cloud_;
+  }
 
-    virtual inline void start() {
-        start(current_time());
-    }
+  virtual inline void start() {
+    start(current_time());
+  }
 
-    virtual void start(bpt::ptime started_at) = 0;
+  virtual void start(bpt::ptime started_at) = 0;
 
-    virtual void stop() = 0;
+  virtual void stop() = 0;
 
-    virtual bool isPlaying() = 0;
+  virtual bool isPlaying() = 0;
 
 protected:
-    bpath path_;
-    PointCloudPtr cloud_;
+  bpath path_;
+  PointCloudPtr cloud_;
 
-    inline bpt::ptime current_time() {
-        return bpt::microsec_clock::local_time();
-    }
+  inline bpt::ptime current_time() {
+    return bpt::microsec_clock::local_time();
+  }
 
-    inline long long current_time_in_nanos() {
-        return time_in_nanos(current_time());
-    }
+  inline long long current_time_in_nanos() {
+    return time_in_nanos(current_time());
+  }
 
-    inline long long time_in_nanos(bpt::ptime time) {
-        return (time - bpt::ptime(boost::gregorian::date(1970, 1, 1))).total_nanoseconds();
-    }
+  inline long long time_in_nanos(bpt::ptime time) {
+    return (time - bpt::ptime(boost::gregorian::date(1970, 1, 1))).total_nanoseconds();
+  }
 };
 
 }

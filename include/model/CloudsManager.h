@@ -21,8 +21,8 @@ typedef typename pcl::PointCloud<PointT> PointCloud;
 typedef typename PointCloud::Ptr PointCloudPtr;
 
 struct CloudEvent {
-    std::string key;
-    PointCloudPtr cloud;
+  std::string key;
+  PointCloudPtr cloud;
 };
 
 }

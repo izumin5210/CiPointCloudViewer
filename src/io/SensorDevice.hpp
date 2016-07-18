@@ -42,11 +42,11 @@ public:
     };
 
     SensorDevice()
-      : worker_canceled_(true)
+      : state_(NOT_INITIALIZED)
+      , worker_canceled_(true)
       , calibrated_(false)
       , recording_(false)
       , fps_(0.0f)
-      , state_(NOT_INITIALIZED)
     {
     }
 

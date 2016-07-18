@@ -18,31 +18,31 @@ namespace filter {
 template<typename PointT>
 class PassThroughFilter : public Filter<PointT> {
 public:
-    struct Params {
-        bool enable = false;
-        float min   = -1.5;
-        float max   =  1.5;
-    };
+  struct Params {
+    bool enable = false;
+    float min   = -1.5;
+    float max   =  1.5;
+  };
 
-    Params params_;
+  Params params_;
 
-    PassThroughFilter(const std::string field_name)
-        : filter_(new pcl::PassThrough<PointT>())
-        , params_()
-    {
-        filter_->setFilterFieldName(field_name);
-    }
+  PassThroughFilter(const std::string field_name)
+    : params_()
+    , filter_(new pcl::PassThrough<PointT>())
+  {
+    filter_->setFilterFieldName(field_name);
+  }
 
 
 protected:
-    inline std::shared_ptr<pcl::Filter<PointT>> buildFilter() override {
-        filter_->setFilterLimits(params_.min, params_.max);
-        return filter_;
-    }
+  inline std::shared_ptr<pcl::Filter<PointT>> buildFilter() override {
+    filter_->setFilterLimits(params_.min, params_.max);
+    return filter_;
+  }
 
 
 private:
-    std::shared_ptr<pcl::PassThrough<PointT>> filter_;
+  std::shared_ptr<pcl::PassThrough<PointT>> filter_;
 };
 
 }
