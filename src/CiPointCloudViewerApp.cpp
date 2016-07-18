@@ -555,9 +555,8 @@ void CiPointCloudViewerApp::update()
             }
         }
 
-        ui::Separator();
-
         if (!device_selected_.empty()) {
+            ui::Separator();
             auto device = sensor_device_manager_.devices()[device_selected_];
             if (device->hasStarted()) {
                 if (ui::Button("Stop")) {
@@ -575,6 +574,8 @@ void CiPointCloudViewerApp::update()
                 device->start();
             }
         }
+
+        ui::Dummy(vec2(kWindowSpacing, kWindowSpacing));
 
         ui::Separator();
         ui::Columns(3, "Connected devices", true);
@@ -596,8 +597,18 @@ void CiPointCloudViewerApp::update()
             ui::Text("%f", pair.second->fps());
             ui::NextColumn();
         }
+        if (sensor_device_manager_.devices().empty()) {
+            ui::Text("...");
+            ui::NextColumn();
+            ui::Text("NO DEVICES");
+            ui::NextColumn();
+            ui::Text("0");
+            ui::NextColumn();
+        }
         ui::Separator();
         ui::Columns(1);
+
+        ui::Dummy(vec2(kWindowSpacing, kWindowSpacing));
 
         if (ui::Button("Refresh list")) {
             sensor_device_manager_.refresh();
