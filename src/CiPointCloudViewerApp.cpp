@@ -15,6 +15,8 @@
 
 #include "CinderImGui.h"
 
+#include "Configure.h"
+
 #include "grabber/PcdGrabber.hpp"
 #include "grabber/SequentialPcdGrabber.hpp"
 
@@ -65,6 +67,8 @@ private:
     const ColorA8u kColorAccent     = ColorA8u(0xf1, 0x67, 0x3f, 0xee);
     const ColorA8u kColorAccentAcc  = ColorA8u(0xf1, 0x67, 0x3f, 0xcc);
     const ColorA8u kColorAccentA99  = ColorA8u(0xf1, 0x67, 0x3f, 0x99);
+
+    Configure config_;
 
     map<fs::path, shared_ptr<grabber::PointCloudGrabber>> grabbers_;
     shared_ptr<grabber::PointCloudGrabber> grabber_selected_;
@@ -128,7 +132,8 @@ private:
 };
 
 CiPointCloudViewerApp::CiPointCloudViewerApp()
-    : x_pass_through_filter_("x")
+    : config_(getAssetPath(""))
+    , x_pass_through_filter_("x")
     , y_pass_through_filter_("y")
     , z_pass_through_filter_("z")
     , grid_batch_(gl::VertBatch::create(GL_LINES))
@@ -142,7 +147,7 @@ CiPointCloudViewerApp::CiPointCloudViewerApp()
         )
     )
     , vao_(gl::Vao::create())
-      , vbo_(gl::Vbo::create(GL_ARRAY_BUFFER, 0, nullptr, GL_STATIC_DRAW))
+    , vbo_(gl::Vbo::create(GL_ARRAY_BUFFER, 0, nullptr, GL_STATIC_DRAW))
     , cloud_(new PointCloud)
     , cloud_updated_(false)
 {}
@@ -153,6 +158,8 @@ CiPointCloudViewerApp::~CiPointCloudViewerApp() {
 
 void CiPointCloudViewerApp::setup()
 {
+    config_.initialize();
+
     sensor_device_manager_.start();
     Signal<models::CloudEvent>::connect(this, &CiPointCloudViewerApp::onCloudUpdated);
 
@@ -315,6 +322,13 @@ void CiPointCloudViewerApp::update()
                 auto yamlfile = getOpenFilePath(bfs::path(), {"yaml", "yml"});
                 if (bfs::exists(yamlfile)) {
                   io::CalibrationParams::load(yamlfile.string());
+                }
+            }
+            ui::Separator();
+            if (ui::MenuItem("Save *.oni to ...")) {
+                auto dir = getFolderPath(config_.getSaveOniFilesTo());
+                if (fs::is_directory(dir)) {
+                    config_.setSaveOniFilesTo(dir.string());
                 }
             }
             ui::EndMenu();
@@ -528,7 +542,7 @@ void CiPointCloudViewerApp::update()
             for (auto pair : sensor_device_manager_.devices()) {
                 if (!pair.second->isRecording()) {
                     // TODO: fix path
-                    pair.second->record(getAssetDirectories()[0]);
+                    pair.second->record(config_.getSaveOniFilesTo());
                 }
             }
         }
@@ -555,8 +569,7 @@ void CiPointCloudViewerApp::update()
                         device->stopRecording();
                     }
                 } else if (ui::Button("Start recording")) {
-                    // TODO: fix path
-                    device->record(getAssetDirectories()[0]);
+                    device->record(config_.getSaveOniFilesTo());
                 }
             } else if (ui::Button("Start")) {
                 device->start();

@@ -173,10 +173,10 @@ public:
         state_ = calibrated_ ? CALIBRATED : INITIALIZED;
     }
 
-    void record(boost::filesystem::path dir) {
+    void record(std::string dir) {
         std::ostringstream ss;
         auto now = boost::posix_time::microsec_clock::universal_time();
-        ss << boost::posix_time::to_iso_string(now) << "_" << serial_ << ".oni";
+        ss << dir << "/" << boost::posix_time::to_iso_string(now) << "_" << serial_ << ".oni";
         checkStatus(recorder_.create(ss.str().c_str()), "Creating recorder failed.");
         checkStatus(recorder_.attach(color_stream_, TRUE), "Attaching color stream to recorder failed.");
         checkStatus(recorder_.attach(depth_stream_, FALSE), "Attaching depth stream to recorder failed.");
