@@ -41,11 +41,11 @@ public:
         return cloud_;
     }
 
-    virtual inline void start(std::function<void()> &callback) {
-        start(current_time(), callback);
+    virtual inline void start() {
+        start(current_time());
     }
 
-    virtual void start(bpt::ptime started_at, std::function<void()> &callback) = 0;
+    virtual void start(bpt::ptime started_at) = 0;
 
     virtual void stop() = 0;
 
