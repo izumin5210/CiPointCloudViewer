@@ -586,6 +586,10 @@ void CiPointCloudViewerApp::update()
         ui::Separator();
         ui::Columns(1);
 
+        if (ui::Button("Refresh list")) {
+            sensor_device_manager_.refresh();
+        }
+
         ui::SetWindowPos(rightWindowPos);
         ui::SetWindowSize(vec2(kWindowWidth, 0));
         rightWindowPos.y += ui::GetWindowHeight() + kWindowSpacing;

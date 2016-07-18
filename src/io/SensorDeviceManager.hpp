@@ -36,18 +36,7 @@ public:
     inline void start() {
         stopped_ = false;
         Signal<CalibrationParams>::connect(this, &SensorDeviceManager::addCalibrationParams);
-        device_check_worker_ = std::thread([this]() {
-            openni::Array<openni::DeviceInfo> device_info_list;
-            while (!stopped_) {
-                openni::OpenNI::enumerateDevices(&device_info_list);
-                for (int i = 0; i < device_info_list.getSize(); i += 3) {
-                    std::string uri = device_info_list[i].getUri();
-                    if (devices_.find(uri) == devices_.end()) {
-                        open(uri);
-                    }
-                }
-            }
-        });
+        refresh();
     }
 
     inline void stop() {
@@ -57,6 +46,17 @@ public:
         }
         for (auto pair : devices_) {
             pair.second->stop();
+        }
+    }
+
+    inline void refresh() {
+        openni::Array<openni::DeviceInfo> device_info_list;
+        openni::OpenNI::enumerateDevices(&device_info_list);
+        for (int i = 0; i < device_info_list.getSize(); i += 3) {
+            std::string uri = device_info_list[i].getUri();
+            if (devices_.find(uri) == devices_.end()) {
+                open(uri);
+            }
         }
     }
 
