@@ -23,7 +23,7 @@ void Configure::setSaveOniFilesTo(std::string dir) {
   save();
 }
 
-std::string Configure::getSaveOniFilesTo() {
+std::string Configure::getSaveOniFilesTo() const {
   return root_[kKeySaveOniFilesTo] ? root_[kKeySaveOniFilesTo].as<std::string>() : dir_.string();
 }
 
