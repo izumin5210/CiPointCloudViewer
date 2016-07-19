@@ -13,7 +13,6 @@
 
 #include "Clouds.h"
 #include "Signal.h"
-#include "model/CloudsManager.h"
 #include "PointCloudGrabber.hpp"
 
 namespace grabber {
