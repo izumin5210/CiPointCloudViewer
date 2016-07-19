@@ -24,13 +24,19 @@ public:
     float max   =  1.5;
   };
 
-  Params params_;
-
   PassThroughFilter(const std::string field_name)
-    : params_()
-    , filter_(new pcl::PassThrough<PointT>())
+    : filter_(new pcl::PassThrough<PointT>())
+    , params_()
   {
     filter_->setFilterFieldName(field_name);
+  }
+
+  inline Params params() const {
+    return params_;
+  }
+
+  inline void setParams(Params params) {
+    params_ = params;
   }
 
 
@@ -43,6 +49,7 @@ protected:
 
 private:
   std::shared_ptr<pcl::PassThrough<PointT>> filter_;
+  Params params_;
 };
 
 }

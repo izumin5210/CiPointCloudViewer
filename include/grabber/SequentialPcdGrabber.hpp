@@ -15,6 +15,7 @@
 
 #include "cinder/Signals.h"
 
+#include "Clouds.h"
 #include "PointCloudGrabber.hpp"
 
 namespace bfs = boost::filesystem;
@@ -124,7 +125,7 @@ private:
         }
         if ((itr->first - started_at) <= elapsedTime()) {
             cloud_ = clouds_[itr->first];
-            Signal<models::CloudEvent>::emit({path_.string(), cloud_});
+            Signal<Clouds::UpdateCloudAction>::emit({path_.string(), cloud_});
             itr++;
         }
         if (itr == files_.end()) {

@@ -23,12 +23,18 @@ public:
     float size  = 0.01f;
   };
 
-  Params params_;
-
   VoxelFilter()
-    : params_()
-    , filter_(new pcl::VoxelGrid<PointT>())
+    : filter_(new pcl::VoxelGrid<PointT>())
+    , params_()
   {
+  }
+
+  inline Params params() const {
+    return params_;
+  }
+
+  inline void setParams(Params params) {
+    params_ = params;
   }
 
 
@@ -41,6 +47,7 @@ protected:
 
 private:
   std::shared_ptr<pcl::VoxelGrid<PointT>> filter_;
+  Params params_;
 };
 
 }

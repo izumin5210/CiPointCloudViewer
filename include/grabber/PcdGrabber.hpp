@@ -11,6 +11,7 @@
 
 #include <pcl/io/pcd_io.h>
 
+#include "Clouds.h"
 #include "Signal.h"
 #include "model/CloudsManager.h"
 #include "PointCloudGrabber.hpp"
@@ -29,7 +30,7 @@ public:
   inline void start(bpt::ptime started_at) override {
     (void) started_at;
     pcl::io::loadPCDFile(path_.string(), *cloud_);
-    Signal<models::CloudEvent>::emit({path_.string(), cloud_});
+    Signal<Clouds::UpdateCloudAction>::emit({path_.string(), cloud_});
   }
 
   inline void stop() override {
