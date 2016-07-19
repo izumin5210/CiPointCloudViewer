@@ -2,6 +2,7 @@
 // Created by Masayuki IZUMI on 7/18/16.
 //
 
+#include <fstream>
 #include "Configure.h"
 
 Configure::Configure(bpath dir)
@@ -12,7 +13,7 @@ Configure::Configure(bpath dir)
 
 void Configure::initialize() {
   if (!boost::filesystem::exists(path_)) {
-    boost::filesystem::save_string_file(path_.string(), "");
+    root_ = YAML::Load("");
   } else {
     root_ = YAML::LoadFile(path_.string());
   }

@@ -12,11 +12,12 @@ find_package(PCL 1.8 REQUIRED)
 link_directories(${PCL_LIBRARY_DIRS})
 add_definitions(${PCL_DEFINITIONS})
 
+find_package(Qt5 COMPONENTS Core Widgets)
+
 if(APPLE)
   include_directories(/usr/local/include/ni2)
 elseif(LINUX)
   include_directories(/usr/include/openni2)
-  find_package(Qt5 REQUIRED COMPONENTS Core Widgets)
 endif()
 
 find_package        (CUDA QUIET)
@@ -42,8 +43,11 @@ set(CINDER_IMGUI_SOURCES
 
 set(PROJECT_SOURCES
     ${PROJECT_DIR}/src/CiPointCloudViewerApp.cpp
+    ${PROJECT_DIR}/src/AppGui.cpp
     ${PROJECT_DIR}/src/Configure.cpp
     ${PROJECT_DIR}/src/FpsCounter.cpp
+    ${PROJECT_DIR}/src/Clouds.cpp
+    ${PROJECT_DIR}/src/ViewParams.cpp
     ${PROJECT_DIR}/src/io/CalibrationParamsManager.cpp
     ${CINDER_IMGUI_SOURCES}
 )
