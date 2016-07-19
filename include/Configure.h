@@ -18,7 +18,7 @@ public:
   void initialize();
 
   void setSaveOniFilesTo(std::string dir);
-  std::string getSaveOniFilesTo();
+  std::string getSaveOniFilesTo() const;
 
 
 private:

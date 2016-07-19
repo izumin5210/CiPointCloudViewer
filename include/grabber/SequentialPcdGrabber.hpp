@@ -15,6 +15,7 @@
 
 #include "cinder/Signals.h"
 
+#include "Clouds.h"
 #include "PointCloudGrabber.hpp"
 
 namespace bfs = boost::filesystem;
@@ -32,6 +33,7 @@ public:
     , loader_worker_canceled_(true)
     , player_worker_canceled_(true)
   {
+    initialize();
   }
 
   ~SequentialPcdGrabber() {
@@ -61,27 +63,6 @@ public:
     return !player_worker_canceled_;
   }
 
-  inline void initialize(std::function<void(bpath, int, int)> &callback) {
-    loader_worker_canceled_ = false;
-    loader_worker_ = std::thread([&]{
-      for (auto file : boost::make_iterator_range(ditr(path_), ditr())) {
-        if (file.path().extension().string() == ".pcd") {
-          const auto stamp = bpt::from_iso_string(file.path().stem().string());
-          files_[time_in_nanos(stamp)] = file.path();
-        }
-      }
-      int i = 0;
-      for (auto pair : files_) {
-        if (loader_worker_canceled_) { break; }
-        const auto cloud = PointCloudPtr(new PointCloud);
-        pcl::io::loadPCDFile(pair.second.string(), *cloud);
-        clouds_[pair.first] = cloud;
-        i++;
-        callback(path_, i, files_.size());
-      }
-    });
-  }
-
   inline bool isLoaded(const uint64_t started_at) {
     return clouds_.find(started_at) != clouds_.end();
   }
@@ -104,6 +85,27 @@ private:
   std::atomic<uint64_t> started_at_in_real_;
   std::atomic<uint64_t> waited_since_;
 
+  inline void initialize() {
+    loader_worker_canceled_ = false;
+    loader_worker_ = std::thread([&]{
+      for (auto file : boost::make_iterator_range(ditr(path_), ditr())) {
+        if (file.path().extension().string() == ".pcd") {
+          const auto stamp = bpt::from_iso_string(file.path().stem().string());
+          files_[time_in_nanos(stamp)] = file.path();
+        }
+      }
+      unsigned long i = 0;
+      for (auto pair : files_) {
+        if (loader_worker_canceled_) { break; }
+        const auto cloud = PointCloudPtr(new PointCloud);
+        pcl::io::loadPCDFile(pair.second.string(), *cloud);
+        clouds_[pair.first] = cloud;
+        i++;
+        Signal<Clouds::UpdateCloudLoadingProgressAction>::emit({path_.string(), i, files_.size()});
+      }
+    });
+  }
+
   inline void start(const uint64_t started_at) {
     player_worker_canceled_ = false;
     player_worker_ = std::thread([this, started_at] {
@@ -124,7 +126,7 @@ private:
         }
         if ((itr->first - started_at) <= elapsedTime()) {
             cloud_ = clouds_[itr->first];
-            Signal<models::CloudEvent>::emit({path_.string(), cloud_});
+            Signal<Clouds::UpdateCloudAction>::emit({path_.string(), cloud_});
             itr++;
         }
         if (itr == files_.end()) {

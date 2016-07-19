@@ -24,12 +24,18 @@ public:
     float stddev_mul_threshold = 1.0f;
   };
 
-  Params params_;
-
   StatisticalOutlierRemovalFilter()
-    : params_()
-    , filter_(new pcl::StatisticalOutlierRemoval<PointT>())
+    : filter_(new pcl::StatisticalOutlierRemoval<PointT>())
+    , params_()
   {
+  }
+
+  inline Params params() const {
+    return params_;
+  }
+
+  inline void setParams(Params params) {
+    params_ = params;
   }
 
 
@@ -43,6 +49,7 @@ protected:
 
 private:
   std::shared_ptr<pcl::StatisticalOutlierRemoval<PointT>> filter_;
+  Params params_;
 };
 
 }

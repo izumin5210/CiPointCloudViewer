@@ -22,9 +22,9 @@
 #include <opencv2/core/utility.hpp>
 #include <OpenNI.h>
 
+#include "Clouds.h"
 #include "FpsCounter.h"
 #include "Signal.h"
-#include "model/CloudsManager.h"
 #include "io/CalibrationParamsManager.h"
 
 namespace io {
@@ -396,7 +396,7 @@ private:
       }
 
       pcl::transformPointCloud(*cloud, *cloud, params_.calib_matrix);
-      Signal<models::CloudEvent>::emit({name_, cloud});
+      Signal<Clouds::UpdateCloudAction>::emit({name_, cloud});
     }
 };
 
