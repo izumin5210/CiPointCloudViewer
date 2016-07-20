@@ -7,6 +7,8 @@
 
 Clouds::Clouds()
   : cloud_(new PointCloud)
+  , cloud_size_(0)
+  , filtered_cloud_size_(0)
   , x_pass_through_filter_("x")
   , y_pass_through_filter_("y")
   , z_pass_through_filter_("z")
