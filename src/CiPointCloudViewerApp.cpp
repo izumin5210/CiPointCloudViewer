@@ -161,6 +161,8 @@ void CiPointCloudViewerApp::update() {
   if (cloud_updated_) {
     updateVbo();
   }
+
+  setFullScreen(view_params_->is_full_screen());
 }
 
 void CiPointCloudViewerApp::draw() {
