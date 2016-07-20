@@ -39,36 +39,38 @@ private:
   const int kWindowSpacing = 8;
   const int kWindowWidth = 320;
 
-  const ci::ColorA8u kColorBlackA55   = ci::ColorA8u(0x22, 0x22, 0x22, 0x55);
-  const ci::ColorA8u kColorBlackAcc   = ci::ColorA8u(0x22, 0x22, 0x22, 0xcc);
   // bleu de provence
   const ci::ColorA8u kColorPrimary    = ci::ColorA8u(0x00, 0x9a, 0xc5, 0xcc);
   const ci::ColorA8u kColorPrimaryA99 = ci::ColorA8u(0x00, 0x9a, 0xc5, 0x99);
-  const ci::ColorA8u kColorPrimaryA22 = ci::ColorA8u(0x00, 0x9a, 0xc5, 0x22);
+  const ci::ColorA8u kColorPrimaryA33 = ci::ColorA8u(0x00, 0x9a, 0xc5, 0x33);
+  const ci::ColorA8u kColorPrimaryDark = ci::ColorA8u(0x00, 0x27, 0x33, 0xbb);
   // rosso di toscana
   const ci::ColorA8u kColorAccent     = ci::ColorA8u(0xf1, 0x67, 0x3f, 0xee);
   const ci::ColorA8u kColorAccentAcc  = ci::ColorA8u(0xf1, 0x67, 0x3f, 0xcc);
   const ci::ColorA8u kColorAccentA99  = ci::ColorA8u(0xf1, 0x67, 0x3f, 0x99);
 
+  const ci::ColorA8u kColorWhite      = ci::ColorA8u(0xdd, 0xdd, 0xdd, 0xcc);
+  const ci::ColorA8u kColorBlackA55   = ci::ColorA8u(0x11, 0x11, 0x11, 0x55);
+
   const ui::Options kUiOptions = ui::Options()
     .darkTheme()
-    .color(ImGuiCol_MenuBarBg,              kColorPrimaryA22)
-    .color(ImGuiCol_TitleBg,                kColorPrimaryA22)
-    .color(ImGuiCol_TitleBgCollapsed,       kColorPrimaryA22)
+    .color(ImGuiCol_MenuBarBg,              kColorPrimaryA33)
+    .color(ImGuiCol_TitleBg,                kColorPrimaryDark)
+    .color(ImGuiCol_TitleBgCollapsed,       kColorPrimaryDark)
     .color(ImGuiCol_TitleBgActive,          kColorPrimaryA99)
-    .color(ImGuiCol_WindowBg,               kColorPrimaryA22)
+    .color(ImGuiCol_WindowBg,               kColorPrimaryDark)
     .color(ImGuiCol_Border,                 kColorPrimaryA99)
-    .color(ImGuiCol_FrameBg,                kColorPrimaryA22)
+    .color(ImGuiCol_FrameBg,                kColorPrimaryA33)
     .color(ImGuiCol_FrameBgHovered,         kColorAccentAcc)
     .color(ImGuiCol_FrameBgActive,          kColorAccent)
-    .color(ImGuiCol_ScrollbarBg,            kColorPrimaryA22)
+    .color(ImGuiCol_ScrollbarBg,            kColorPrimaryA33)
     .color(ImGuiCol_ScrollbarGrab,          kColorPrimaryA99)
     .color(ImGuiCol_ScrollbarGrabHovered,   kColorPrimaryA99)
     .color(ImGuiCol_ScrollbarGrabActive,    kColorPrimary)
     .color(ImGuiCol_CheckMark,              kColorAccent)
     .color(ImGuiCol_SliderGrab,             kColorPrimaryA99)
     .color(ImGuiCol_SliderGrabActive,       kColorPrimary)
-    .color(ImGuiCol_Button,                 kColorPrimaryA22)
+    .color(ImGuiCol_Button,                 kColorPrimaryA33)
     .color(ImGuiCol_ButtonHovered,          kColorAccentAcc)
     .color(ImGuiCol_ButtonActive,           kColorAccent)
     .color(ImGuiCol_Header,                 kColorAccentA99)
@@ -84,7 +86,7 @@ private:
     .color(ImGuiCol_Text,                   kColorPrimary)
     .color(ImGuiCol_TextDisabled,           kColorBlackA55)
     .color(ImGuiCol_TextSelectedBg,         kColorAccent)
-    .color(ImGuiCol_PopupBg,                kColorBlackAcc)
+    .color(ImGuiCol_PopupBg,                kColorPrimaryDark)
     .antiAliasedLines(true)
     .antiAliasedShapes(true)
     .windowRounding(0.0f)
