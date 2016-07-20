@@ -64,9 +64,7 @@ void AppGui::drawMenuBar(ci::app::AppBase *app, glm::vec2 &left_window_pos, glm:
     if (ui::MenuItem("Open *.pcd file")) {
       auto pcdfile = app->getOpenFilePath(path(), {"pcd"});
       if (boost::filesystem::exists(pcdfile)) {
-        auto grabber = std::make_shared<grabber::PcdGrabber>(pcdfile);
-        grabbers_[pcdfile] = grabber;
-        grabber->start();
+        Signal<Clouds::OpenPcdFileAction>::emit({pcdfile.string()});
       }
     }
     if(ui::MenuItem("Open directory")) {

@@ -63,6 +63,10 @@ public:
     unsigned long max;
   };
 
+  struct OpenPcdFileAction {
+    std::string path;
+  };
+
   Clouds();
 
   std::map<Key, PointCloudPtr> clouds() const {
@@ -139,6 +143,7 @@ private:
   void onVoxelFilterParamsUpdate(const UpdateVoxelFilterParamsAction &action);
   void onStatisticalOutlierRemovalFilterParamsUpdate(const UpdateStatisticalOutlierRemovalFilterParamsAction &action);
   void onCloudLoadingProgressUpdate(const UpdateCloudLoadingProgressAction &action);
+  void onPcdFileOpen(const OpenPcdFileAction &action);
 };
 
 #endif //CIPOINTCLOUDVIEWERAPP_CLOUDS_H

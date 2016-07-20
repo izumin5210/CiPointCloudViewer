@@ -13,7 +13,6 @@
 #include "Configure.h"
 
 // TODO: will move
-#include "grabber/PcdGrabber.hpp"
 #include "grabber/SequentialPcdGrabber.hpp"
 
 #include "io/CalibrationParamsManager.h"
