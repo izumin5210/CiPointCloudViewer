@@ -95,6 +95,9 @@ void AppGui::drawMenuBar(ci::app::AppBase *app, glm::vec2 &left_window_pos, glm:
     if (ui::MenuItem("Show grid", nullptr, view_params_->is_visible_grid())) {
       Signal<ViewParams::ToggleGridVisibilityAction>::emit({!view_params_->is_visible_grid()});
     }
+    if (ui::MenuItem("Full screen", nullptr, view_params_->is_full_screen())) {
+      Signal<ViewParams::ToggleFullScreenAction>::emit({!view_params_->is_full_screen()});
+    }
     ui::EndMenu();
   }
 
@@ -107,10 +110,6 @@ void AppGui::drawMenuBar(ci::app::AppBase *app, glm::vec2 &left_window_pos, glm:
     ui::Separator();
     ui::MenuItem("Player",            nullptr, &visible_player_window_);
     ui::MenuItem("Connected devices", nullptr, &visible_devices_window_);
-    ui::Separator();
-    if (ui::MenuItem("Full screen", nullptr, view_params_->is_full_screen())) {
-      Signal<ViewParams::ToggleFullScreenAction>::emit({!view_params_->is_full_screen()});
-    }
     ui::EndMenu();
   }
 
