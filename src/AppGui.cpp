@@ -9,11 +9,13 @@ AppGui::AppGui(
   const std::shared_ptr<Clouds> &clouds,
   const std::shared_ptr<ViewParams> &view_params,
   const std::shared_ptr<Configure> &config,
+  const std::shared_ptr<io::CloudDataSources> &cloud_data_sources,
   const std::shared_ptr<io::SensorDeviceManager> &sensor_device_manager
 )
   : clouds_                     (clouds)
   , view_params_                (view_params)
   , config_                     (config)
+  , cloud_data_sources_         (cloud_data_sources)
   , visible_camera_window_      (true)
   , visible_appearance_window_  (true)
   , visible_filters_window_     (true)
@@ -70,12 +72,13 @@ void AppGui::drawMenuBar(ci::app::AppBase *app, glm::vec2 &left_window_pos, glm:
     if(ui::MenuItem("Open directory")) {
       auto dir = app->getFolderPath();
       if (boost::filesystem::is_directory(dir)) {
-        grabbers_[dir] = std::make_shared<grabber::SequentialPcdGrabber>(dir);
+        Signal<io::CloudDataSources::OpenPcdFilesDirectoryAction>::emit({dir.string()});
+//        grabbers_[dir] = std::make_shared<grabber::SequentialPcdGrabber>(dir);
       }
     }
     if (ui::MenuItem("Open calibration yaml file")) {
-      auto yamlfile = app->getOpenFilePath(bfs::path(), {"yaml", "yml"});
-      if (bfs::exists(yamlfile)) {
+      auto yamlfile = app->getOpenFilePath(boost::filesystem::path(), {"yaml", "yml"});
+      if (boost::filesystem::exists(yamlfile)) {
         io::CalibrationParams::load(yamlfile.string());
       }
     }
@@ -294,21 +297,21 @@ void AppGui::drawInfoWindow(ci::app::AppBase *app, glm::vec2 &window_pos) {
 void AppGui::drawPlayerWindow(glm::vec2 &window_pos) {
   ui::ScopedWindow window("Player", kWindowFlags);
 
-  for (auto pair : clouds_->loading_progresses()) {
+  for (auto pair : cloud_data_sources_->sequential_pcd_players()) {
     ui::TextUnformatted(boost::filesystem::path(pair.first).filename().c_str());
-    auto prg = pair.second;
+    auto player = pair.second;
+    auto prg = player->loading_progress();
     ui::Columns(2);
     ui::ProgressBar(((float) prg[0]) / prg[1]);
     ui::NextColumn();
     ui::Text("%04d / %04d", (int) prg[0], (int) prg[1]);
     ui::SameLine();
-    auto grabber = grabbers_[pair.first];
-    if (grabber->isPlaying()) {
+    if (player->isPlaying()) {
       if (ui::Button("Stop")) {
-        grabber->stop();
+        player->stop();
       }
     } else if (ui::Button("Play")) {
-      grabber->start();
+      player->start();
     }
     ui::Columns(1);
   }

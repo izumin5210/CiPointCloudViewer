@@ -29,8 +29,6 @@ void Clouds::initializeConnections() {
     this, &Clouds::onVoxelFilterParamsUpdate));
   addConnection(Signal<UpdateStatisticalOutlierRemovalFilterParamsAction>::connect(
     this, &Clouds::onStatisticalOutlierRemovalFilterParamsUpdate));
-  addConnection(Signal<UpdateCloudLoadingProgressAction>::connect(
-    this, &Clouds::onCloudLoadingProgressUpdate));
   addConnection(Signal<OpenPcdFileAction>::connect(this, &Clouds::onPcdFileOpen));
 }
 
@@ -114,10 +112,6 @@ void Clouds::onStatisticalOutlierRemovalFilterParamsUpdate(
   const UpdateStatisticalOutlierRemovalFilterParamsAction &action) {
   sor_filter_.setParams(action.params);
   updatePointCloud();
-}
-
-void Clouds::onCloudLoadingProgressUpdate(const UpdateCloudLoadingProgressAction &action) {
-  loading_progresses_[action.key] = glm::vec2(action.count, action.max);
 }
 
 void Clouds::onPcdFileOpen(const OpenPcdFileAction &action) {

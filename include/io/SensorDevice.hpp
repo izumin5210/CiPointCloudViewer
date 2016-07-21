@@ -13,6 +13,8 @@
 #include <algorithm>
 #include <iostream>
 
+#include <boost/date_time.hpp>
+
 #include <pcl/common/common.h>
 #include <pcl/common/transforms.h>
 

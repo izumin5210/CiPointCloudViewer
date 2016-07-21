@@ -57,12 +57,6 @@ public:
     filter::StatisticalOutlierRemovalFilter<PointT>::Params params;
   };
 
-  struct UpdateCloudLoadingProgressAction {
-    Key key;
-    unsigned long count;
-    unsigned long max;
-  };
-
   struct OpenPcdFileAction {
     std::string path;
   };
@@ -109,10 +103,6 @@ public:
     return sor_filter_.params();
   }
 
-  std::map<Key, glm::vec2> loading_progresses() const {
-    return loading_progresses_;
-  }
-
 
 private:
   std::map<Key, PointCloudPtr> clouds_;
@@ -142,7 +132,6 @@ private:
   void onPassThroughFilterParamsUpdate(const UpdatePassThroughFilterParamsAction &action);
   void onVoxelFilterParamsUpdate(const UpdateVoxelFilterParamsAction &action);
   void onStatisticalOutlierRemovalFilterParamsUpdate(const UpdateStatisticalOutlierRemovalFilterParamsAction &action);
-  void onCloudLoadingProgressUpdate(const UpdateCloudLoadingProgressAction &action);
   void onPcdFileOpen(const OpenPcdFileAction &action);
 };
 
