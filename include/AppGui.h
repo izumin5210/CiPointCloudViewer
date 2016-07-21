@@ -12,10 +12,7 @@
 #include "ViewParams.h"
 #include "Configure.h"
 
-// TODO: will move
-#include "grabber/PcdGrabber.hpp"
-#include "grabber/SequentialPcdGrabber.hpp"
-
+#include "io/CloudDataSources.h"
 #include "io/CalibrationParamsManager.h"
 #include "io/SensorDeviceManager.hpp"
 
@@ -27,7 +24,8 @@ public:
     const std::shared_ptr<Clouds> &clouds,
     const std::shared_ptr<ViewParams> &view_params,
     const std::shared_ptr<Configure> &config,
-    const std::shared_ptr<io::SensorDeviceManager> &sensor_device_manager_
+    const std::shared_ptr<io::CloudDataSources> &cloud_data_sources,
+    const std::shared_ptr<io::SensorDeviceManager> &sensor_device_manager
   );
 
   void initialize();
@@ -95,6 +93,7 @@ private:
   const std::shared_ptr<Clouds> clouds_;
   const std::shared_ptr<ViewParams> view_params_;
   const std::shared_ptr<Configure> config_;
+  const std::shared_ptr<io::CloudDataSources> cloud_data_sources_;
 
   bool visible_camera_window_     = true;
   bool visible_appearance_window_ = true;
@@ -106,9 +105,6 @@ private:
 
   Clouds::Key cloud_selected_;
 
-  // TODO: will move
-  std::map<boost::filesystem::path, std::shared_ptr<grabber::PointCloudGrabber>> grabbers_;
-  std::shared_ptr<grabber::PointCloudGrabber> grabber_selected_;
   std::shared_ptr<io::SensorDeviceManager> sensor_device_manager_;
   std::string device_selected_;
 

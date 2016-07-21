@@ -17,6 +17,7 @@
 
 #include "AppGui.h"
 #include "Configure.h"
+#include "io/CloudDataSources.h"
 
 #include "Clouds.h"
 #include "ViewParams.h"
@@ -46,6 +47,7 @@ private:
   shared_ptr<ViewParams> view_params_;
   shared_ptr<Configure> config_;
   shared_ptr<io::SensorDeviceManager> sensor_device_manager_;
+  shared_ptr<io::CloudDataSources> cloud_data_sources_;
 
   AppGui gui_;
 
@@ -70,7 +72,8 @@ CiPointCloudViewerApp::CiPointCloudViewerApp()
   , view_params_(new ViewParams)
   , config_(new Configure(getAssetPath("")))
   , sensor_device_manager_(new io::SensorDeviceManager)
-  , gui_(clouds_, view_params_, config_, sensor_device_manager_)
+  , cloud_data_sources_(new io::CloudDataSources)
+  , gui_(clouds_, view_params_, config_, cloud_data_sources_, sensor_device_manager_)
   , grid_batch_(gl::VertBatch::create(GL_LINES))
   , render_prog_(
     gl::GlslProg::create(

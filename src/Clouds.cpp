@@ -2,6 +2,8 @@
 // Created by Masayuki IZUMI on 7/19/16.
 //
 
+#include <pcl/io/pcd_io.h>
+
 #include "Clouds.h"
 #include "Signal.h"
 
@@ -27,8 +29,7 @@ void Clouds::initializeConnections() {
     this, &Clouds::onVoxelFilterParamsUpdate));
   addConnection(Signal<UpdateStatisticalOutlierRemovalFilterParamsAction>::connect(
     this, &Clouds::onStatisticalOutlierRemovalFilterParamsUpdate));
-  addConnection(Signal<UpdateCloudLoadingProgressAction>::connect(
-    this, &Clouds::onCloudLoadingProgressUpdate));
+  addConnection(Signal<OpenPcdFileAction>::connect(this, &Clouds::onPcdFileOpen));
 }
 
 void Clouds::updatePointCloud() {
@@ -113,6 +114,9 @@ void Clouds::onStatisticalOutlierRemovalFilterParamsUpdate(
   updatePointCloud();
 }
 
-void Clouds::onCloudLoadingProgressUpdate(const UpdateCloudLoadingProgressAction &action) {
-  loading_progresses_[action.key] = glm::vec2(action.count, action.max);
+void Clouds::onPcdFileOpen(const OpenPcdFileAction &action) {
+  const PointCloudPtr cloud(new PointCloud);
+  pcl::io::loadPCDFile(action.path, *cloud);
+  clouds_[action.path] = cloud;
+  updatePointCloud();
 }
