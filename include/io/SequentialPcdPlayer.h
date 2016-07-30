@@ -7,6 +7,7 @@
 
 #include <pcl/io/pcd_io.h>
 
+#include <atomic>
 #include <thread>
 #include <map>
 

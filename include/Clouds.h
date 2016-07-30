@@ -14,7 +14,10 @@
 
 #include "glm/glm.hpp"
 
+#include "Point.h"
 #include "Store.h"
+
+#include "io/CalibrationParamsManager.h"
 
 #include "filter/PassThroughFilter.hpp"
 #include "filter/VoxelFilter.hpp"
@@ -29,7 +32,12 @@ public:
 
   struct UpdateCloudAction {
     Key key;
-    PointCloudPtr cloud;
+    Points points;
+  };
+
+  struct UpdateCalibrationParamsAction {
+    Key key;
+    io::CalibrationParams params;
   };
 
   struct ChangeCloudVisibilityAction {
@@ -63,16 +71,24 @@ public:
 
   Clouds();
 
-  std::map<Key, PointCloudPtr> clouds() const {
+  void lock() {
+    cloud_mutex_.lock();
+  }
+
+  void unlock() {
+    cloud_mutex_.unlock();
+  }
+
+  std::map<Key, Points> clouds() const {
     return clouds_;
+  };
+
+  std::map<Key, io::CalibrationParams> calib_params_map() const {
+    return calib_params_map_;
   };
 
   std::set<Key> hidden_clouds() const {
     return hidden_clouds_;
-  }
-
-  PointCloudPtr cloud() const {
-    return cloud_;
   }
 
   size_t cloud_size() const {
@@ -105,10 +121,10 @@ public:
 
 
 private:
-  std::map<Key, PointCloudPtr> clouds_;
+  std::map<Key, Points> clouds_;
+  std::map<Key, io::CalibrationParams> calib_params_map_;
   std::set<Key> hidden_clouds_;
 
-  PointCloudPtr cloud_;
   size_t cloud_size_;
   size_t filtered_cloud_size_;
 
@@ -126,6 +142,7 @@ private:
   void updatePointCloud();
 
   void onCloudUpdate(const UpdateCloudAction &action);
+  void onCalibrationParamsUpdate(const UpdateCalibrationParamsAction &action);
   void onCloudVisibilityChange(const ChangeCloudVisibilityAction &action);
   void onCloudRemove(const RemoveCloudAction &action);
   void onCloudsClear(const ClearCloudsAction &action);
