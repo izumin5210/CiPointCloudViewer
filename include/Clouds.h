@@ -71,6 +71,14 @@ public:
 
   Clouds();
 
+  void lock() {
+    cloud_mutex_.lock();
+  }
+
+  void unlock() {
+    cloud_mutex_.unlock();
+  }
+
   std::map<Key, Points> clouds() const {
     return clouds_;
   };

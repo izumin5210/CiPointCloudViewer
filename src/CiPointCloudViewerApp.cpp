@@ -130,6 +130,7 @@ void CiPointCloudViewerApp::onViewParamsUpdate() {
 
 void CiPointCloudViewerApp::updateVbo() {
   cloud_updated_ = true;
+  clouds_->lock();
   for (auto pair : clouds_->clouds()) {
     if (pair.second.empty()) { continue; }
     if (vaos_.find(pair.first) == vaos_.end()) {
@@ -146,6 +147,7 @@ void CiPointCloudViewerApp::updateVbo() {
     gl::vertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Point), (const GLvoid*)offsetof(Point, xyz));
     gl::vertexAttribPointer(1, 3, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(Point), (const GLvoid*)offsetof(Point, rgb));
   }
+  clouds_->unlock();
 }
 
 void CiPointCloudViewerApp::mouseDown(MouseEvent event) {
@@ -186,6 +188,7 @@ void CiPointCloudViewerApp::draw() {
 
   {
     gl::ScopedGlslProg render(render_prog_);
+    clouds_->lock();
     for (auto pair : vaos_) {
       auto calib_params = clouds_->calib_params_map()[pair.first];
       mat4 calib_matrix(1.0f);
@@ -203,6 +206,7 @@ void CiPointCloudViewerApp::draw() {
       gl::context()->setDefaultShaderVars();
       gl::drawArrays(GL_POINTS, 0, clouds_->clouds()[pair.first].size());
     }
+    clouds_->unlock();
   }
 }
 
