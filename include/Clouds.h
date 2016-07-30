@@ -16,6 +16,8 @@
 
 #include "Store.h"
 
+#include "io/CalibrationParamsManager.h"
+
 #include "filter/PassThroughFilter.hpp"
 #include "filter/VoxelFilter.hpp"
 #include "filter/StatisticalOutlierRemovalFilter.hpp"
@@ -30,6 +32,11 @@ public:
   struct UpdateCloudAction {
     Key key;
     PointCloudPtr cloud;
+  };
+
+  struct UpdateCalibrationParamsAction {
+    Key key;
+    io::CalibrationParams params;
   };
 
   struct ChangeCloudVisibilityAction {
@@ -106,6 +113,7 @@ public:
 
 private:
   std::map<Key, PointCloudPtr> clouds_;
+  std::map<Key, io::CalibrationParams> calib_params_map_;
   std::set<Key> hidden_clouds_;
 
   PointCloudPtr cloud_;
@@ -126,6 +134,7 @@ private:
   void updatePointCloud();
 
   void onCloudUpdate(const UpdateCloudAction &action);
+  void onCalibrationParamsUpdate(const UpdateCalibrationParamsAction &action);
   void onCloudVisibilityChange(const ChangeCloudVisibilityAction &action);
   void onCloudRemove(const RemoveCloudAction &action);
   void onCloudsClear(const ClearCloudsAction &action);

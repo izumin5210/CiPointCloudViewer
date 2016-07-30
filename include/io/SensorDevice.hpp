@@ -60,7 +60,7 @@ public:
     void initialize(const char *uri = openni::ANY_DEVICE) {
         uri_ = uri;
 
-        Signal<CalibrationParams>::connect(this, &SensorDevice::setCalibrationParams);
+        Signal<Clouds::UpdateCalibrationParamsAction>::connect(this, &SensorDevice::setCalibrationParams);
         Signal<FpsCounter::Event>::connect(this, &SensorDevice::updateFps);
 
         checkStatus(device_.open(uri), "openni::Device::open() failed.");
@@ -119,13 +119,13 @@ public:
         return kStateString[state_];
     }
 
-    void setCalibrationParams(const CalibrationParams& params) {
-        if (params.serial == serial_) {
+    void setCalibrationParams(const Clouds::UpdateCalibrationParamsAction &action) {
+        if (action.key == serial_) {
             if (state_ == INITIALIZED) {
                 state_ = CALIBRATED;
             }
             calibrated_ = true;
-            params_ = params;
+            params_ = action.params;
         }
     }
 

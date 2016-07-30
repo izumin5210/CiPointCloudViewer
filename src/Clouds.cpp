@@ -20,6 +20,7 @@ Clouds::Clouds()
 
 void Clouds::initializeConnections() {
   addConnection(Signal<UpdateCloudAction>::connect(this, &Clouds::onCloudUpdate));
+  addConnection(Signal<UpdateCalibrationParamsAction>::connect(this, &Clouds::onCalibrationParamsUpdate));
   addConnection(Signal<ChangeCloudVisibilityAction>::connect(this, &Clouds::onCloudVisibilityChange));
   addConnection(Signal<RemoveCloudAction>::connect(this, &Clouds::onCloudRemove));
   addConnection(Signal<ClearCloudsAction>::connect(this, &Clouds::onCloudsClear));
@@ -70,6 +71,12 @@ void Clouds::updatePointCloud() {
 
 void Clouds::onCloudUpdate(const UpdateCloudAction &action) {
   clouds_[action.key] = action.cloud;
+  updatePointCloud();
+  emit();
+}
+
+void Clouds::onCalibrationParamsUpdate(const UpdateCalibrationParamsAction &action) {
+  calib_params_map_[action.key] = action.params;
   updatePointCloud();
 }
 
