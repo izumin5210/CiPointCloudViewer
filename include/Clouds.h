@@ -14,8 +14,8 @@
 
 #include "glm/glm.hpp"
 
-#include "Point.h"
 #include "Store.h"
+#include "Vertex.h"
 
 #include "io/CalibrationParamsManager.h"
 
@@ -32,7 +32,7 @@ public:
 
   struct UpdateCloudAction {
     Key key;
-    Points points;
+    Vertices vertices;
   };
 
   struct UpdateCalibrationParamsAction {
@@ -79,7 +79,7 @@ public:
     cloud_mutex_.unlock();
   }
 
-  std::map<Key, Points> clouds() const {
+  std::map<Key, Vertices> clouds() const {
     return clouds_;
   };
 
@@ -121,7 +121,7 @@ public:
 
 
 private:
-  std::map<Key, Points> clouds_;
+  std::map<Key, Vertices> clouds_;
   std::map<Key, io::CalibrationParams> calib_params_map_;
   std::set<Key> hidden_clouds_;
 
