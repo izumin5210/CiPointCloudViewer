@@ -139,13 +139,13 @@ void CiPointCloudViewerApp::updateVbo() {
     if (vbos_.find(pair.first) == vbos_.end()) {
       vbos_[pair.first] = gl::Vbo::create(GL_ARRAY_BUFFER, 0, nullptr, GL_STATIC_DRAW);
     }
-    vbos_[pair.first]->copyData(pair.second.size() * sizeof(Point), pair.second.data());
+    vbos_[pair.first]->copyData(pair.second.size() * sizeof(Vertex), pair.second.data());
     gl::ScopedVao vao(vaos_[pair.first]);
     gl::ScopedBuffer vbo(vbos_[pair.first]);
     gl::enableVertexAttribArray(0);
     gl::enableVertexAttribArray(1);
-    gl::vertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Point), (const GLvoid*)offsetof(Point, xyz));
-    gl::vertexAttribPointer(1, 3, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(Point), (const GLvoid*)offsetof(Point, rgb));
+    gl::vertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (const GLvoid*)offsetof(Vertex, xyz));
+    gl::vertexAttribPointer(1, 3, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(Vertex), (const GLvoid*)offsetof(Vertex, rgb));
   }
   clouds_->unlock();
 }

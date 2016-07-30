@@ -26,8 +26,8 @@
 
 #include "Clouds.h"
 #include "FpsCounter.h"
-#include "Point.h"
 #include "Signal.h"
+#include "Vertex.h"
 #include "io/CalibrationParamsManager.h"
 
 namespace io {
@@ -376,18 +376,26 @@ private:
       unsigned char* color = (unsigned char*) color_image_.data;
       unsigned short* depth = (unsigned short*) raw_depth_image_.data;
 
-      Points points;
+      Vertices vertices;
 
       for (int i = 0; i < width * height; i++) {
         if (depth[i] != 0 && (color[i*3] != 0 || color[i*3+1] != 0 || color[i*3+2] != 0)) {
-          points.emplace_back((Point){
-            {i % width, i / width, depth[i]},
-            {color[i * 3 + 2], color[i * 3 + 1], color[i * 3]}
+          vertices.emplace_back((Vertex){
+            {
+              static_cast<float>(i % width),
+              static_cast<float>(i / width),
+              static_cast<float>(depth[i])
+            },
+            {
+              static_cast<uint8_t>(color[i * 3 + 2]),
+              static_cast<uint8_t>(color[i * 3 + 1]),
+              static_cast<uint8_t>(color[i * 3])
+            }
           });
         }
       }
 
-      Signal<Clouds::UpdateCloudAction>::emit({name_, points});
+      Signal<Clouds::UpdateCloudAction>::emit({name_, vertices});
     }
 };
 

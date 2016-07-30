@@ -81,7 +81,7 @@ void Clouds::updatePointCloud() {
 
 void Clouds::onCloudUpdate(const UpdateCloudAction &action) {
   std::lock_guard<std::mutex> lg(cloud_mutex_);
-  clouds_[action.key] = action.points;
+  clouds_[action.key] = action.vertices;
 //  updatePointCloud();
   emit();
 }
