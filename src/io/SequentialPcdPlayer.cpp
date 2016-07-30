@@ -82,7 +82,8 @@ void SequentialPcdPlayer::start(const uint64_t started_at) {
       }
       if ((itr->first - started_at) <= elapsedTime()) {
         cloud_ = clouds_[itr->first];
-        Signal<Clouds::UpdateCloudAction>::emit({path_.string(), cloud_});
+        // TODO
+//        Signal<Clouds::UpdateCloudAction>::emit({path_.string(), cloud_});
         itr++;
       }
       if (itr == files_.end()) {

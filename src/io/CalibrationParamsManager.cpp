@@ -9,6 +9,7 @@
 #ifndef CalibrationParams_cpp
 #define CalibrationParams_cpp
 
+#include "Clouds.h"
 #include "Signal.h"
 #include "io/CalibrationParamsManager.h"
 
@@ -20,7 +21,7 @@ CalibrationParams::load(std::string path, std::string prefix) {
     for (auto node : fs.root()) {
         auto serial = node.name().substr(strlen(prefix.c_str()));
         auto params = createCalibrationParams(serial, node);
-        Signal<CalibrationParams>::emit(params);
+        Signal<Clouds::UpdateCalibrationParamsAction>::emit({serial, params});
     }
     fs.release();
 }
