@@ -271,11 +271,13 @@ void AppGui::drawCloudsWindow(glm::vec2 &window_pos) {
   }
 
   ui::ListBoxHeader("");
+  clouds_->lock();
   for (auto pair : clouds_->clouds()) {
     if (ui::Selectable(pair.first.c_str(), !cloud_selected_.empty() && (cloud_selected_ == pair.first))) {
       cloud_selected_ = pair.first;
     }
   }
+  clouds_->unlock();
   ui::ListBoxFooter();
 
   ui::SetWindowPos(window_pos);

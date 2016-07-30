@@ -35,7 +35,6 @@ public:
 
     inline void start() {
         stopped_ = false;
-        Signal<CalibrationParams>::connect(this, &SensorDeviceManager::addCalibrationParams);
         refresh();
     }
 
@@ -72,10 +71,6 @@ private:
     std::vector<CalibrationParams> calib_params_list_;
     std::atomic<bool> stopped_;
     std::thread device_check_worker_;
-
-    void addCalibrationParams(const CalibrationParams& params) {
-        calib_params_list_.push_back(params);
-    }
 };
 
 }
