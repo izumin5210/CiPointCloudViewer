@@ -202,6 +202,15 @@ void CiPointCloudViewerApp::draw() {
       render_prog_->uniform("fy", calib_params.fy);
       render_prog_->uniform("cx", calib_params.cx);
       render_prog_->uniform("cy", calib_params.cy);
+      render_prog_->uniform("xPassThroughParams.enable", clouds_->x_pass_through_filter_params().enable);
+      render_prog_->uniform("xPassThroughParams.min", clouds_->x_pass_through_filter_params().min);
+      render_prog_->uniform("xPassThroughParams.max", clouds_->x_pass_through_filter_params().max);
+      render_prog_->uniform("yPassThroughParams.enable", clouds_->y_pass_through_filter_params().enable);
+      render_prog_->uniform("yPassThroughParams.min", clouds_->y_pass_through_filter_params().min);
+      render_prog_->uniform("yPassThroughParams.max", clouds_->y_pass_through_filter_params().max);
+      render_prog_->uniform("zPassThroughParams.enable", clouds_->z_pass_through_filter_params().enable);
+      render_prog_->uniform("zPassThroughParams.min", clouds_->z_pass_through_filter_params().min);
+      render_prog_->uniform("zPassThroughParams.max", clouds_->z_pass_through_filter_params().max);
       gl::ScopedVao vao(pair.second);
       gl::context()->setDefaultShaderVars();
       gl::drawArrays(GL_POINTS, 0, clouds_->clouds()[pair.first].size());
