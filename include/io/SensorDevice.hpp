@@ -26,6 +26,7 @@
 
 #include "Clouds.h"
 #include "FpsCounter.h"
+#include "Point.h"
 #include "Signal.h"
 #include "io/CalibrationParamsManager.h"
 
@@ -375,30 +376,18 @@ private:
       unsigned char* color = (unsigned char*) color_image_.data;
       unsigned short* depth = (unsigned short*) raw_depth_image_.data;
 
-      const pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZRGBA>);
-      cloud->clear();
-      cloud->reserve(width * height);
+      Points points;
 
       for (int i = 0; i < width * height; i++) {
         if (depth[i] != 0 && (color[i*3] != 0 || color[i*3+1] != 0 || color[i*3+2] != 0)) {
-          int x = i % width;
-          int y = i / width;
-          float zw = depth[i] / 1000.0;
-          float xw = (x - params_.cx) * zw / params_.fx;
-          float yw = (y - params_.cy) * zw / params_.fy;
-          pcl::PointXYZRGBA point;
-          point.x = xw;
-          point.y = yw;
-          point.z = zw;
-          point.r = color[i * 3 + 2];
-          point.g = color[i * 3 + 1];
-          point.b = color[i * 3];
-          cloud->push_back(point);
+          points.emplace_back((Point){
+            {i % width, i / width, depth[i]},
+            {color[i * 3 + 2], color[i * 3 + 1], color[i * 3]}
+          });
         }
       }
 
-      pcl::transformPointCloud(*cloud, *cloud, params_.calib_matrix);
-      Signal<Clouds::UpdateCloudAction>::emit({name_, cloud});
+      Signal<Clouds::UpdateCloudAction>::emit({name_, points});
     }
 };
 

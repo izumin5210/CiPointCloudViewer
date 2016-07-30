@@ -54,8 +54,8 @@ private:
   gl::VertBatchRef grid_batch_;
 
   gl::GlslProgRef render_prog_;
-  gl::VaoRef vao_;
-  gl::VboRef vbo_;
+  map<Clouds::Key, gl::VaoRef> vaos_;
+  map<Clouds::Key, gl::VboRef> vbos_;
 
   CameraPersp camera_;
   CameraUi camera_ui_;
@@ -82,8 +82,6 @@ CiPointCloudViewerApp::CiPointCloudViewerApp()
         .fragment(loadAsset("pointcloud.frag"))
     )
   )
-  , vao_(gl::Vao::create())
-  , vbo_(gl::Vbo::create(GL_ARRAY_BUFFER, 0, nullptr, GL_STATIC_DRAW))
   , camera_ui_(&camera_)
   , cloud_updated_(false)
 {}
@@ -121,7 +119,7 @@ void CiPointCloudViewerApp::setup() {
 }
 
 void CiPointCloudViewerApp::onCloudsUpdate() {
-  cloud_updated_ = true;
+  cloud_updated_ = false;
 }
 
 void CiPointCloudViewerApp::onViewParamsUpdate() {
@@ -131,15 +129,22 @@ void CiPointCloudViewerApp::onViewParamsUpdate() {
 
 
 void CiPointCloudViewerApp::updateVbo() {
-  cloud_updated_ = false;
-  vbo_->copyData(clouds_->cloud()->points.size() * sizeof(PointT), clouds_->cloud()->points.data());
-  {
-    gl::ScopedVao vao(vao_);
-    gl::ScopedBuffer vbo(vbo_);
+  cloud_updated_ = true;
+  for (auto pair : clouds_->clouds()) {
+    if (pair.second.empty()) { continue; }
+    if (vaos_.find(pair.first) == vaos_.end()) {
+      vaos_[pair.first] = gl::Vao::create();
+    }
+    if (vbos_.find(pair.first) == vbos_.end()) {
+      vbos_[pair.first] = gl::Vbo::create(GL_ARRAY_BUFFER, 0, nullptr, GL_STATIC_DRAW);
+    }
+    vbos_[pair.first]->copyData(pair.second.size() * sizeof(Point), pair.second.data());
+    gl::ScopedVao vao(vaos_[pair.first]);
+    gl::ScopedBuffer vbo(vbos_[pair.first]);
     gl::enableVertexAttribArray(0);
     gl::enableVertexAttribArray(1);
-    gl::vertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, sizeof(PointT), (const GLvoid*)offsetof(PointT, data));
-    gl::vertexAttribPointer(1, 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(PointT), (const GLvoid*)offsetof(PointT, rgba));
+    gl::vertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Point), (const GLvoid*)offsetof(Point, xyz));
+    gl::vertexAttribPointer(1, 3, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(Point), (const GLvoid*)offsetof(Point, rgb));
   }
 }
 
@@ -161,7 +166,7 @@ void CiPointCloudViewerApp::mouseWheel(MouseEvent event) {
 void CiPointCloudViewerApp::update() {
   gui_.update(this);
 
-  if (cloud_updated_) {
+  if (!cloud_updated_) {
     updateVbo();
   }
 
@@ -181,9 +186,23 @@ void CiPointCloudViewerApp::draw() {
 
   {
     gl::ScopedGlslProg render(render_prog_);
-    gl::ScopedVao vao(vao_);
-    gl::context()->setDefaultShaderVars();
-    gl::drawArrays(GL_POINTS, 0, clouds_->filtered_cloud_size());
+    for (auto pair : vaos_) {
+      auto calib_params = clouds_->calib_params_map()[pair.first];
+      mat4 calib_matrix(1.0f);
+      for (long i = 0; i < calib_params.calib_matrix.cols(); i++) {
+        for (long j = 0; j < calib_params.calib_matrix.rows(); j++) {
+          calib_matrix[i][j] = calib_params.calib_matrix(j, i);
+        }
+      }
+      render_prog_->uniform("calibMatrix", calib_matrix);
+      render_prog_->uniform("fx", calib_params.fx);
+      render_prog_->uniform("fy", calib_params.fy);
+      render_prog_->uniform("cx", calib_params.cx);
+      render_prog_->uniform("cy", calib_params.cy);
+      gl::ScopedVao vao(pair.second);
+      gl::context()->setDefaultShaderVars();
+      gl::drawArrays(GL_POINTS, 0, clouds_->clouds()[pair.first].size());
+    }
   }
 }
 

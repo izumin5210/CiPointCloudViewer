@@ -8,8 +8,7 @@
 #include "Signal.h"
 
 Clouds::Clouds()
-  : cloud_(new PointCloud)
-  , cloud_size_(0)
+  : cloud_size_(0)
   , filtered_cloud_size_(0)
   , x_pass_through_filter_("x")
   , y_pass_through_filter_("y")
@@ -35,43 +34,55 @@ void Clouds::initializeConnections() {
 
 void Clouds::updatePointCloud() {
   std::lock_guard<std::mutex> lg(cloud_mutex_);
-  cloud_->clear();
+//  points_.clear();
+//
+//  for (auto pair : clouds_) {
+//    if (hidden_clouds_.find(pair.first) == hidden_clouds_.end()) {
+//      std::copy(pair.second.begin(), pair.second.end(), std::back_inserter(points_));
+//    }
+//  }
+//
+//  cloud_size_ = points_.size();
+//  filtered_cloud_size_ = points_.size();
 
-  for (auto pair : clouds_) {
-    if (hidden_clouds_.find(pair.first) == hidden_clouds_.end()) {
-      *cloud_ += *(pair.second);
-    }
-  }
+//  cloud_->clear();
 
-  cloud_size_ = cloud_->size();
+//  for (auto pair : clouds_) {
+//    if (hidden_clouds_.find(pair.first) == hidden_clouds_.end()) {
+//      *cloud_ += *(pair.second);
+//    }
+//  }
+//
+//  cloud_size_ = cloud_->size();
+//
+//  if (x_pass_through_filter_params().enable) {
+//    x_pass_through_filter_.filter(cloud_);
+//  }
+//
+//  if (y_pass_through_filter_params().enable) {
+//    y_pass_through_filter_.filter(cloud_);
+//  }
+//
+//  if (z_pass_through_filter_params().enable) {
+//    z_pass_through_filter_.filter(cloud_);
+//  }
+//
+//  if (voxel_filter_params().enable) {
+//    voxel_filter_.filter(cloud_);
+//  }
+//
+//  if (sor_filter_params().enable) {
+//    sor_filter_.filter(cloud_);
+//  }
 
-  if (x_pass_through_filter_params().enable) {
-    x_pass_through_filter_.filter(cloud_);
-  }
-
-  if (y_pass_through_filter_params().enable) {
-    y_pass_through_filter_.filter(cloud_);
-  }
-
-  if (z_pass_through_filter_params().enable) {
-    z_pass_through_filter_.filter(cloud_);
-  }
-
-  if (voxel_filter_params().enable) {
-    voxel_filter_.filter(cloud_);
-  }
-
-  if (sor_filter_params().enable) {
-    sor_filter_.filter(cloud_);
-  }
-
-  filtered_cloud_size_ = cloud_->size();
+//  filtered_cloud_size_ = cloud_->size();
   emit();
 }
 
 void Clouds::onCloudUpdate(const UpdateCloudAction &action) {
-  clouds_[action.key] = action.cloud;
-  updatePointCloud();
+  std::lock_guard<std::mutex> lg(cloud_mutex_);
+  clouds_[action.key] = action.points;
+//  updatePointCloud();
   emit();
 }
 
@@ -124,6 +135,7 @@ void Clouds::onStatisticalOutlierRemovalFilterParamsUpdate(
 void Clouds::onPcdFileOpen(const OpenPcdFileAction &action) {
   const PointCloudPtr cloud(new PointCloud);
   pcl::io::loadPCDFile(action.path, *cloud);
-  clouds_[action.path] = cloud;
-  updatePointCloud();
+  // TODO: replace with the Point struct
+//  clouds_[action.path] = cloud;
+//  updatePointCloud();
 }

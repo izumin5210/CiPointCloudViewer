@@ -14,6 +14,7 @@
 
 #include "glm/glm.hpp"
 
+#include "Point.h"
 #include "Store.h"
 
 #include "io/CalibrationParamsManager.h"
@@ -31,7 +32,7 @@ public:
 
   struct UpdateCloudAction {
     Key key;
-    PointCloudPtr cloud;
+    Points points;
   };
 
   struct UpdateCalibrationParamsAction {
@@ -70,16 +71,16 @@ public:
 
   Clouds();
 
-  std::map<Key, PointCloudPtr> clouds() const {
+  std::map<Key, Points> clouds() const {
     return clouds_;
+  };
+
+  std::map<Key, io::CalibrationParams> calib_params_map() const {
+    return calib_params_map_;
   };
 
   std::set<Key> hidden_clouds() const {
     return hidden_clouds_;
-  }
-
-  PointCloudPtr cloud() const {
-    return cloud_;
   }
 
   size_t cloud_size() const {
@@ -112,11 +113,10 @@ public:
 
 
 private:
-  std::map<Key, PointCloudPtr> clouds_;
+  std::map<Key, Points> clouds_;
   std::map<Key, io::CalibrationParams> calib_params_map_;
   std::set<Key> hidden_clouds_;
 
-  PointCloudPtr cloud_;
   size_t cloud_size_;
   size_t filtered_cloud_size_;
 
