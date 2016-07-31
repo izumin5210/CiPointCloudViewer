@@ -4,3 +4,6 @@
 [submodule "blocks/PCL"]
 	path = blocks/PCL
 	url = git://github.com/izumin5210/Cinder-PCL.git
+[submodule "blocks/nod"]
+	path = blocks/nod
+	url = https://github.com/fr00b0/nod.git

@@ -61,8 +61,9 @@ public:
     void initialize(const char *uri = openni::ANY_DEVICE) {
         uri_ = uri;
 
-        Signal<Clouds::UpdateCalibrationParamsAction>::connect(this, &SensorDevice::setCalibrationParams);
-        Signal<FpsCounter::Event>::connect(this, &SensorDevice::updateFps);
+        namespace ph = std::placeholders;
+        Signal<Clouds::UpdateCalibrationParamsAction>::connect(std::bind(&SensorDevice::setCalibrationParams, this, ph::_1));
+        Signal<FpsCounter::Event>::connect(std::bind(&SensorDevice::updateFps, this, ph::_1));
 
         checkStatus(device_.open(uri), "openni::Device::open() failed.");
         if (device_.isFile()) {

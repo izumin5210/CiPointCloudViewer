@@ -18,18 +18,19 @@ Clouds::Clouds()
 }
 
 void Clouds::initializeConnections() {
-  addConnection(Signal<UpdateCloudAction>::connect(this, &Clouds::onCloudUpdate));
-  addConnection(Signal<UpdateCalibrationParamsAction>::connect(this, &Clouds::onCalibrationParamsUpdate));
-  addConnection(Signal<ChangeCloudVisibilityAction>::connect(this, &Clouds::onCloudVisibilityChange));
-  addConnection(Signal<RemoveCloudAction>::connect(this, &Clouds::onCloudRemove));
-  addConnection(Signal<ClearCloudsAction>::connect(this, &Clouds::onCloudsClear));
+  namespace ph = std::placeholders;
+  addConnection(Signal<UpdateCloudAction>::connect(std::bind(&Clouds::onCloudUpdate, this, ph::_1)));
+  addConnection(Signal<UpdateCalibrationParamsAction>::connect(std::bind(&Clouds::onCalibrationParamsUpdate, this, ph::_1)));
+  addConnection(Signal<ChangeCloudVisibilityAction>::connect(std::bind(&Clouds::onCloudVisibilityChange, this, ph::_1)));
+  addConnection(Signal<RemoveCloudAction>::connect(std::bind(&Clouds::onCloudRemove, this, ph::_1)));
+  addConnection(Signal<ClearCloudsAction>::connect(std::bind(&Clouds::onCloudsClear, this, ph::_1)));
   addConnection(Signal<UpdatePassThroughFilterParamsAction>::connect(
-    this, &Clouds::onPassThroughFilterParamsUpdate));
+    std::bind(&Clouds::onPassThroughFilterParamsUpdate, this, ph::_1)));
   addConnection(Signal<UpdateVoxelFilterParamsAction>::connect(
-    this, &Clouds::onVoxelFilterParamsUpdate));
+    std::bind(&Clouds::onVoxelFilterParamsUpdate, this, ph::_1)));
   addConnection(Signal<UpdateStatisticalOutlierRemovalFilterParamsAction>::connect(
-    this, &Clouds::onStatisticalOutlierRemovalFilterParamsUpdate));
-  addConnection(Signal<OpenPcdFileAction>::connect(this, &Clouds::onPcdFileOpen));
+    std::bind(&Clouds::onStatisticalOutlierRemovalFilterParamsUpdate, this, ph::_1)));
+  addConnection(Signal<OpenPcdFileAction>::connect(std::bind(&Clouds::onPcdFileOpen, this, ph::_1)));
 }
 
 void Clouds::updatePointCloud() {

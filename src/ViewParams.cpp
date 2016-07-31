@@ -19,12 +19,14 @@ ViewParams::ViewParams()
 }
 
 void ViewParams::initializeConnections() {
-  addConnection(Signal<UpdateCameraParamsAction>::connect(this, &ViewParams::onCameraParamsUpdate));
-  addConnection(Signal<UpdateBgColorAction>::connect(this, &ViewParams::onBgColorUpdate));
-  addConnection(Signal<UpdatePointSizeAction>::connect(this, &ViewParams::onPointSizeUpdate));
-  addConnection(Signal<ToggleFullScreenAction>::connect(this, &ViewParams::onFullScreenToggle));
-  addConnection(Signal<ToggleGridVisibilityAction>::connect(this, &ViewParams::onGridVisibilityChange));
+  namespace ph = std::placeholders;
+  addConnection(Signal<UpdateCameraParamsAction>::connect(std::bind(&ViewParams::onCameraParamsUpdate, this, ph::_1)));
+  addConnection(Signal<UpdateBgColorAction>::connect(std::bind(&ViewParams::onBgColorUpdate, this, ph::_1)));
+  addConnection(Signal<UpdatePointSizeAction>::connect(std::bind(&ViewParams::onPointSizeUpdate, this, ph::_1)));
+  addConnection(Signal<ToggleFullScreenAction>::connect(std::bind(&ViewParams::onFullScreenToggle, this, ph::_1)));
+  addConnection(Signal<ToggleGridVisibilityAction>::connect(std::bind(&ViewParams::onGridVisibilityChange, this, ph::_1)));
 }
+
 
 void ViewParams::onCameraParamsUpdate(const UpdateCameraParamsAction &action) {
   eye_point_ = action.eye_point;

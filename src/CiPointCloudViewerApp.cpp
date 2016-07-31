@@ -91,8 +91,8 @@ CiPointCloudViewerApp::~CiPointCloudViewerApp() {
 }
 
 void CiPointCloudViewerApp::setup() {
-  clouds_->connect(this, &CiPointCloudViewerApp::onCloudsUpdate);
-  view_params_->connect(this, &CiPointCloudViewerApp::onViewParamsUpdate);
+  clouds_->connect(std::bind(&CiPointCloudViewerApp::onCloudsUpdate, this));
+  view_params_->connect(std::bind(&CiPointCloudViewerApp::onViewParamsUpdate, this));
 
   config_->initialize();
   gui_.initialize();
