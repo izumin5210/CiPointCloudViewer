@@ -54,6 +54,8 @@ set(PROJECT_SOURCES
     ${CINDER_IMGUI_SOURCES}
 )
 
+include_directories(${PROJECT_DIR}/blocks/nod/include)
+
 include("${CINDER_PATH}/proj/cmake/modules/cinderMakeApp.cmake")
 
 ci_make_app(
