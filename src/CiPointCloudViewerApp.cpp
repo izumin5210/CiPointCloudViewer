@@ -57,7 +57,12 @@ private:
   map<Cloud::Key, gl::VaoRef> vertices_vaos_;
   map<Cloud::Key, gl::VboRef> vertices_vbos_;
 
+  gl::GlslProgRef points_render_prog_;
+  map<Cloud::Key, gl::VaoRef> points_vaos_;
+  map<Cloud::Key, gl::VboRef> points_vbos_;
+
   size_t vertices_size_;
+  size_t points_size_;
 
   CameraPersp camera_;
   CameraUi camera_ui_;
@@ -66,7 +71,8 @@ private:
 
   void onCloudsUpdate();
   void onViewParamsUpdate();
-  void updateVbo();
+  void updateVerticesVbo();
+  void updatePointsVbo();
 };
 
 CiPointCloudViewerApp::CiPointCloudViewerApp()
@@ -84,7 +90,15 @@ CiPointCloudViewerApp::CiPointCloudViewerApp()
         .fragment(loadAsset("point_cloud.frag"))
     )
   )
+  , points_render_prog_(
+    gl::GlslProg::create(
+      gl::GlslProg::Format()
+        .vertex(loadAsset("point_cloud.vert"))
+        .fragment(loadAsset("point_cloud.frag"))
+    )
+  )
   , vertices_size_(0)
+  , points_size_(0)
   , camera_ui_(&camera_)
   , cloud_updated_(false)
 {}
@@ -131,8 +145,8 @@ void CiPointCloudViewerApp::onViewParamsUpdate() {
 }
 
 
-void CiPointCloudViewerApp::updateVbo() {
-  cloud_updated_ = true;
+void CiPointCloudViewerApp::updateVerticesVbo() {
+  vertices_size_ = 0;
   clouds_->lock();
   for (auto pair : clouds_->clouds()) {
     if (pair.second->vertices().empty() || !pair.second->is_visible()) { continue; }
@@ -151,6 +165,30 @@ void CiPointCloudViewerApp::updateVbo() {
     gl::enableVertexAttribArray(1);
     gl::vertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (const GLvoid*)offsetof(Vertex, xyz));
     gl::vertexAttribPointer(1, 3, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(Vertex), (const GLvoid*)offsetof(Vertex, rgb));
+  }
+  clouds_->unlock();
+}
+
+void CiPointCloudViewerApp::updatePointsVbo() {
+  points_size_ = 0;
+  clouds_->lock();
+  for (auto pair : clouds_->clouds()) {
+    if (pair.second->point_cloud()->empty() || !pair.second->is_visible()) { continue; }
+    if (points_vaos_.find(pair.first) == points_vaos_.end()) {
+      points_vaos_[pair.first] = gl::Vao::create();
+    }
+    if (points_vbos_.find(pair.first) == points_vbos_.end()) {
+      points_vbos_[pair.first] = gl::Vbo::create(GL_ARRAY_BUFFER, 0, nullptr, GL_STATIC_DRAW);
+    }
+    auto points = pair.second->point_cloud()->points;
+    points_size_ += points.size();
+    points_vbos_[pair.first]->copyData(points.size() * sizeof(Cloud::PointT), points.data());
+    gl::ScopedVao vao(points_vaos_[pair.first]);
+    gl::ScopedBuffer vbo(points_vbos_[pair.first]);
+    gl::enableVertexAttribArray(0);
+    gl::enableVertexAttribArray(1);
+    gl::vertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, sizeof(Cloud::PointT), (const GLvoid*)offsetof(Cloud::PointT, data));
+    gl::vertexAttribPointer(1, 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(Cloud::PointT), (const GLvoid*)offsetof(Cloud::PointT, rgba));
   }
   clouds_->unlock();
 }
@@ -174,7 +212,8 @@ void CiPointCloudViewerApp::update() {
   gui_.update(this);
 
   if (!cloud_updated_) {
-    updateVbo();
+    updateVerticesVbo();
+    updatePointsVbo();
     cloud_updated_ = true;
   }
 
@@ -219,6 +258,23 @@ void CiPointCloudViewerApp::draw() {
       gl::ScopedVao vao(pair.second);
       gl::context()->setDefaultShaderVars();
       gl::drawArrays(GL_POINTS, 0, vertices_size_);
+    }
+  }
+  {
+    gl::ScopedGlslProg render(points_render_prog_);
+    for (auto pair : points_vaos_) {
+      gl::ScopedVao vao(pair.second);
+      points_render_prog_->uniform("xPassThroughParams.enable", clouds_->x_pass_through_filter_params().enable);
+      points_render_prog_->uniform("xPassThroughParams.min", clouds_->x_pass_through_filter_params().min);
+      points_render_prog_->uniform("xPassThroughParams.max", clouds_->x_pass_through_filter_params().max);
+      points_render_prog_->uniform("yPassThroughParams.enable", clouds_->y_pass_through_filter_params().enable);
+      points_render_prog_->uniform("yPassThroughParams.min", clouds_->y_pass_through_filter_params().min);
+      points_render_prog_->uniform("yPassThroughParams.max", clouds_->y_pass_through_filter_params().max);
+      points_render_prog_->uniform("zPassThroughParams.enable", clouds_->z_pass_through_filter_params().enable);
+      points_render_prog_->uniform("zPassThroughParams.min", clouds_->z_pass_through_filter_params().min);
+      points_render_prog_->uniform("zPassThroughParams.max", clouds_->z_pass_through_filter_params().max);
+      gl::context()->setDefaultShaderVars();
+      gl::drawArrays(GL_POINTS, 0, points_size_);
     }
   }
 }
