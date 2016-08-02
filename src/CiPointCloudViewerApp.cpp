@@ -78,8 +78,8 @@ CiPointCloudViewerApp::CiPointCloudViewerApp()
   , render_prog_(
     gl::GlslProg::create(
       gl::GlslProg::Format()
-        .vertex(loadAsset("pointcloud.vert"))
-        .fragment(loadAsset("pointcloud.frag"))
+        .vertex(loadAsset("vertices.vert"))
+        .fragment(loadAsset("point_cloud.frag"))
     )
   )
   , camera_ui_(&camera_)
