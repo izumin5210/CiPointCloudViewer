@@ -396,7 +396,7 @@ private:
         }
       }
 
-      Signal<Clouds::UpdateCloudAction>::emit({name_, vertices});
+      Signal<Clouds::UpdateVerticesAction>::emit({name_, vertices});
     }
 };
 
