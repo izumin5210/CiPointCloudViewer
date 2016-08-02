@@ -8,9 +8,7 @@
 #include "Signal.h"
 
 Clouds::Clouds()
-  : cloud_size_(0)
-  , filtered_cloud_size_(0)
-  , x_pass_through_filter_("x")
+  : x_pass_through_filter_("x")
   , y_pass_through_filter_("y")
   , z_pass_through_filter_("z")
 {
@@ -19,7 +17,8 @@ Clouds::Clouds()
 
 void Clouds::initializeConnections() {
   namespace ph = std::placeholders;
-  addConnection(Signal<UpdateCloudAction>::connect(std::bind(&Clouds::onCloudUpdate, this, ph::_1)));
+  addConnection(Signal<UpdatePointsAction>::connect(std::bind(&Clouds::onPointsUpdate, this, ph::_1)));
+  addConnection(Signal<UpdateVerticesAction>::connect(std::bind(&Clouds::onVerticesUpdate, this, ph::_1)));
   addConnection(Signal<UpdateCalibrationParamsAction>::connect(std::bind(&Clouds::onCalibrationParamsUpdate, this, ph::_1)));
   addConnection(Signal<ChangeCloudVisibilityAction>::connect(std::bind(&Clouds::onCloudVisibilityChange, this, ph::_1)));
   addConnection(Signal<RemoveCloudAction>::connect(std::bind(&Clouds::onCloudRemove, this, ph::_1)));
@@ -80,10 +79,23 @@ void Clouds::updatePointCloud() {
   emit();
 }
 
-void Clouds::onCloudUpdate(const UpdateCloudAction &action) {
+void Clouds::onPointsUpdate(const UpdatePointsAction &action) {
   std::lock_guard<std::mutex> lg(cloud_mutex_);
-  clouds_[action.key] = action.vertices;
-//  updatePointCloud();
+  if (clouds_.find(action.key) != clouds_.end()) {
+    clouds_[action.key]->set_point_cloud(action.point_cloud);
+  } else {
+    clouds_[action.key] = std::make_shared<Cloud>(action.key, action.point_cloud);
+  }
+  emit();
+}
+
+void Clouds::onVerticesUpdate(const UpdateVerticesAction &action) {
+  std::lock_guard<std::mutex> lg(cloud_mutex_);
+  if (clouds_.find(action.key) != clouds_.end()) {
+    clouds_[action.key]->set_vertices(action.vertices);
+  } else {
+    clouds_[action.key] = std::make_shared<Cloud>(action.key, action.vertices);
+  }
   emit();
 }
 
@@ -93,11 +105,7 @@ void Clouds::onCalibrationParamsUpdate(const UpdateCalibrationParamsAction &acti
 }
 
 void Clouds::onCloudVisibilityChange(const ChangeCloudVisibilityAction &action) {
-  if (action.visible) {
-    hidden_clouds_.erase(action.key);
-  } else {
-    hidden_clouds_.insert(action.key);
-  }
+  clouds_[action.key]->set_visible(action.visible);
   updatePointCloud();
 }
 
@@ -134,9 +142,8 @@ void Clouds::onStatisticalOutlierRemovalFilterParamsUpdate(
 }
 
 void Clouds::onPcdFileOpen(const OpenPcdFileAction &action) {
-  const PointCloudPtr cloud(new PointCloud);
+  Cloud::PointCloudPtr cloud(new Cloud::PointCloud);
   pcl::io::loadPCDFile(action.path, *cloud);
-  // TODO: replace with the Point struct
-//  clouds_[action.path] = cloud;
-//  updatePointCloud();
+  clouds_[action.path] = std::make_shared<Cloud>(action.path, cloud);
+  emit();
 }

@@ -263,8 +263,7 @@ void AppGui::drawCloudsWindow(glm::vec2 &window_pos) {
     }
 
     ui::SameLine();
-    auto hidden_clouds = clouds_->hidden_clouds();
-    bool visible = hidden_clouds.find(cloud_selected_) == hidden_clouds.end();
+    bool visible = clouds_->clouds()[cloud_selected_]->is_visible();
     if (ui::Button(visible ? "Hide" : "Show")) {
         Signal<Clouds::ChangeCloudVisibilityAction>::emit({cloud_selected_, !visible});
     }
@@ -288,8 +287,7 @@ void AppGui::drawCloudsWindow(glm::vec2 &window_pos) {
 void AppGui::drawInfoWindow(ci::app::AppBase *app, glm::vec2 &window_pos) {
   ui::ScopedWindow window("Information", kWindowFlags);
   ui::LabelText("FPS", "%f", app->getAverageFps());
-  ui::LabelText("Cloud size", "%zu", clouds_->cloud_size());
-  ui::LabelText("Filtered", "%zu", clouds_->filtered_cloud_size());
+  ui::LabelText("points", "%zu", clouds_->size());
 
   ui::SetWindowPos(window_pos);
   ui::SetWindowSize(glm::vec2(kWindowWidth, 0));

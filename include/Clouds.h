@@ -9,13 +9,10 @@
 #include <mutex>
 #include <set>
 
-#include <pcl/point_cloud.h>
-#include <pcl/point_types.h>
-
 #include "glm/glm.hpp"
 
+#include "Cloud.h"
 #include "Store.h"
-#include "Vertex.h"
 
 #include "io/CalibrationParamsManager.h"
 
@@ -25,12 +22,16 @@
 
 class Clouds : public Store {
 public:
-  using PointT        = pcl::PointXYZRGBA;
-  using PointCloud    = pcl::PointCloud<PointT>;
-  using PointCloudPtr = PointCloud::Ptr;
-  using Key = std::string;
+  using Key           = Cloud::Key;
+  using PointT        = Cloud::PointT;
+  using PointCloudPtr = Cloud::PointCloudPtr;
 
-  struct UpdateCloudAction {
+  struct UpdatePointsAction {
+    Key key;
+    PointCloudPtr point_cloud;
+  };
+
+  struct UpdateVerticesAction {
     Key key;
     Vertices vertices;
   };
@@ -79,25 +80,13 @@ public:
     cloud_mutex_.unlock();
   }
 
-  std::map<Key, Vertices> clouds() const {
+  std::map<Key, CloudPtr> clouds() const {
     return clouds_;
   };
 
   std::map<Key, io::CalibrationParams> calib_params_map() const {
     return calib_params_map_;
   };
-
-  std::set<Key> hidden_clouds() const {
-    return hidden_clouds_;
-  }
-
-  size_t cloud_size() const {
-    return cloud_size_;
-  }
-
-  size_t filtered_cloud_size() const {
-    return filtered_cloud_size_;
-  }
 
   filter::PassThroughFilter<PointT>::Params x_pass_through_filter_params() const {
     return x_pass_through_filter_.params();
@@ -119,14 +108,18 @@ public:
     return sor_filter_.params();
   }
 
+  size_t size() const {
+    size_t size = 0;
+    for (auto pair : clouds_) {
+      size += pair.second->size();
+    }
+    return size;
+  }
+
 
 private:
-  std::map<Key, Vertices> clouds_;
+  std::map<Key, CloudPtr> clouds_;
   std::map<Key, io::CalibrationParams> calib_params_map_;
-  std::set<Key> hidden_clouds_;
-
-  size_t cloud_size_;
-  size_t filtered_cloud_size_;
 
   filter::PassThroughFilter<PointT> x_pass_through_filter_;
   filter::PassThroughFilter<PointT> y_pass_through_filter_;
@@ -141,7 +134,8 @@ private:
   void initializeConnections();
   void updatePointCloud();
 
-  void onCloudUpdate(const UpdateCloudAction &action);
+  void onPointsUpdate(const UpdatePointsAction &action);
+  void onVerticesUpdate(const UpdateVerticesAction &action);
   void onCalibrationParamsUpdate(const UpdateCalibrationParamsAction &action);
   void onCloudVisibilityChange(const ChangeCloudVisibilityAction &action);
   void onCloudRemove(const RemoveCloudAction &action);

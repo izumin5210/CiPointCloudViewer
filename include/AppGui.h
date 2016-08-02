@@ -103,7 +103,7 @@ private:
   bool visible_player_window_     = true;
   bool visible_devices_window_    = true;
 
-  Clouds::Key cloud_selected_;
+  Cloud::Key cloud_selected_;
 
   std::shared_ptr<io::SensorDeviceManager> sensor_device_manager_;
   std::string device_selected_;
