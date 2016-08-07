@@ -27,6 +27,7 @@
 #include "Clouds.h"
 #include "FpsCounter.h"
 #include "Signal.h"
+#include "Vertex.h"
 #include "io/CalibrationParamsManager.h"
 
 namespace io {
@@ -60,8 +61,9 @@ public:
     void initialize(const char *uri = openni::ANY_DEVICE) {
         uri_ = uri;
 
-        Signal<CalibrationParams>::connect(this, &SensorDevice::setCalibrationParams);
-        Signal<FpsCounter::Event>::connect(this, &SensorDevice::updateFps);
+        namespace ph = std::placeholders;
+        Signal<Clouds::UpdateCalibrationParamsAction>::connect(std::bind(&SensorDevice::setCalibrationParams, this, ph::_1));
+        Signal<FpsCounter::Event>::connect(std::bind(&SensorDevice::updateFps, this, ph::_1));
 
         checkStatus(device_.open(uri), "openni::Device::open() failed.");
         if (device_.isFile()) {
@@ -119,13 +121,13 @@ public:
         return kStateString[state_];
     }
 
-    void setCalibrationParams(const CalibrationParams& params) {
-        if (params.serial == serial_) {
+    void setCalibrationParams(const Clouds::UpdateCalibrationParamsAction &action) {
+        if (action.key == serial_) {
             if (state_ == INITIALIZED) {
                 state_ = CALIBRATED;
             }
             calibrated_ = true;
-            params_ = params;
+            params_ = action.params;
         }
     }
 
@@ -375,30 +377,26 @@ private:
       unsigned char* color = (unsigned char*) color_image_.data;
       unsigned short* depth = (unsigned short*) raw_depth_image_.data;
 
-      const pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZRGBA>);
-      cloud->clear();
-      cloud->reserve(width * height);
+      Vertices vertices;
 
       for (int i = 0; i < width * height; i++) {
         if (depth[i] != 0 && (color[i*3] != 0 || color[i*3+1] != 0 || color[i*3+2] != 0)) {
-          int x = i % width;
-          int y = i / width;
-          float zw = depth[i] / 1000.0;
-          float xw = (x - params_.cx) * zw / params_.fx;
-          float yw = (y - params_.cy) * zw / params_.fy;
-          pcl::PointXYZRGBA point;
-          point.x = xw;
-          point.y = yw;
-          point.z = zw;
-          point.r = color[i * 3 + 2];
-          point.g = color[i * 3 + 1];
-          point.b = color[i * 3];
-          cloud->push_back(point);
+          vertices.emplace_back((Vertex){
+            {
+              static_cast<float>(i % width),
+              static_cast<float>(i / width),
+              static_cast<float>(depth[i])
+            },
+            {
+              static_cast<uint8_t>(color[i * 3 + 2]),
+              static_cast<uint8_t>(color[i * 3 + 1]),
+              static_cast<uint8_t>(color[i * 3])
+            }
+          });
         }
       }
 
-      pcl::transformPointCloud(*cloud, *cloud, params_.calib_matrix);
-      Signal<Clouds::UpdateCloudAction>::emit({name_, cloud});
+      Signal<Clouds::UpdateVerticesAction>::emit({name_, vertices});
     }
 };
 
