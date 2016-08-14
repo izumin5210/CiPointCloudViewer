@@ -11,6 +11,7 @@
 #include "Clouds.h"
 #include "ViewParams.h"
 #include "Configure.h"
+#include "SavingVerticesWorker.h"
 
 #include "io/CloudDataSources.h"
 #include "io/CalibrationParamsManager.h"
@@ -25,7 +26,8 @@ public:
     const std::shared_ptr<ViewParams> &view_params,
     const std::shared_ptr<Configure> &config,
     const std::shared_ptr<io::CloudDataSources> &cloud_data_sources,
-    const std::shared_ptr<io::SensorDeviceManager> &sensor_device_manager
+    const std::shared_ptr<io::SensorDeviceManager> &sensor_device_manager,
+    const std::shared_ptr<SavingVerticesWorker> &saving_vertices_worker
   );
 
   void initialize();
@@ -94,6 +96,7 @@ private:
   const std::shared_ptr<ViewParams> view_params_;
   const std::shared_ptr<Configure> config_;
   const std::shared_ptr<io::CloudDataSources> cloud_data_sources_;
+  const std::shared_ptr<SavingVerticesWorker> saving_vertices_worker_;
 
   bool visible_camera_window_     = true;
   bool visible_appearance_window_ = true;

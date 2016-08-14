@@ -18,6 +18,7 @@
 #include "AppGui.h"
 #include "Configure.h"
 #include "io/CloudDataSources.h"
+#include "SavingVerticesWorker.h"
 
 #include "Clouds.h"
 #include "ViewParams.h"
@@ -48,6 +49,7 @@ private:
   shared_ptr<Configure> config_;
   shared_ptr<io::SensorDeviceManager> sensor_device_manager_;
   shared_ptr<io::CloudDataSources> cloud_data_sources_;
+  shared_ptr<SavingVerticesWorker> saving_vertices_worker_;
 
   AppGui gui_;
 
@@ -81,7 +83,8 @@ CiPointCloudViewerApp::CiPointCloudViewerApp()
   , config_(new Configure(getAssetPath("")))
   , sensor_device_manager_(new io::SensorDeviceManager)
   , cloud_data_sources_(new io::CloudDataSources)
-  , gui_(clouds_, view_params_, config_, cloud_data_sources_, sensor_device_manager_)
+  , saving_vertices_worker_(new SavingVerticesWorker)
+  , gui_(clouds_, view_params_, config_, cloud_data_sources_, sensor_device_manager_, saving_vertices_worker_)
   , grid_batch_(gl::VertBatch::create(GL_LINES))
   , vertices_render_prog_(
     gl::GlslProg::create(
