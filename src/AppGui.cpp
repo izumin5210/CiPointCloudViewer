@@ -434,6 +434,7 @@ void AppGui::drawDevicesWindow(glm::vec2 &window_pos) {
   auto total_count = saving_vertices_worker_->total_size();
   auto saved_count = total_count - saving_vertices_worker_->size();
   ui::LabelText("Saved files", "%zu / %zu", saved_count, total_count);
+  ui::LabelText("Worker FPS", "%f", saving_vertices_worker_->fps());
 
   ui::SetWindowPos(window_pos);
   ui::SetWindowSize(glm::vec2(kWindowWidth, 0));

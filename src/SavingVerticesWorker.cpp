@@ -11,9 +11,11 @@
 SavingVerticesWorker::SavingVerticesWorker()
   : total_size_     (0)
   , worker_stopped_ (true)
+  , fps_            (0.0f)
 {
   auto callback = std::bind(&SavingVerticesWorker::onVerticesUpdate, this, std::placeholders::_1);
   Signal<Clouds::UpdateVerticesAction>::connect(callback);
+  Signal<FpsCounter::Event>::connect(std::bind(&SavingVerticesWorker::onFpsUpdate, this, std::placeholders::_1));
 }
 
 SavingVerticesWorker::~SavingVerticesWorker() {
@@ -27,6 +29,7 @@ void SavingVerticesWorker::start(std::string dir) {
   dir_ = boost::filesystem::path(ss_dir.str());
   boost::filesystem::create_directory(dir_);
   worker_ = std::thread([&]{
+    fps_counter_.start(kFpsCounterKey);
     worker_stopped_ = false;
     while (!worker_stopped_) {
       if (!queue_.empty()) {
@@ -52,6 +55,7 @@ void SavingVerticesWorker::start(std::string dir) {
         pcl::io::savePCDFile(path.string(), cloud);
         queue_.pop();
       }
+      fps_counter_.passFrame();
     }
   });
 }
@@ -61,11 +65,18 @@ void SavingVerticesWorker::stop() {
   if (worker_.joinable()) {
     worker_.join();
   }
+  fps_counter_.stop();
 }
 
 void SavingVerticesWorker::onVerticesUpdate(const Clouds::UpdateVerticesAction &action) {
   if (!worker_stopped_) {
     queue_.push({action.key, action.timestamp, action.vertices});
     total_size_++;
+  }
+}
+
+void SavingVerticesWorker::onFpsUpdate(const FpsCounter::Event &event) {
+  if (event.key == kFpsCounterKey) {
+    fps_ = event.fps;
   }
 }

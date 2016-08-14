@@ -8,6 +8,7 @@
 #include "nod/nod.hpp"
 
 #include "Clouds.h"
+#include "FpsCounter.h"
 
 #include <atomic>
 #include <queue>
@@ -34,12 +35,17 @@ public:
     return queue_.size();
   }
 
+  inline float fps() const {
+    return fps_;
+  }
+
 private:
   struct QueueItem {
     std::string key;
-    std::chrono::system_clock::time_point timestamp;
-    Vertices vertices;
+    std::chrono::system_clock::time_point timestamp; Vertices vertices;
   };
+
+  const std::string kFpsCounterKey = "SavingVerticesWorker";
 
   std::queue<QueueItem> queue_;
   std::atomic<size_t> total_size_;
@@ -49,7 +55,11 @@ private:
   std::thread worker_;
   std::atomic<bool> worker_stopped_;
 
+  FpsCounter fps_counter_;
+  float fps_;
+
   void onVerticesUpdate(const Clouds::UpdateVerticesAction &action);
+  void onFpsUpdate(const FpsCounter::Event &event);
 };
 
 #endif //CIPOINTCLOUDVIEWERAPP_SAVINGVERTICESWORKER_H
