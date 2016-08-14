@@ -21,6 +21,7 @@ public:
   ~SavingVerticesWorker();
 
   void start(std::string dir);
+  void stopSafety();
   void stop();
 
   inline size_t total_size() const {
@@ -28,7 +29,7 @@ public:
   }
 
   inline bool has_stopped() const {
-    return worker_stopped_;
+    return !vertices_acceptable_;
   }
 
   inline size_t size() const {
@@ -54,6 +55,7 @@ private:
 
   std::thread worker_;
   std::atomic<bool> worker_stopped_;
+  std::atomic<bool> vertices_acceptable_;
 
   FpsCounter fps_counter_;
   float fps_;

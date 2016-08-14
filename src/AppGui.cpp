@@ -428,7 +428,7 @@ void AppGui::drawDevicesWindow(glm::vec2 &window_pos) {
     if (has_recording_pcd_files) {
       saving_vertices_worker_->start(config_->getSavePcdFilesTo());
     } else {
-      saving_vertices_worker_->stop();
+      saving_vertices_worker_->stopSafety();
     }
   }
   auto total_count = saving_vertices_worker_->total_size();
