@@ -336,7 +336,8 @@ private:
 //        updateIrImage(ir_frame);
 //      }
 
-      updatePointCloud();
+      auto now = std::chrono::system_clock::now();
+      updatePointCloud(now);
     }
 
     void updateColorImage(const openni::VideoFrameRef &color_frame) {
@@ -370,7 +371,7 @@ private:
       ir_image_ = ir_image;
     }
 
-    void updatePointCloud() {
+    void updatePointCloud(std::chrono::system_clock::time_point timestamp) {
       int width   = raw_depth_image_.size().width;
       int height  = raw_depth_image_.size().height;
 
@@ -396,7 +397,7 @@ private:
         }
       }
 
-      Signal<Clouds::UpdateVerticesAction>::emit({name_, vertices});
+      Signal<Clouds::UpdateVerticesAction>::emit({name_, vertices, timestamp});
     }
 };
 

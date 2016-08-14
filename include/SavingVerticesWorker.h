@@ -1,0 +1,55 @@
+//
+// Created by izumin on 16/08/07.
+//
+
+#ifndef CIPOINTCLOUDVIEWERAPP_SAVINGVERTICESWORKER_H
+#define CIPOINTCLOUDVIEWERAPP_SAVINGVERTICESWORKER_H
+
+#include "nod/nod.hpp"
+
+#include "Clouds.h"
+
+#include <atomic>
+#include <queue>
+
+#include <boost/filesystem.hpp>
+
+class SavingVerticesWorker {
+public:
+  SavingVerticesWorker();
+  ~SavingVerticesWorker();
+
+  void start(std::string dir);
+  void stop();
+
+  inline size_t total_size() const {
+    return total_size_;
+  }
+
+  inline bool has_stopped() const {
+    return worker_stopped_;
+  }
+
+  inline size_t size() const {
+    return queue_.size();
+  }
+
+private:
+  struct QueueItem {
+    std::string key;
+    std::chrono::system_clock::time_point timestamp;
+    Vertices vertices;
+  };
+
+  std::queue<QueueItem> queue_;
+  std::atomic<size_t> total_size_;
+
+  boost::filesystem::path dir_;
+
+  std::thread worker_;
+  std::atomic<bool> worker_stopped_;
+
+  void onVerticesUpdate(const Clouds::UpdateVerticesAction &action);
+};
+
+#endif //CIPOINTCLOUDVIEWERAPP_SAVINGVERTICESWORKER_H

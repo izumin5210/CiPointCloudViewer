@@ -48,6 +48,7 @@ set(PROJECT_SOURCES
     ${PROJECT_DIR}/src/FpsCounter.cpp
     ${PROJECT_DIR}/src/Clouds.cpp
     ${PROJECT_DIR}/src/ViewParams.cpp
+    ${PROJECT_DIR}/src/SavingVerticesWorker.cpp
     ${PROJECT_DIR}/src/io/CloudDataSources.cpp
     ${PROJECT_DIR}/src/io/CalibrationParamsManager.cpp
     ${PROJECT_DIR}/src/io/SequentialPcdPlayer.cpp

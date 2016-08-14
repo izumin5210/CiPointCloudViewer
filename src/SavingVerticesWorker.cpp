@@ -1,0 +1,71 @@
+//
+// Created by izumin on 16/08/07.
+//
+
+#include "SavingVerticesWorker.h"
+
+#include "Signal.h"
+
+#include <pcl/io/pcd_io.h>
+
+SavingVerticesWorker::SavingVerticesWorker()
+  : total_size_     (0)
+  , worker_stopped_ (true)
+{
+  auto callback = std::bind(&SavingVerticesWorker::onVerticesUpdate, this, std::placeholders::_1);
+  Signal<Clouds::UpdateVerticesAction>::connect(callback);
+}
+
+SavingVerticesWorker::~SavingVerticesWorker() {
+  stop();
+}
+
+void SavingVerticesWorker::start(std::string dir) {
+  auto started_at = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+  std::stringstream ss_dir;
+  ss_dir << dir << "/" << started_at;
+  dir_ = boost::filesystem::path(ss_dir.str());
+  boost::filesystem::create_directory(dir_);
+  worker_ = std::thread([&]{
+    worker_stopped_ = false;
+    while (!worker_stopped_) {
+      if (!queue_.empty()) {
+        auto item = queue_.front();
+        auto stamp = std::chrono::duration_cast<std::chrono::milliseconds>(item.timestamp.time_since_epoch()).count();
+        std::stringstream ss;
+        ss << item.key << "/" << stamp << ".pcd";
+        auto path = dir_ / boost::filesystem::path(ss.str());
+        if (!boost::filesystem::exists(path.parent_path())) {
+          boost::filesystem::create_directory(path.parent_path());
+        }
+        pcl::PointCloud<pcl::PointXYZRGBA> cloud;
+        for (auto v : item.vertices) {
+          pcl::PointXYZRGBA p;
+          p.x = v.xyz[0];
+          p.y = v.xyz[1];
+          p.z = v.xyz[2];
+          p.r = v.rgb[0];
+          p.g = v.rgb[1];
+          p.b = v.rgb[2];
+          cloud.push_back(p);
+        }
+        pcl::io::savePCDFile(path.string(), cloud);
+        queue_.pop();
+      }
+    }
+  });
+}
+
+void SavingVerticesWorker::stop() {
+  worker_stopped_ = true;
+  if (worker_.joinable()) {
+    worker_.join();
+  }
+}
+
+void SavingVerticesWorker::onVerticesUpdate(const Clouds::UpdateVerticesAction &action) {
+  if (!worker_stopped_) {
+    queue_.push({action.key, action.timestamp, action.vertices});
+    total_size_++;
+  }
+}
