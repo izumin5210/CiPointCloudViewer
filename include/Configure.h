@@ -20,10 +20,14 @@ public:
   void setSaveOniFilesTo(std::string dir);
   std::string getSaveOniFilesTo() const;
 
+  void setSavePcdFilesTo(std::string dir);
+  std::string getSavePcdFilesTo() const;
+
 
 private:
   const std::string kFileName = "config.yml";
   const std::string kKeySaveOniFilesTo = "save-oni-files-to";
+  const std::string kKeySavePcdFilesTo = "save-pcd-files-to";
 
   const bpath dir_;
   const bpath path_;

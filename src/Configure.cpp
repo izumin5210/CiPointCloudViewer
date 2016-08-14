@@ -28,6 +28,15 @@ std::string Configure::getSaveOniFilesTo() const {
   return root_[kKeySaveOniFilesTo] ? root_[kKeySaveOniFilesTo].as<std::string>() : dir_.string();
 }
 
+void Configure::setSavePcdFilesTo(std::string dir) {
+  root_[kKeySavePcdFilesTo] = dir;
+  save();
+}
+
+std::string Configure::getSavePcdFilesTo() const {
+  return root_[kKeySavePcdFilesTo] ? root_[kKeySavePcdFilesTo].as<std::string>() : dir_.string();
+}
+
 void Configure::save() {
   std::ofstream fout(path_.string());
   fout << root_;

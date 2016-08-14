@@ -89,6 +89,12 @@ void AppGui::drawMenuBar(ci::app::AppBase *app, glm::vec2 &left_window_pos, glm:
         config_->setSaveOniFilesTo(dir.string());
       }
     }
+    if (ui::MenuItem("Save *.pcd to ...")) {
+      auto dir = app->getFolderPath(path(config_->getSavePcdFilesTo()));
+      if (boost::filesystem::is_directory(dir)) {
+        config_->setSavePcdFilesTo(dir.string());
+      }
+    }
     ui::EndMenu();
   }
 
