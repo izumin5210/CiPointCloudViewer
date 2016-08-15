@@ -5,6 +5,7 @@
 #ifndef CIPOINTCLOUDVIEWERAPP_CLOUDS_H
 #define CIPOINTCLOUDVIEWERAPP_CLOUDS_H
 
+#include <chrono>
 #include <map>
 #include <mutex>
 #include <set>
@@ -34,6 +35,7 @@ public:
   struct UpdateVerticesAction {
     Key key;
     Vertices vertices;
+    std::chrono::system_clock::time_point timestamp;
   };
 
   struct UpdateCalibrationParamsAction {

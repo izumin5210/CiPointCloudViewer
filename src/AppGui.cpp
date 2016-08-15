@@ -10,12 +10,14 @@ AppGui::AppGui(
   const std::shared_ptr<ViewParams> &view_params,
   const std::shared_ptr<Configure> &config,
   const std::shared_ptr<io::CloudDataSources> &cloud_data_sources,
-  const std::shared_ptr<io::SensorDeviceManager> &sensor_device_manager
+  const std::shared_ptr<io::SensorDeviceManager> &sensor_device_manager,
+  const std::shared_ptr<SavingVerticesWorker> &saving_vertices_worker
 )
   : clouds_                     (clouds)
   , view_params_                (view_params)
   , config_                     (config)
   , cloud_data_sources_         (cloud_data_sources)
+  , saving_vertices_worker_     (saving_vertices_worker)
   , visible_camera_window_      (true)
   , visible_appearance_window_  (true)
   , visible_filters_window_     (true)
@@ -23,8 +25,8 @@ AppGui::AppGui(
   , visible_info_window_        (true)
   , visible_player_window_      (true)
   , visible_devices_window_     (true)
-  , sensor_device_manager_      (sensor_device_manager)
   , cloud_selected_             (std::string())
+  , sensor_device_manager_      (sensor_device_manager)
   , device_selected_            (std::string())
 {}
 
@@ -87,6 +89,12 @@ void AppGui::drawMenuBar(ci::app::AppBase *app, glm::vec2 &left_window_pos, glm:
       auto dir = app->getFolderPath(path(config_->getSaveOniFilesTo()));
       if (boost::filesystem::is_directory(dir)) {
         config_->setSaveOniFilesTo(dir.string());
+      }
+    }
+    if (ui::MenuItem("Save *.pcd to ...")) {
+      auto dir = app->getFolderPath(path(config_->getSavePcdFilesTo()));
+      if (boost::filesystem::is_directory(dir)) {
+        config_->setSavePcdFilesTo(dir.string());
       }
     }
     ui::EndMenu();
@@ -414,6 +422,19 @@ void AppGui::drawDevicesWindow(glm::vec2 &window_pos) {
   if (ui::Button("Refresh list")) {
     sensor_device_manager_->refresh();
   }
+
+  bool has_recording_pcd_files = !saving_vertices_worker_->has_stopped();
+  if (ui::Checkbox("Save as PCD files", &has_recording_pcd_files)) {
+    if (has_recording_pcd_files) {
+      saving_vertices_worker_->start(config_->getSavePcdFilesTo());
+    } else {
+      saving_vertices_worker_->stopSafety();
+    }
+  }
+  auto total_count = saving_vertices_worker_->total_size();
+  auto saved_count = total_count - saving_vertices_worker_->size();
+  ui::LabelText("Saved files", "%zu / %zu", saved_count, total_count);
+  ui::LabelText("Worker FPS", "%f", saving_vertices_worker_->fps());
 
   ui::SetWindowPos(window_pos);
   ui::SetWindowSize(glm::vec2(kWindowWidth, 0));
