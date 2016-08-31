@@ -14,6 +14,7 @@ ViewParams::ViewParams()
   , point_size_         (1.0f)
   , enable_full_screen_ (false)
   , visible_grid_       (true)
+  , grid_               (Grid::RECTANGULAR)
 {
   initializeConnections();
 }
@@ -25,6 +26,7 @@ void ViewParams::initializeConnections() {
   addConnection(Signal<UpdatePointSizeAction>::connect(std::bind(&ViewParams::onPointSizeUpdate, this, ph::_1)));
   addConnection(Signal<ToggleFullScreenAction>::connect(std::bind(&ViewParams::onFullScreenToggle, this, ph::_1)));
   addConnection(Signal<ToggleGridVisibilityAction>::connect(std::bind(&ViewParams::onGridVisibilityChange, this, ph::_1)));
+  addConnection(Signal<ChangeGridAction>::connect(std::bind(&ViewParams::onGridChange, this, ph::_1)));
 }
 
 
@@ -54,3 +56,7 @@ void ViewParams::onGridVisibilityChange(const ToggleGridVisibilityAction &action
   emit();
 }
 
+void ViewParams::onGridChange(const ChangeGridAction &action) {
+  grid_ = action.grid;
+  emit();
+}

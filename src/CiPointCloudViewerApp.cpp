@@ -54,6 +54,7 @@ private:
   AppGui gui_;
 
   gl::VertBatchRef grid_batch_;
+  gl::VertBatchRef circular_grid_batches_[6];
 
   gl::GlslProgRef vertices_render_prog_;
   map<Cloud::Key, gl::VaoRef> vertices_vaos_;
@@ -128,6 +129,27 @@ void CiPointCloudViewerApp::setup() {
       grid_batch_->vertex(vec3( i, 0,  j));
     }
   }
+  {
+    for (int i = 0; i < 5; i++) {
+      auto batch = gl::VertBatch::create(GL_LINE_LOOP);
+      batch->color(1, 1, 1, 0.3);
+      for (int j = 0; j < 360; j++) {
+        float rad = (float) (j * M_PI) / 180;
+        batch->vertex((i + 1) * cos(rad), 0, (i + 1) * sin(rad));
+      }
+      circular_grid_batches_[i] = batch;
+    }
+    auto batch = gl::VertBatch::create(GL_LINES);
+    batch->color(1, 1, 1, 0.3);
+    for (int i = 0; i < 6; i++) {
+      auto x = 5 * cos(M_PI / 6 * i);
+      auto z = 5 * sin(M_PI / 6 * i);
+      batch->vertex(vec3(x, 0, z));
+      batch->vertex(vec3(-x, 0, -z));
+    }
+    circular_grid_batches_[5] = batch;
+  }
+
 
   gl::enableFaceCulling(true);
   gl::enableVerticalSync(false);
@@ -231,7 +253,16 @@ void CiPointCloudViewerApp::draw() {
   gl::pointSize(view_params_->point_size());
 
   if (view_params_->is_visible_grid()) {
-      grid_batch_->draw();
+    switch (view_params_->grid()) {
+      case ViewParams::Grid::RECTANGULAR:
+        grid_batch_->draw();
+        break;
+      case ViewParams::Grid::POLAR:
+        for (auto batch : circular_grid_batches_) {
+          batch->draw();
+        }
+        break;
+    }
   }
 
   {

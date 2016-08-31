@@ -11,6 +11,11 @@
 
 class ViewParams : public Store {
 public:
+  enum struct Grid {
+    RECTANGULAR,
+    POLAR
+  };
+
   struct UpdateCameraParamsAction {
     glm::vec3 eye_point;
     glm::vec3 look_at;
@@ -30,6 +35,10 @@ public:
 
   struct ToggleGridVisibilityAction {
     bool visible;
+  };
+
+  struct ChangeGridAction {
+    Grid grid;
   };
 
   ViewParams();
@@ -58,6 +67,10 @@ public:
     return visible_grid_;
   }
 
+  Grid grid() const {
+    return grid_;
+  }
+
 
 private:
   glm::vec3 look_at_;
@@ -66,6 +79,7 @@ private:
   float point_size_;
   bool enable_full_screen_;
   bool visible_grid_;
+  Grid grid_;
 
   void initializeConnections();
   void onCameraParamsUpdate(const UpdateCameraParamsAction &action);
@@ -73,6 +87,7 @@ private:
   void onPointSizeUpdate(const UpdatePointSizeAction &action);
   void onFullScreenToggle(const ToggleFullScreenAction &action);
   void onGridVisibilityChange(const ToggleGridVisibilityAction &action);
+  void onGridChange(const ChangeGridAction &action);
 };
 
 #endif //CIPOINTCLOUDVIEWERAPP_VIEWPARAMS_H
