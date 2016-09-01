@@ -252,17 +252,17 @@ void CiPointCloudViewerApp::draw() {
 
   gl::pointSize(view_params_->point_size());
 
-  if (view_params_->is_visible_grid()) {
-    switch (view_params_->grid()) {
-      case ViewParams::Grid::RECTANGULAR:
-        grid_batch_->draw();
-        break;
-      case ViewParams::Grid::POLAR:
-        for (auto batch : circular_grid_batches_) {
-          batch->draw();
-        }
-        break;
-    }
+  switch (view_params_->grid()) {
+    case ViewParams::Grid::RECTANGULAR:
+      grid_batch_->draw();
+      break;
+    case ViewParams::Grid::POLAR:
+      for (auto batch : circular_grid_batches_) {
+        batch->draw();
+      }
+      break;
+    case ViewParams::Grid::NONE:
+      break;
   }
 
   {

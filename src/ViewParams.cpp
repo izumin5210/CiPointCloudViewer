@@ -2,8 +2,6 @@
 // Created by Masayuki IZUMI on 7/19/16.
 //
 
-#include "cinder/Color.h"
-
 #include "ViewParams.h"
 #include "Signal.h"
 
@@ -13,8 +11,7 @@ ViewParams::ViewParams()
   , bg_color_           (cinder::Color8u(0x11, 0x11, 0x11))
   , point_size_         (1.0f)
   , enable_full_screen_ (false)
-  , visible_grid_       (true)
-  , grid_               (Grid::RECTANGULAR)
+  , grid_               (ViewParams::Grid::RECTANGULAR)
 {
   initializeConnections();
 }
@@ -25,7 +22,6 @@ void ViewParams::initializeConnections() {
   addConnection(Signal<UpdateBgColorAction>::connect(std::bind(&ViewParams::onBgColorUpdate, this, ph::_1)));
   addConnection(Signal<UpdatePointSizeAction>::connect(std::bind(&ViewParams::onPointSizeUpdate, this, ph::_1)));
   addConnection(Signal<ToggleFullScreenAction>::connect(std::bind(&ViewParams::onFullScreenToggle, this, ph::_1)));
-  addConnection(Signal<ToggleGridVisibilityAction>::connect(std::bind(&ViewParams::onGridVisibilityChange, this, ph::_1)));
   addConnection(Signal<ChangeGridAction>::connect(std::bind(&ViewParams::onGridChange, this, ph::_1)));
 }
 
@@ -48,11 +44,6 @@ void ViewParams::onPointSizeUpdate(const UpdatePointSizeAction &action) {
 
 void ViewParams::onFullScreenToggle(const ToggleFullScreenAction &action) {
   enable_full_screen_ = action.enable;
-  emit();
-}
-
-void ViewParams::onGridVisibilityChange(const ToggleGridVisibilityAction &action) {
-  visible_grid_ = action.visible;
   emit();
 }
 
