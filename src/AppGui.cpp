@@ -101,9 +101,19 @@ void AppGui::drawMenuBar(ci::app::AppBase *app, glm::vec2 &left_window_pos, glm:
   }
 
   if (ui::BeginMenu("View")) {
-    if (ui::MenuItem("Show grid", nullptr, view_params_->is_visible_grid())) {
-      Signal<ViewParams::ToggleGridVisibilityAction>::emit({!view_params_->is_visible_grid()});
+    if (ui::BeginMenu("Grid")) {
+      if (ui::MenuItem("None", nullptr, view_params_->grid() == ViewParams::Grid::NONE)) {
+        config_->setSaveGridType(ViewParams::Grid::NONE);
+      }
+      if (ui::MenuItem("Rectangular grid", nullptr, view_params_->grid() == ViewParams::Grid::RECTANGULAR)) {
+        config_->setSaveGridType(ViewParams::Grid::RECTANGULAR);
+      }
+      if (ui::MenuItem("Polar grid", nullptr, view_params_->grid() == ViewParams::Grid::POLAR)) {
+        config_->setSaveGridType(ViewParams::Grid::POLAR);
+      }
+      ui::EndMenu();
     }
+    ui::Separator();
     if (ui::MenuItem("Full screen", nullptr, view_params_->is_full_screen())) {
       Signal<ViewParams::ToggleFullScreenAction>::emit({!view_params_->is_full_screen()});
     }

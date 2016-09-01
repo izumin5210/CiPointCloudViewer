@@ -9,6 +9,8 @@
 
 #include <yaml-cpp/yaml.h>
 
+#include "ViewParams.h"
+
 class Configure {
 public:
   using bpath = boost::filesystem::path;
@@ -23,11 +25,15 @@ public:
   void setSavePcdFilesTo(std::string dir);
   std::string getSavePcdFilesTo() const;
 
+  void setSaveGridType(ViewParams::Grid grid);
+  ViewParams::Grid getGridType() const;
+
 
 private:
   const std::string kFileName = "config.yml";
   const std::string kKeySaveOniFilesTo = "save-oni-files-to";
   const std::string kKeySavePcdFilesTo = "save-pcd-files-to";
+  const std::string kKeyGridType = "grid";
 
   const bpath dir_;
   const bpath path_;

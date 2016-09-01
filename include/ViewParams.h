@@ -5,19 +5,27 @@
 #ifndef CIPOINTCLOUDVIEWERAPP_VIEWPARAMS_H
 #define CIPOINTCLOUDVIEWERAPP_VIEWPARAMS_H
 
+#include "cinder/Color.h"
+
 #include "glm/glm.hpp"
 
 #include "Store.h"
 
 class ViewParams : public Store {
 public:
+  enum struct Grid {
+    NONE        = 0,
+    RECTANGULAR = 1,
+    POLAR       = 2
+  };
+
   struct UpdateCameraParamsAction {
     glm::vec3 eye_point;
     glm::vec3 look_at;
   };
 
   struct UpdateBgColorAction {
-    ci::Color bg_color;
+    cinder::Color bg_color;
   };
 
   struct UpdatePointSizeAction {
@@ -28,8 +36,8 @@ public:
     bool enable;
   };
 
-  struct ToggleGridVisibilityAction {
-    bool visible;
+  struct ChangeGridAction {
+    Grid grid;
   };
 
   ViewParams();
@@ -42,7 +50,7 @@ public:
     return eye_point_;
   }
 
-  ci::Color bg_color() const {
+  cinder::Color bg_color() const {
     return bg_color_;
   }
 
@@ -54,8 +62,8 @@ public:
     return enable_full_screen_;
   }
 
-  bool is_visible_grid() const {
-    return visible_grid_;
+  Grid grid() const {
+    return grid_;
   }
 
 
@@ -65,14 +73,14 @@ private:
   ci::Color bg_color_;
   float point_size_;
   bool enable_full_screen_;
-  bool visible_grid_;
+  Grid grid_;
 
   void initializeConnections();
   void onCameraParamsUpdate(const UpdateCameraParamsAction &action);
   void onBgColorUpdate(const UpdateBgColorAction &action);
   void onPointSizeUpdate(const UpdatePointSizeAction &action);
   void onFullScreenToggle(const ToggleFullScreenAction &action);
-  void onGridVisibilityChange(const ToggleGridVisibilityAction &action);
+  void onGridChange(const ChangeGridAction &action);
 };
 
 #endif //CIPOINTCLOUDVIEWERAPP_VIEWPARAMS_H
