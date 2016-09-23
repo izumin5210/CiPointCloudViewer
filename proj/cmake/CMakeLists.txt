@@ -8,14 +8,10 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=native")
 set(CMAKE_VERBOSE_MAKEFILE ON)
 set(CINDER_VERBOSE ON)
 
-find_package(PCL 1.8 REQUIRED)
-link_directories(${PCL_LIBRARY_DIRS})
-add_definitions(${PCL_DEFINITIONS})
-
-find_package(Qt5 COMPONENTS Core Widgets)
-
 if(APPLE)
   include_directories(/usr/local/include/ni2)
+  set(OpenCV_DIR /usr/local/opt/opencv3/share/OpenCV)
+  set(Qt5_DIR /usr/local/opt/qt5/lib/cmake/Qt5)
 elseif(LINUX)
   include_directories(/usr/include/openni2)
 endif()
@@ -23,6 +19,11 @@ endif()
 find_package        (CUDA QUIET)
 include_directories (/usr/local/cuda/include)
 
+find_package(PCL 1.8 REQUIRED)
+link_directories(${PCL_LIBRARY_DIRS})
+add_definitions(${PCL_DEFINITIONS})
+
+find_package(Qt5 COMPONENTS Core Widgets REQUIRED)
 find_package(OpenCV 3.0 REQUIRED)
 find_package(Boost COMPONENTS system filesystem program_options thread REQUIRED)
 
