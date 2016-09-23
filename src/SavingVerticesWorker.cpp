@@ -55,7 +55,7 @@ void SavingVerticesWorker::start(std::string dir) {
             p.b = v.rgb[2];
             cloud.push_back(p);
           }
-          pcl::io::savePCDFile(path.string(), cloud);
+          pcl::io::savePCDFileBinary(path.string(), cloud);
           queue_.pop();
         }
         fps_counter_.passFrame();
