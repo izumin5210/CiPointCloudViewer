@@ -378,11 +378,11 @@ private:
       unsigned char* color = (unsigned char*) color_image_.data;
       unsigned short* depth = (unsigned short*) raw_depth_image_.data;
 
-      Vertices vertices;
+      VerticesPtr vertices(new Vertices);
 
       for (int i = 0; i < width * height; i++) {
         if (depth[i] != 0 && (color[i*3] != 0 || color[i*3+1] != 0 || color[i*3+2] != 0)) {
-          vertices.emplace_back((Vertex){
+          vertices->emplace_back((Vertex){
             {
               static_cast<float>(i % width),
               static_cast<float>(i / width),

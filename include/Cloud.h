@@ -25,6 +25,7 @@ public:
   )
     : key_        (key)
     , point_cloud_(point_cloud)
+    , vertices_   (new Vertices)
     , calibrated_ (calibrated)
     , visible_    (visible)
   {
@@ -32,7 +33,7 @@ public:
 
   Cloud(
     Key key,
-    const Vertices &vertices,
+    const VerticesPtr &vertices,
     bool calibrated = false,
     bool visible = true
   )
@@ -56,11 +57,11 @@ public:
     point_cloud_ = point_cloud;
   }
 
-  inline Vertices vertices() const {
+  inline VerticesPtr vertices() const {
     return vertices_;
   }
 
-  inline void set_vertices(const Vertices &vertices) {
+  inline void set_vertices(const VerticesPtr &vertices) {
     vertices_ = vertices;
   }
 
@@ -81,7 +82,7 @@ public:
   }
 
   inline size_t size() {
-    return calibrated_ ? point_cloud_->size() : vertices_.size();
+    return calibrated_ ? point_cloud_->size() : vertices_->size();
   }
 
 
@@ -89,7 +90,7 @@ private:
   const Key key_;
 
   PointCloudPtr point_cloud_;
-  Vertices vertices_;
+  VerticesPtr vertices_;
 
   bool calibrated_;
   bool visible_;

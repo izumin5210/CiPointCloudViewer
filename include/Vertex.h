@@ -10,6 +10,7 @@ struct Vertex {
   uint8_t rgb[3];
 };
 
-using Vertices = std::vector<Vertex>;
+using Vertices    = std::vector<Vertex>;
+using VerticesPtr = std::shared_ptr<Vertices>;
 
 #endif //CIPOINTCLOUDVIEWERAPP_VERTEX_H

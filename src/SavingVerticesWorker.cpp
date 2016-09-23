@@ -45,7 +45,7 @@ void SavingVerticesWorker::start(std::string dir) {
             boost::filesystem::create_directory(path.parent_path());
           }
           pcl::PointCloud<pcl::PointXYZRGBA> cloud;
-          for (auto v : item.vertices) {
+          for (auto v : *item.vertices) {
             pcl::PointXYZRGBA p;
             p.x = v.xyz[0];
             p.y = v.xyz[1];
