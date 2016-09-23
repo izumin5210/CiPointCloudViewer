@@ -7,31 +7,14 @@
 
 #include <map>
 
-#include "Store.h"
 #include "SequentialPcdPlayer.h"
 
 namespace io {
 
-class CloudDataSources : public Store {
+class CloudDataSources {
 public:
   using Key = std::string;
-
-  struct OpenPcdFilesDirectoryAction {
-    std::string path;
-  };
-
-  CloudDataSources();
-
-  std::map<Key, std::shared_ptr<SequentialPcdPlayer>> sequential_pcd_players() const {
-    return sequential_pcd_players_;
-  };
-
-
-private:
-  std::map<Key, std::shared_ptr<SequentialPcdPlayer>> sequential_pcd_players_;
-
-  void initializeConnections();
-  void onPcdFilesDirectoryOpen(const OpenPcdFilesDirectoryAction &action);
+  virtual std::map<Key, std::shared_ptr<SequentialPcdPlayer>> sequential_pcd_players() const = 0;
 };
 
 }

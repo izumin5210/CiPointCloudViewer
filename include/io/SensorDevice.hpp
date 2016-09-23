@@ -20,14 +20,15 @@
 
 #include <opencv2/calib3d.hpp>
 #include <opencv2/core.hpp>
-#include <opencv2/core/ocl.hpp>
-#include <opencv2/core/utility.hpp>
+//#include <opencv2/core/ocl.hpp>
+//#include <opencv2/core/utility.hpp>
 #include <OpenNI.h>
 
 #include "Clouds.h"
+#include "Dispatcher.h"
 #include "FpsCounter.h"
-#include "Signal.h"
 #include "Vertex.h"
+#include "action/CloudsAction.h"
 #include "io/CalibrationParamsManager.h"
 
 namespace io {
@@ -44,8 +45,9 @@ public:
       STOPPING
     };
 
-    SensorDevice()
-      : state_(NOT_INITIALIZED)
+    SensorDevice(std::shared_ptr<Dispatcher> dispatcher)
+      : dispatcher_ (dispatcher)
+      , state_(NOT_INITIALIZED)
       , worker_canceled_(true)
       , calibrated_(false)
       , recording_(false)
@@ -62,8 +64,8 @@ public:
         uri_ = uri;
 
         namespace ph = std::placeholders;
-        Signal<Clouds::UpdateCalibrationParamsAction>::connect(std::bind(&SensorDevice::setCalibrationParams, this, ph::_1));
-        Signal<FpsCounter::Event>::connect(std::bind(&SensorDevice::updateFps, this, ph::_1));
+        dispatcher_->connect<UpdateCalibrationParamsAction>(std::bind(&SensorDevice::setCalibrationParams, this, ph::_1));
+        dispatcher_->connect<FpsCounter::Event>(std::bind(&SensorDevice::updateFps, this, ph::_1));
 
         checkStatus(device_.open(uri), "openni::Device::open() failed.");
         if (device_.isFile()) {
@@ -121,7 +123,7 @@ public:
         return kStateString[state_];
     }
 
-    void setCalibrationParams(const Clouds::UpdateCalibrationParamsAction &action) {
+    void setCalibrationParams(const UpdateCalibrationParamsAction &action) {
         if (action.key == serial_) {
             if (state_ == INITIALIZED) {
                 state_ = CALIBRATED;
@@ -211,6 +213,8 @@ private:
       { RECORDING,        "RECORDING" },
       { STOPPING,         "STOPPING" }
     };
+
+    std::shared_ptr<Dispatcher> dispatcher_;
 
     openni::Device device_;
     std::string uri_;
@@ -397,7 +401,7 @@ private:
         }
       }
 
-      Signal<Clouds::UpdateVerticesAction>::emit({name_, vertices, timestamp});
+      dispatcher_->emit<UpdateVerticesAction>({name_, vertices, timestamp});
     }
 };
 

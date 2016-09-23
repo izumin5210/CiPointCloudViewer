@@ -5,16 +5,17 @@
 #ifndef CIPOINTCLOUDVIEWERAPP_SEQUENTIALPCDPLAYER_H
 #define CIPOINTCLOUDVIEWERAPP_SEQUENTIALPCDPLAYER_H
 
-#include <pcl/io/pcd_io.h>
-
 #include <atomic>
 #include <thread>
 #include <map>
+#include <boost/filesystem.hpp>
+#include <boost/date_time.hpp>
 
 #include "glm/glm.hpp"
 #include "cinder/Signals.h"
 
 #include "Clouds.h"
+#include "Dispatcher.h"
 
 namespace io {
 
@@ -28,7 +29,10 @@ public:
   using bpath   = boost::filesystem::path;
   using bptime  = boost::posix_time::ptime;
 
-  SequentialPcdPlayer(const std::string path);
+  SequentialPcdPlayer(
+      const std::shared_ptr<Dispatcher>& dispatcher,
+      const std::string path
+  );
   ~SequentialPcdPlayer();
 
   void start();
@@ -53,6 +57,7 @@ public:
 
 
 private:
+  const std::shared_ptr<Dispatcher> dispatcher_;
   bpath path_;
   PointCloudPtr cloud_;
 

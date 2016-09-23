@@ -11,17 +11,19 @@
 
 #include <set>
 #include <map>
-#include <Signal.h>
 
 #include "CinderImGui.h"
 
-#include "AppGui.h"
-#include "Configure.h"
-#include "io/CloudDataSources.h"
-#include "SavingVerticesWorker.h"
 
-#include "Clouds.h"
-#include "ViewParams.h"
+#include "action/ViewParamsAction.h"
+
+#include "impl/AppGuiImpl.h"
+#include "impl/CloudsImpl.h"
+#include "impl/ViewParamsImpl.h"
+#include "impl/SavingVerticesWorkerImpl.h"
+#include "impl/YamlConfigure.h"
+#include "impl/io/CloudDataSourcesImpl.h"
+#include "impl/io/SensorDeviceManagerImpl.h"
 
 using namespace ci;
 using namespace ci::app;
@@ -44,14 +46,12 @@ public:
   void draw() override;
 
 private:
+  shared_ptr<Dispatcher> dispatcher_;
   shared_ptr<Clouds> clouds_;
   shared_ptr<ViewParams> view_params_;
-  shared_ptr<Configure> config_;
   shared_ptr<io::SensorDeviceManager> sensor_device_manager_;
-  shared_ptr<io::CloudDataSources> cloud_data_sources_;
-  shared_ptr<SavingVerticesWorker> saving_vertices_worker_;
 
-  AppGui gui_;
+  shared_ptr<AppGui> gui_;
 
   gl::VertBatchRef grid_batch_;
   gl::VertBatchRef circular_grid_batches_[6];
@@ -79,14 +79,7 @@ private:
 };
 
 CiPointCloudViewerApp::CiPointCloudViewerApp()
-  : clouds_(new Clouds)
-  , view_params_(new ViewParams)
-  , config_(new Configure(getAssetPath("")))
-  , sensor_device_manager_(new io::SensorDeviceManager)
-  , cloud_data_sources_(new io::CloudDataSources)
-  , saving_vertices_worker_(new SavingVerticesWorker)
-  , gui_(clouds_, view_params_, config_, cloud_data_sources_, sensor_device_manager_, saving_vertices_worker_)
-  , grid_batch_(gl::VertBatch::create(GL_LINES))
+  : grid_batch_(gl::VertBatch::create(GL_LINES))
   , vertices_render_prog_(
     gl::GlslProg::create(
       gl::GlslProg::Format()
@@ -112,11 +105,47 @@ CiPointCloudViewerApp::~CiPointCloudViewerApp() {
 }
 
 void CiPointCloudViewerApp::setup() {
+  cout << "setup App" << endl;
+  cout << "begin: setup components" << endl;
+  fruit::Component<AppBase> app_component =
+      fruit::createComponent().bindInstance(*this->get());
+  fruit::Component<
+      Dispatcher,
+      Clouds,
+      ViewParams,
+      AppGui,
+      io::SensorDeviceManager
+  > component = fruit::createComponent()
+      .install(app_component)
+      .install(getDispatcherComponent())
+      .install(getCloudsImplComponent())
+      .install(getViewParamsImplComponent())
+      .install(getYamlConfigureComponent())
+      .install(getSensorDeviceManagerImplComponent())
+      .install(getCloudDataSourcesImplComponent())
+      .install(getSavingVerticesWorkerImplComponent())
+      .install(getAppGuiImplComponent());
+  fruit::Injector<
+      Dispatcher,
+      Clouds,
+      ViewParams,
+      AppGui,
+      io::SensorDeviceManager
+  > injector(component);
+  cout << "end:   setup components" << endl;
+  cout << "begin: injection to App" << endl;
+
+  dispatcher_ = injector.get<shared_ptr<Dispatcher>>();
+  clouds_ = injector.get<shared_ptr<Clouds>>();
+  view_params_ = injector.get<shared_ptr<ViewParams>>();
+  gui_ = injector.get<shared_ptr<AppGui>>();
+  sensor_device_manager_ = injector.get<shared_ptr<io::SensorDeviceManager>>();
+
   clouds_->connect(std::bind(&CiPointCloudViewerApp::onCloudsUpdate, this));
   view_params_->connect(std::bind(&CiPointCloudViewerApp::onViewParamsUpdate, this));
+  cout << "end:   injection to App" << endl;
 
-  config_->initialize();
-  gui_.initialize();
+  gui_->initialize();
 
   sensor_device_manager_->start();
 
@@ -220,21 +249,21 @@ void CiPointCloudViewerApp::updatePointsVbo() {
 
 void CiPointCloudViewerApp::mouseDown(MouseEvent event) {
   camera_ui_.mouseDown(event);
-  Signal<ViewParams::UpdateCameraParamsAction>::emit({camera_.getEyePoint(), camera_.getPivotPoint()});
+  dispatcher_->emit<UpdateCameraParamsAction>({camera_.getEyePoint(), camera_.getPivotPoint()});
 }
 
 void CiPointCloudViewerApp::mouseDrag(MouseEvent event) {
   camera_ui_.mouseDrag(event);
-  Signal<ViewParams::UpdateCameraParamsAction>::emit({camera_.getEyePoint(), camera_.getPivotPoint()});
+  dispatcher_->emit<UpdateCameraParamsAction>({camera_.getEyePoint(), camera_.getPivotPoint()});
 }
 
 void CiPointCloudViewerApp::mouseWheel(MouseEvent event) {
   camera_ui_.mouseWheel(event);
-  Signal<ViewParams::UpdateCameraParamsAction>::emit({camera_.getEyePoint(), camera_.getPivotPoint()});
+  dispatcher_->emit<UpdateCameraParamsAction>({camera_.getEyePoint(), camera_.getPivotPoint()});
 }
 
 void CiPointCloudViewerApp::update() {
-  gui_.update(this);
+  gui_->update(this);
 
   if (!cloud_updated_) {
     updateVerticesVbo();
@@ -317,4 +346,3 @@ CINDER_APP( CiPointCloudViewerApp, RendererGl, [](App::Settings *settings) {
   settings->setHighDensityDisplayEnabled();
   settings->setWindowSize(1280, 960);
 })
-

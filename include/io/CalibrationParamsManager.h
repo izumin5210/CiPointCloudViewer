@@ -28,7 +28,7 @@ public:
   Eigen::Matrix4f calib_matrix;
   float fx, fy, cx, cy;
 
-  static void load(std::string path, std::string prefix = "kinect2_");
+  static std::map<std::string, CalibrationParams> load(std::string path, std::string prefix = "kinect2_");
 
 
 private:

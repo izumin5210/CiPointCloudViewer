@@ -5,6 +5,8 @@
 #ifndef CIPOINTCLOUDVIEWERAPP_SIGNAL_H
 #define CIPOINTCLOUDVIEWERAPP_SIGNAL_H
 
+
+#include <fruit/fruit.h>
 #include "nod/nod.hpp"
 
 #include "Singleton.h"

@@ -2,13 +2,19 @@
 // Created by Masayuki IZUMI on 7/20/16.
 //
 
-#include "Signal.h"
+#include <pcl/io/pcd_io.h>
+
 #include "io/SequentialPcdPlayer.h"
+#include "action/CloudsAction.h"
 
 namespace io {
 
-SequentialPcdPlayer::SequentialPcdPlayer(const std::string path)
-  : path_(bpath(path))
+SequentialPcdPlayer::SequentialPcdPlayer(
+    const std::shared_ptr<Dispatcher>& dispatcher,
+    const std::string path
+)
+  : dispatcher_(dispatcher)
+  , path_(bpath(path))
   , cloud_(new PointCloud)
   , loading_progress_(0, 0)
   , loader_worker_canceled_(true)
@@ -82,7 +88,7 @@ void SequentialPcdPlayer::start(const uint64_t started_at) {
       }
       if ((itr->first - started_at) <= elapsedTime()) {
         cloud_ = clouds_[itr->first];
-        Signal<Clouds::UpdatePointsAction>::emit({path_.string(), cloud_});
+        dispatcher_->emit<UpdatePointsAction>({path_.string(), cloud_});
         itr++;
       }
       if (itr == files_.end()) {

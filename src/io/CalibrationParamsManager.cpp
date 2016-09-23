@@ -10,20 +10,22 @@
 #define CalibrationParams_cpp
 
 #include "Clouds.h"
-#include "Signal.h"
+#include "action/CloudsAction.h"
 #include "io/CalibrationParamsManager.h"
 
 namespace io {
 
-void
+std::map<std::string, CalibrationParams>
 CalibrationParams::load(std::string path, std::string prefix) {
+    std::map<std::string, CalibrationParams> map;
     cv::FileStorage fs(path, cv::FileStorage::READ);
     for (auto node : fs.root()) {
         auto serial = node.name().substr(strlen(prefix.c_str()));
         auto params = createCalibrationParams(serial, node);
-        Signal<Clouds::UpdateCalibrationParamsAction>::emit({serial, params});
+        map[serial] = params;
     }
     fs.release();
+    return map;
 }
 
 CalibrationParams
