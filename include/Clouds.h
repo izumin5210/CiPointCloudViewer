@@ -34,7 +34,7 @@ public:
 
   struct UpdateVerticesAction {
     Key key;
-    Vertices vertices;
+    VerticesPtr vertices;
     std::chrono::system_clock::time_point timestamp;
   };
 

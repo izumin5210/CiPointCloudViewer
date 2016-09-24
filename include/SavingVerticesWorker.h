@@ -43,7 +43,8 @@ public:
 private:
   struct QueueItem {
     std::string key;
-    std::chrono::system_clock::time_point timestamp; Vertices vertices;
+    std::chrono::system_clock::time_point timestamp;
+    VerticesPtr vertices;
   };
 
   const std::string kFpsCounterKey = "SavingVerticesWorker";

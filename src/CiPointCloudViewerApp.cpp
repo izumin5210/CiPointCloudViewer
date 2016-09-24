@@ -174,7 +174,7 @@ void CiPointCloudViewerApp::updateVerticesVbo() {
   vertices_size_ = 0;
   clouds_->lock();
   for (auto pair : clouds_->clouds()) {
-    if (pair.second->vertices().empty() || !pair.second->is_visible()) { continue; }
+    if (pair.second->vertices()->empty() || !pair.second->is_visible()) { continue; }
     if (vertices_vaos_.find(pair.first) == vertices_vaos_.end()) {
       vertices_vaos_[pair.first] = gl::Vao::create();
     }
@@ -182,8 +182,8 @@ void CiPointCloudViewerApp::updateVerticesVbo() {
       vertices_vbos_[pair.first] = gl::Vbo::create(GL_ARRAY_BUFFER, 0, nullptr, GL_STATIC_DRAW);
     }
     auto vertices = pair.second->vertices();
-    vertices_size_ += vertices.size();
-    vertices_vbos_[pair.first]->copyData(vertices.size() * sizeof(Vertex), vertices.data());
+    vertices_size_ += vertices->size();
+    vertices_vbos_[pair.first]->copyData(vertices->size() * sizeof(Vertex), vertices->data());
     gl::ScopedVao vao(vertices_vaos_[pair.first]);
     gl::ScopedBuffer vbo(vertices_vbos_[pair.first]);
     gl::enableVertexAttribArray(0);
