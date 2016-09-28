@@ -12,7 +12,7 @@
 #include <OpenNI.h>
 #include "opencv2/opencv.hpp"
 
-#include "SensorDevice.hpp"
+#include "io/SensorDevice.h"
 #include "io/CalibrationParamsManager.h"
 #include "Signal.h"
 
