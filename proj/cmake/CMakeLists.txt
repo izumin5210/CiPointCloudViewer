@@ -52,6 +52,7 @@ set(PROJECT_SOURCES
     ${PROJECT_DIR}/src/SavingVerticesWorker.cpp
     ${PROJECT_DIR}/src/io/CloudDataSources.cpp
     ${PROJECT_DIR}/src/io/CalibrationParamsManager.cpp
+    ${PROJECT_DIR}/src/io/SensorDevice.cpp
     ${PROJECT_DIR}/src/io/SequentialPcdPlayer.cpp
     ${CINDER_IMGUI_SOURCES}
 )
