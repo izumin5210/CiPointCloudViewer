@@ -34,20 +34,12 @@ void SensorDevice::initialize(const char *uri) {
   Signal<FpsCounter::Event>::connect(std::bind(&SensorDevice::updateFps, this, ph::_1));
 
   checkStatus(device_.open(uri), "openni::Device::open() failed.");
-  if (device_.isFile()) {
-    // TODO: not yet implemented
-  } else {
+  if (!device_.isFile()) {
     char serial[64];
     auto status = device_.getProperty(ONI_DEVICE_PROPERTY_SERIAL_NUMBER, &serial);
-    // checkStatus(status, "Device has not serial number.");
+    checkStatus(status, "Device has not serial number.");
     serial_.assign(serial, strlen(serial));
-
     name_ = serial_;
-    // name_ = uri;
-    // std::replace(name_.begin(), name_.end(), ':', ' ');
-    // std::replace(name_.begin(), name_.end(), '@', ' ');
-    // std::stringstream buf(name_);
-    // buf >> name_;
   }
 
   state_ = INITIALIZED;
@@ -61,10 +53,6 @@ void SensorDevice::start() {
     startIrStream();
     enableMirroring();
     enableDepthToColorRegistration();
-
-    if (!device_.isFile()) {
-      // TODO: record .oni file
-    }
 
     fps_counter_.start(serial_);
     worker_canceled_ = false;
