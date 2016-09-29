@@ -24,6 +24,7 @@ FileMenu::FileMenu(
 void FileMenu::drawImpl() {
   drawOpenPcdFile();
   drawOpenDirectory();
+  drawOpenCalibYaml();
 
   ui::Separator();
 
