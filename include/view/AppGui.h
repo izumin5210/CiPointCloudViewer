@@ -14,14 +14,17 @@
 #include "SavingVerticesWorker.h"
 
 #include "io/CloudDataSources.h"
-#include "io/CalibrationParamsManager.h"
 #include "io/SensorDeviceManager.hpp"
+
+#include "menu/Menu.h"
+#include "window/Window.h"
+
+namespace view {
 
 class AppGui {
 public:
-  using path = boost::filesystem::path;
-
   AppGui(
+    ci::app::AppBase *app,
     const std::shared_ptr<Clouds> &clouds,
     const std::shared_ptr<ViewParams> &view_params,
     const std::shared_ptr<Configure> &config,
@@ -31,7 +34,7 @@ public:
   );
 
   void initialize();
-  void update(ci::app::AppBase *app);
+  void update();
 
 
 private:
@@ -92,34 +95,26 @@ private:
     .windowRounding(0.0f)
     .frameRounding(0.0f);
 
-  const std::shared_ptr<Clouds> clouds_;
-  const std::shared_ptr<ViewParams> view_params_;
-  const std::shared_ptr<Configure> config_;
-  const std::shared_ptr<io::CloudDataSources> cloud_data_sources_;
-  const std::shared_ptr<SavingVerticesWorker> saving_vertices_worker_;
+  ci::app::AppBase *app_;
 
-  bool visible_camera_window_     = true;
-  bool visible_appearance_window_ = true;
-  bool visible_filters_window_    = true;
-  bool visible_clouds_window_     = true;
-  bool visible_info_window_       = true;
-  bool visible_player_window_     = true;
-  bool visible_devices_window_    = true;
+  std::shared_ptr<view::window::Window>
+    window_appearance_,
+    window_camera_,
+    window_clouds_,
+    window_device_manager_,
+    window_filters_,
+    window_info_,
+    window_player_;
 
-  Cloud::Key cloud_selected_;
-
-  std::shared_ptr<io::SensorDeviceManager> sensor_device_manager_;
-  std::string device_selected_;
+  std::shared_ptr<view::menu::Menu>
+    menu_file_,
+    menu_view_,
+    menu_window_;
 
 
-  void drawMenuBar(ci::app::AppBase *app, glm::vec2 &left_window_pos, glm::vec2 &right_window_pos);
-  void drawCameraWindow(glm::vec2 &window_pos);
-  void drawAppearanceWindow(glm::vec2 &window_pos);
-  void drawFiltersWindow(glm::vec2 &window_pos);
-  void drawCloudsWindow(glm::vec2 &window_pos);
-  void drawInfoWindow(ci::app::AppBase *app, glm::vec2 &window_pos);
-  void drawPlayerWindow(glm::vec2 &window_pos);
-  void drawDevicesWindow(glm::vec2 &window_pos);
+  void drawMenuBar(glm::vec2 &left_window_pos, glm::vec2 &right_window_pos);
+  void drawWindows(glm::vec2 &left_window_pos, glm::vec2 &right_window_pos);
 };
 
+}
 #endif //CIPOINTCLOUDVIEWERAPP_APPGUI_H

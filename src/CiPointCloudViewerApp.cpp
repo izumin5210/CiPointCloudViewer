@@ -15,7 +15,7 @@
 
 #include "CinderImGui.h"
 
-#include "AppGui.h"
+#include "view/AppGui.h"
 #include "Configure.h"
 #include "io/CloudDataSources.h"
 #include "SavingVerticesWorker.h"
@@ -51,7 +51,7 @@ private:
   shared_ptr<io::CloudDataSources> cloud_data_sources_;
   shared_ptr<SavingVerticesWorker> saving_vertices_worker_;
 
-  AppGui gui_;
+  view::AppGui gui_;
 
   gl::VertBatchRef grid_batch_;
   gl::VertBatchRef circular_grid_batches_[6];
@@ -85,7 +85,7 @@ CiPointCloudViewerApp::CiPointCloudViewerApp()
   , sensor_device_manager_(new io::SensorDeviceManager)
   , cloud_data_sources_(new io::CloudDataSources)
   , saving_vertices_worker_(new SavingVerticesWorker)
-  , gui_(clouds_, view_params_, config_, cloud_data_sources_, sensor_device_manager_, saving_vertices_worker_)
+  , gui_(this, clouds_, view_params_, config_, cloud_data_sources_, sensor_device_manager_, saving_vertices_worker_)
   , grid_batch_(gl::VertBatch::create(GL_LINES))
   , vertices_render_prog_(
     gl::GlslProg::create(
@@ -234,7 +234,7 @@ void CiPointCloudViewerApp::mouseWheel(MouseEvent event) {
 }
 
 void CiPointCloudViewerApp::update() {
-  gui_.update(this);
+  gui_.update();
 
   if (!cloud_updated_) {
     updateVerticesVbo();
