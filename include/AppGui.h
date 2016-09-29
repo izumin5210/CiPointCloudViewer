@@ -14,24 +14,13 @@
 #include "SavingVerticesWorker.h"
 
 #include "io/CloudDataSources.h"
-#include "io/CalibrationParamsManager.h"
 #include "io/SensorDeviceManager.hpp"
 
-#include "view/menu/FileMenu.h"
-#include "view/menu/ViewMenu.h"
-#include "view/menu/WindowMenu.h"
-#include "view/window/AppearanceWindow.h"
-#include "view/window/CameraWindow.h"
-#include "view/window/CloudsWindow.h"
-#include "view/window/DeviceManagerWindow.h"
-#include "view/window/FiltersWindow.h"
-#include "view/window/InformationWindow.h"
-#include "view/window/PlayerWindow.h"
+#include "view/menu/Menu.h"
+#include "view/window/Window.h"
 
 class AppGui {
 public:
-  using path = boost::filesystem::path;
-
   AppGui(
     ci::app::AppBase *app,
     const std::shared_ptr<Clouds> &clouds,
@@ -43,7 +32,7 @@ public:
   );
 
   void initialize();
-  void update(ci::app::AppBase *app);
+  void update();
 
 
 private:
@@ -104,29 +93,25 @@ private:
     .windowRounding(0.0f)
     .frameRounding(0.0f);
 
-  const std::shared_ptr<Clouds> clouds_;
-  const std::shared_ptr<ViewParams> view_params_;
-  const std::shared_ptr<Configure> config_;
-  const std::shared_ptr<io::CloudDataSources> cloud_data_sources_;
-  const std::shared_ptr<SavingVerticesWorker> saving_vertices_worker_;
+  ci::app::AppBase *app_;
 
-  std::shared_ptr<io::SensorDeviceManager> sensor_device_manager_;
-  std::string device_selected_;
+  std::shared_ptr<view::window::Window>
+    window_appearance_,
+    window_camera_,
+    window_clouds_,
+    window_device_manager_,
+    window_filters_,
+    window_info_,
+    window_player_;
 
-  std::shared_ptr<view::window::AppearanceWindow>     appearance_window_;
-  std::shared_ptr<view::window::CameraWindow>         camera_window_;
-  std::shared_ptr<view::window::CloudsWindow>         clouds_window_;
-  std::shared_ptr<view::window::DeviceManagerWindow>  device_manager_window_;
-  std::shared_ptr<view::window::FiltersWindow>        filters_window_;
-  std::shared_ptr<view::window::InformationWindow>    info_window_;
-  std::shared_ptr<view::window::PlayerWindow>         player_window_;
-
-  std::shared_ptr<view::menu::FileMenu>   file_menu_;
-  std::shared_ptr<view::menu::ViewMenu>   view_menu_;
-  std::shared_ptr<view::menu::WindowMenu> window_menu_;
+  std::shared_ptr<view::menu::Menu>
+    menu_file_,
+    menu_view_,
+    menu_window_;
 
 
   void drawMenuBar(glm::vec2 &left_window_pos, glm::vec2 &right_window_pos);
+  void drawWindows(glm::vec2 &left_window_pos, glm::vec2 &right_window_pos);
 };
 
 #endif //CIPOINTCLOUDVIEWERAPP_APPGUI_H

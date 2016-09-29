@@ -234,7 +234,7 @@ void CiPointCloudViewerApp::mouseWheel(MouseEvent event) {
 }
 
 void CiPointCloudViewerApp::update() {
-  gui_.update(this);
+  gui_.update();
 
   if (!cloud_updated_) {
     updateVerticesVbo();
