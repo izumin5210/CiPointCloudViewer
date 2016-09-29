@@ -17,11 +17,20 @@
 #include "io/CalibrationParamsManager.h"
 #include "io/SensorDeviceManager.hpp"
 
+#include "view/window/AppearanceWindow.h"
+#include "view/window/CameraWindow.h"
+#include "view/window/CloudsWindow.h"
+#include "view/window/DeviceManagerWindow.h"
+#include "view/window/FiltersWindow.h"
+#include "view/window/InformationWindow.h"
+#include "view/window/PlayerWindow.h"
+
 class AppGui {
 public:
   using path = boost::filesystem::path;
 
   AppGui(
+    const ci::app::AppBase *app,
     const std::shared_ptr<Clouds> &clouds,
     const std::shared_ptr<ViewParams> &view_params,
     const std::shared_ptr<Configure> &config,
@@ -98,28 +107,20 @@ private:
   const std::shared_ptr<io::CloudDataSources> cloud_data_sources_;
   const std::shared_ptr<SavingVerticesWorker> saving_vertices_worker_;
 
-  bool visible_camera_window_     = true;
-  bool visible_appearance_window_ = true;
-  bool visible_filters_window_    = true;
-  bool visible_clouds_window_     = true;
-  bool visible_info_window_       = true;
-  bool visible_player_window_     = true;
-  bool visible_devices_window_    = true;
-
-  Cloud::Key cloud_selected_;
-
   std::shared_ptr<io::SensorDeviceManager> sensor_device_manager_;
   std::string device_selected_;
 
+  view::window::AppearanceWindow    appearance_window_;
+  view::window::CameraWindow        camera_window_;
+  view::window::CloudsWindow        clouds_window_;
+  view::window::DeviceManagerWindow device_manager_window_;
+  view::window::FiltersWindow       filters_window_;
+  view::window::InformationWindow   info_window_;
+  view::window::PlayerWindow        player_window_;
+
 
   void drawMenuBar(ci::app::AppBase *app, glm::vec2 &left_window_pos, glm::vec2 &right_window_pos);
-  void drawCameraWindow(glm::vec2 &window_pos);
-  void drawAppearanceWindow(glm::vec2 &window_pos);
-  void drawFiltersWindow(glm::vec2 &window_pos);
-  void drawCloudsWindow(glm::vec2 &window_pos);
-  void drawInfoWindow(ci::app::AppBase *app, glm::vec2 &window_pos);
-  void drawPlayerWindow(glm::vec2 &window_pos);
-  void drawDevicesWindow(glm::vec2 &window_pos);
+  void drawToggleWindowVisibilityItem(view::window::Window &window);
 };
 
 #endif //CIPOINTCLOUDVIEWERAPP_APPGUI_H

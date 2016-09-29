@@ -54,6 +54,14 @@ set(PROJECT_SOURCES
     ${PROJECT_DIR}/src/io/CalibrationParamsManager.cpp
     ${PROJECT_DIR}/src/io/SensorDevice.cpp
     ${PROJECT_DIR}/src/io/SequentialPcdPlayer.cpp
+    ${PROJECT_DIR}/src/view/window/AppearanceWindow.cpp
+    ${PROJECT_DIR}/src/view/window/CameraWindow.cpp
+    ${PROJECT_DIR}/src/view/window/CloudsWindow.cpp
+    ${PROJECT_DIR}/src/view/window/FiltersWindow.cpp
+    ${PROJECT_DIR}/src/view/window/DeviceManagerWindow.cpp
+    ${PROJECT_DIR}/src/view/window/InformationWindow.cpp
+    ${PROJECT_DIR}/src/view/window/PlayerWindow.cpp
+    ${PROJECT_DIR}/src/view/window/Window.cpp
     ${CINDER_IMGUI_SOURCES}
 )
 

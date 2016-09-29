@@ -85,7 +85,7 @@ CiPointCloudViewerApp::CiPointCloudViewerApp()
   , sensor_device_manager_(new io::SensorDeviceManager)
   , cloud_data_sources_(new io::CloudDataSources)
   , saving_vertices_worker_(new SavingVerticesWorker)
-  , gui_(clouds_, view_params_, config_, cloud_data_sources_, sensor_device_manager_, saving_vertices_worker_)
+  , gui_(this, clouds_, view_params_, config_, cloud_data_sources_, sensor_device_manager_, saving_vertices_worker_)
   , grid_batch_(gl::VertBatch::create(GL_LINES))
   , vertices_render_prog_(
     gl::GlslProg::create(
