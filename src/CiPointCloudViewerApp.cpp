@@ -15,7 +15,7 @@
 
 #include "CinderImGui.h"
 
-#include "AppGui.h"
+#include "view/AppGui.h"
 #include "Configure.h"
 #include "io/CloudDataSources.h"
 #include "SavingVerticesWorker.h"
@@ -51,7 +51,7 @@ private:
   shared_ptr<io::CloudDataSources> cloud_data_sources_;
   shared_ptr<SavingVerticesWorker> saving_vertices_worker_;
 
-  AppGui gui_;
+  view::AppGui gui_;
 
   gl::VertBatchRef grid_batch_;
   gl::VertBatchRef circular_grid_batches_[6];

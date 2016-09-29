@@ -2,7 +2,7 @@
 // Created by Masayuki IZUMI on 7/18/16.
 //
 
-#include "AppGui.h"
+#include "view/AppGui.h"
 #include "view/menu/FileMenu.h"
 #include "view/menu/ViewMenu.h"
 #include "view/menu/WindowMenu.h"
@@ -13,6 +13,8 @@
 #include "view/window/FiltersWindow.h"
 #include "view/window/InformationWindow.h"
 #include "view/window/PlayerWindow.h"
+
+namespace view {
 
 AppGui::AppGui(
   ci::app::AppBase *app,
@@ -91,3 +93,4 @@ void AppGui::drawWindows(glm::vec2 &left_window_pos, glm::vec2 &right_window_pos
   window_device_manager_->draw(right_window_pos);
 }
 
+}

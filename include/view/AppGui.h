@@ -16,8 +16,10 @@
 #include "io/CloudDataSources.h"
 #include "io/SensorDeviceManager.hpp"
 
-#include "view/menu/Menu.h"
-#include "view/window/Window.h"
+#include "menu/Menu.h"
+#include "window/Window.h"
+
+namespace view {
 
 class AppGui {
 public:
@@ -114,4 +116,5 @@ private:
   void drawWindows(glm::vec2 &left_window_pos, glm::vec2 &right_window_pos);
 };
 
+}
 #endif //CIPOINTCLOUDVIEWERAPP_APPGUI_H
