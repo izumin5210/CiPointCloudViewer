@@ -17,6 +17,9 @@
 #include "io/CalibrationParamsManager.h"
 #include "io/SensorDeviceManager.hpp"
 
+#include "view/menu/FileMenu.h"
+#include "view/menu/ViewMenu.h"
+#include "view/menu/WindowMenu.h"
 #include "view/window/AppearanceWindow.h"
 #include "view/window/CameraWindow.h"
 #include "view/window/CloudsWindow.h"
@@ -30,7 +33,7 @@ public:
   using path = boost::filesystem::path;
 
   AppGui(
-    const ci::app::AppBase *app,
+    ci::app::AppBase *app,
     const std::shared_ptr<Clouds> &clouds,
     const std::shared_ptr<ViewParams> &view_params,
     const std::shared_ptr<Configure> &config,
@@ -110,17 +113,20 @@ private:
   std::shared_ptr<io::SensorDeviceManager> sensor_device_manager_;
   std::string device_selected_;
 
-  view::window::AppearanceWindow    appearance_window_;
-  view::window::CameraWindow        camera_window_;
-  view::window::CloudsWindow        clouds_window_;
-  view::window::DeviceManagerWindow device_manager_window_;
-  view::window::FiltersWindow       filters_window_;
-  view::window::InformationWindow   info_window_;
-  view::window::PlayerWindow        player_window_;
+  std::shared_ptr<view::window::AppearanceWindow>     appearance_window_;
+  std::shared_ptr<view::window::CameraWindow>         camera_window_;
+  std::shared_ptr<view::window::CloudsWindow>         clouds_window_;
+  std::shared_ptr<view::window::DeviceManagerWindow>  device_manager_window_;
+  std::shared_ptr<view::window::FiltersWindow>        filters_window_;
+  std::shared_ptr<view::window::InformationWindow>    info_window_;
+  std::shared_ptr<view::window::PlayerWindow>         player_window_;
+
+  std::shared_ptr<view::menu::FileMenu>   file_menu_;
+  std::shared_ptr<view::menu::ViewMenu>   view_menu_;
+  std::shared_ptr<view::menu::WindowMenu> window_menu_;
 
 
-  void drawMenuBar(ci::app::AppBase *app, glm::vec2 &left_window_pos, glm::vec2 &right_window_pos);
-  void drawToggleWindowVisibilityItem(view::window::Window &window);
+  void drawMenuBar(glm::vec2 &left_window_pos, glm::vec2 &right_window_pos);
 };
 
 #endif //CIPOINTCLOUDVIEWERAPP_APPGUI_H
