@@ -33,7 +33,7 @@ void WindowMenu::drawImpl() {
 }
 
 void WindowMenu::drawToggleWindowVisibility(std::shared_ptr<Window> &window) {
-  if (ui::MenuItem(window->name().c_str(), nullptr, window->visible())) {
+  if (ui::MenuItem(window->name().c_str(), nullptr, window->visible(), view_params_->is_windows_visible())) {
     window->toggleVisibility();
   }
 }
