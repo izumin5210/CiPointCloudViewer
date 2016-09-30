@@ -26,6 +26,7 @@ AppGui::AppGui(
   const std::shared_ptr<SavingVerticesWorker> &saving_vertices_worker
 )
   : app_(app)
+  , view_params_            (view_params)
   , window_appearance_      (new view::window::AppearanceWindow(
     "Appearance", kWindowWidth, kWindowSpacing, kWindowFlags, view_params
   ))
@@ -52,6 +53,7 @@ AppGui::AppGui(
   , menu_view_              (new view::menu::ViewMenu("View", config, view_params))
   , menu_window_            (new view::menu::WindowMenu(
     "Window",
+    view_params,
     {
       { window_camera_, window_appearance_, window_filters_, window_clouds_, window_info_ },
       { window_player_, window_device_manager_ }
@@ -68,7 +70,9 @@ void AppGui::update() {
   auto right_window_pos = glm::vec2(app_->getWindowWidth() - (kWindowWidth + kWindowSpacing), kWindowSpacing);
 
   drawMenuBar(left_window_pos, right_window_pos);
-  drawWindows(left_window_pos, right_window_pos);
+  if (view_params_->is_windows_visible()) {
+    drawWindows(left_window_pos, right_window_pos);
+  }
 }
 
 void AppGui::drawMenuBar(glm::vec2 &left_window_pos, glm::vec2 &right_window_pos) {

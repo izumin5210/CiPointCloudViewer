@@ -97,6 +97,8 @@ private:
 
   ci::app::AppBase *app_;
 
+  const std::shared_ptr<ViewParams> view_params_;
+
   std::shared_ptr<view::window::Window>
     window_appearance_,
     window_camera_,
