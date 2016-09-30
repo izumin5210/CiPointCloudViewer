@@ -11,6 +11,7 @@ ViewParams::ViewParams()
   , bg_color_           (cinder::Color8u(0x11, 0x11, 0x11))
   , point_size_         (1.0f)
   , enable_full_screen_ (false)
+  , visible_windows_    (true)
   , grid_               (ViewParams::Grid::RECTANGULAR)
 {
   initializeConnections();
@@ -22,6 +23,7 @@ void ViewParams::initializeConnections() {
   addConnection(Signal<UpdateBgColorAction>::connect(std::bind(&ViewParams::onBgColorUpdate, this, ph::_1)));
   addConnection(Signal<UpdatePointSizeAction>::connect(std::bind(&ViewParams::onPointSizeUpdate, this, ph::_1)));
   addConnection(Signal<ToggleFullScreenAction>::connect(std::bind(&ViewParams::onFullScreenToggle, this, ph::_1)));
+  addConnection(Signal<ToggleWindowsVisibilityAction>::connect(std::bind(&ViewParams::onWindowVisibilityToggle, this, ph::_1)));
   addConnection(Signal<ChangeGridAction>::connect(std::bind(&ViewParams::onGridChange, this, ph::_1)));
 }
 
@@ -44,6 +46,11 @@ void ViewParams::onPointSizeUpdate(const UpdatePointSizeAction &action) {
 
 void ViewParams::onFullScreenToggle(const ToggleFullScreenAction &action) {
   enable_full_screen_ = action.enable;
+  emit();
+}
+
+void ViewParams::onWindowVisibilityToggle(const ToggleWindowsVisibilityAction &action) {
+  visible_windows_ = action.visible;
   emit();
 }
 

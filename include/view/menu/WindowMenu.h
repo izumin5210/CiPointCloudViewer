@@ -6,7 +6,7 @@
 #define CIPOINTCLOUDVIEWERAPP_WINDOWMENU_H
 
 #include "Menu.h"
-
+#include "ViewParams.h"
 #include "view/window/Window.h"
 
 namespace view {
@@ -19,6 +19,7 @@ public:
 
   WindowMenu(
     const std::string name,
+    const std::shared_ptr<ViewParams> &view_params,
     const std::vector<WindowGroup> window_groups
   );
 
@@ -28,7 +29,7 @@ protected:
 
 
 private:
-
+  const std::shared_ptr<ViewParams> view_params_;
   const std::vector<WindowGroup> window_groups_;
 
   void drawToggleWindowVisibility(std::shared_ptr<Window> &window);

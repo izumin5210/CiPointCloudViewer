@@ -45,6 +45,7 @@ private:
   // bleu de provence
   const ci::ColorA8u kColorPrimary    = ci::ColorA8u(0x00, 0x9a, 0xc5, 0xcc);
   const ci::ColorA8u kColorPrimaryA99 = ci::ColorA8u(0x00, 0x9a, 0xc5, 0x99);
+  const ci::ColorA8u kColorPrimaryA66 = ci::ColorA8u(0x00, 0x9a, 0xc5, 0x66);
   const ci::ColorA8u kColorPrimaryA33 = ci::ColorA8u(0x00, 0x9a, 0xc5, 0x33);
   const ci::ColorA8u kColorPrimaryDark = ci::ColorA8u(0x00, 0x27, 0x33, 0xbb);
   // rosso di toscana
@@ -87,7 +88,7 @@ private:
     .color(ImGuiCol_PlotHistogram,          kColorPrimaryA99)
     .color(ImGuiCol_PlotHistogramHovered,   kColorPrimary)
     .color(ImGuiCol_Text,                   kColorPrimary)
-    .color(ImGuiCol_TextDisabled,           kColorBlackA55)
+    .color(ImGuiCol_TextDisabled,           kColorPrimaryA66)
     .color(ImGuiCol_TextSelectedBg,         kColorAccent)
     .color(ImGuiCol_PopupBg,                kColorPrimaryDark)
     .antiAliasedLines(true)
@@ -96,6 +97,8 @@ private:
     .frameRounding(0.0f);
 
   ci::app::AppBase *app_;
+
+  const std::shared_ptr<ViewParams> view_params_;
 
   std::shared_ptr<view::window::Window>
     window_appearance_,

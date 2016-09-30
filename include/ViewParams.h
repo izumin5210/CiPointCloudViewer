@@ -36,6 +36,10 @@ public:
     bool enable;
   };
 
+  struct ToggleWindowsVisibilityAction {
+    bool visible;
+  };
+
   struct ChangeGridAction {
     Grid grid;
   };
@@ -62,6 +66,10 @@ public:
     return enable_full_screen_;
   }
 
+  bool is_windows_visible() const {
+    return visible_windows_;
+  }
+
   Grid grid() const {
     return grid_;
   }
@@ -73,6 +81,7 @@ private:
   ci::Color bg_color_;
   float point_size_;
   bool enable_full_screen_;
+  bool visible_windows_;
   Grid grid_;
 
   void initializeConnections();
@@ -80,6 +89,7 @@ private:
   void onBgColorUpdate(const UpdateBgColorAction &action);
   void onPointSizeUpdate(const UpdatePointSizeAction &action);
   void onFullScreenToggle(const ToggleFullScreenAction &action);
+  void onWindowVisibilityToggle(const ToggleWindowsVisibilityAction &action);
   void onGridChange(const ChangeGridAction &action);
 };
 
