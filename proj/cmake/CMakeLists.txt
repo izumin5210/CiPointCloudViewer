@@ -53,6 +53,9 @@ set(PROJECT_SOURCES
     ${PROJECT_DIR}/src/io/CalibrationParamsManager.cpp
     ${PROJECT_DIR}/src/io/SensorDevice.cpp
     ${PROJECT_DIR}/src/io/SequentialPcdPlayer.cpp
+    ${PROJECT_DIR}/src/renderer/CloudsRenderer.cpp
+    ${PROJECT_DIR}/src/renderer/PointsRenderer.cpp
+    ${PROJECT_DIR}/src/renderer/VerticesRenderer.cpp
     ${PROJECT_DIR}/src/view/AppGui.cpp
     ${PROJECT_DIR}/src/view/menu/FileMenu.cpp
     ${PROJECT_DIR}/src/view/menu/Menu.cpp
