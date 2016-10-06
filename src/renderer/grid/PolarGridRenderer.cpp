@@ -3,9 +3,10 @@
 //
 
 #include "glm/glm.hpp"
-#include "renderer/PolarGridRenderer.h"
+#include "renderer/grid/PolarGridRenderer.h"
 
 namespace renderer {
+namespace grid {
 
 PolarGridRenderer::PolarGridRenderer() {
   set_batch(createBatch());
@@ -31,4 +32,5 @@ cinder::gl::VertBatchRef PolarGridRenderer::createBatch() {
   return batch;
 }
 
+}
 }

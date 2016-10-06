@@ -3,9 +3,10 @@
 //
 
 #include "glm/glm.hpp"
-#include "renderer/RectangularGridRenderer.h"
+#include "renderer/grid/RectangularGridRenderer.h"
 
 namespace renderer {
+namespace grid {
 
 RectangularGridRenderer::RectangularGridRenderer() {
   set_batch(createBatch());
@@ -25,4 +26,5 @@ cinder::gl::VertBatchRef RectangularGridRenderer::createBatch() {
   return batch;
 }
 
+}
 }

@@ -2,19 +2,20 @@
 // Created by Masayuki IZUMI on 10/5/16.
 //
 
-#ifndef CIPOINTCLOUDVIEWERAPP_VERTICESRENDERER_H
-#define CIPOINTCLOUDVIEWERAPP_VERTICESRENDERER_H
+#ifndef CIPOINTCLOUDVIEWERAPP_POINTSRENDERER_H
+#define CIPOINTCLOUDVIEWERAPP_POINTSRENDERER_H
 
 #include "cinder/app/AppBase.h"
 
 #include "Clouds.h"
-#include "Renderer.h"
+#include "renderer/Renderer.h"
 
 namespace renderer {
+namespace cloud {
 
-class VerticesRenderer : public Renderer {
+class PointsRenderer : public Renderer {
 public:
-  VerticesRenderer(
+  PointsRenderer(
     ci::app::AppBase *app,
     const std::shared_ptr<Clouds> &clouds
   );
@@ -32,5 +33,6 @@ private:
 };
 
 }
+}
 
-#endif //CIPOINTCLOUDVIEWERAPP_VERTICESRENDERER_H
+#endif //CIPOINTCLOUDVIEWERAPP_POINTSRENDERER_H

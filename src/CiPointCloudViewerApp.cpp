@@ -20,8 +20,8 @@
 #include "io/CloudDataSources.h"
 #include "SavingVerticesWorker.h"
 
-#include "renderer/CloudsRenderer.h"
-#include "renderer/GridRenderer.h"
+#include "renderer/cloud/CloudsRenderer.h"
+#include "renderer/grid/GridRenderer.h"
 
 #include "Clouds.h"
 #include "ViewParams.h"
@@ -55,8 +55,8 @@ private:
   shared_ptr<SavingVerticesWorker> saving_vertices_worker_;
 
   view::AppGui gui_;
-  renderer::CloudsRenderer clouds_renderer_;
-  renderer::GridRenderer grid_renderer_;
+  renderer::cloud::CloudsRenderer clouds_renderer_;
+  renderer::grid::GridRenderer grid_renderer_;
 
   CameraPersp camera_;
   CameraUi camera_ui_;

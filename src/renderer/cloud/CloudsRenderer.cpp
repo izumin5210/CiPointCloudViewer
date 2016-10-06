@@ -2,11 +2,12 @@
 // Created by Masayuki IZUMI on 10/5/16.
 //
 
-#include "renderer/CloudsRenderer.h"
-#include "renderer/PointsRenderer.h"
-#include "renderer/VerticesRenderer.h"
+#include "renderer/cloud/CloudsRenderer.h"
+#include "renderer/cloud/PointsRenderer.h"
+#include "renderer/cloud/VerticesRenderer.h"
 
 namespace renderer {
+namespace cloud {
 
 CloudsRenderer::CloudsRenderer(
   ci::app::AppBase *app,
@@ -41,4 +42,5 @@ void CloudsRenderer::onCloudsUpdate() {
   needs_to_update_ = true;
 }
 
+}
 }

@@ -5,9 +5,10 @@
 #ifndef CIPOINTCLOUDVIEWERAPP_POLARGRIDRENDERER_H
 #define CIPOINTCLOUDVIEWERAPP_POLARGRIDRENDERER_H
 
-#include "BatchRenderer.h"
+#include "renderer/BatchRenderer.h"
 
 namespace renderer {
+namespace grid {
 
 class PolarGridRenderer : public BatchRenderer {
 public:
@@ -18,6 +19,7 @@ protected:
   cinder::gl::VertBatchRef createBatch() override;
 };
 
+}
 }
 
 #endif //CIPOINTCLOUDVIEWERAPP_POLARGRIDRENDERER_H

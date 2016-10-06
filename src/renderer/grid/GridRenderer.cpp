@@ -2,11 +2,12 @@
 // Created by Masayuki IZUMI on 10/6/16.
 //
 
-#include "renderer/GridRenderer.h"
-#include "renderer/PolarGridRenderer.h"
-#include "renderer/RectangularGridRenderer.h"
+#include "renderer/grid/GridRenderer.h"
+#include "renderer/grid/PolarGridRenderer.h"
+#include "renderer/grid/RectangularGridRenderer.h"
 
 namespace renderer {
+namespace grid {
 
 GridRenderer::GridRenderer(const std::shared_ptr<ViewParams> &view_params)
   : view_params_(view_params)
@@ -27,4 +28,5 @@ void GridRenderer::render() {
   }
 }
 
+}
 }

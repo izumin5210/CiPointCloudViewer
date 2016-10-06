@@ -8,9 +8,10 @@
 #include "cinder/app/AppBase.h"
 
 #include "Clouds.h"
-#include "Renderer.h"
+#include "renderer/Renderer.h"
 
 namespace renderer {
+namespace cloud {
 
 class CloudsRenderer : public Renderer {
 public:
@@ -20,6 +21,7 @@ public:
   );
 
   void update() override;
+
   void render() override;
 
 
@@ -31,9 +33,11 @@ private:
   std::atomic<bool> needs_to_update_;
 
   void initialize();
+
   void onCloudsUpdate();
 };
 
+}
 }
 
 #endif //CIPOINTCLOUDVIEWERAPP_CLOUDRENDERER_H
