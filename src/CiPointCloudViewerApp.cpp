@@ -21,6 +21,7 @@
 #include "SavingVerticesWorker.h"
 
 #include "renderer/CloudsRenderer.h"
+#include "renderer/GridRenderer.h"
 
 #include "Clouds.h"
 #include "ViewParams.h"
@@ -55,9 +56,7 @@ private:
 
   view::AppGui gui_;
   renderer::CloudsRenderer clouds_renderer_;
-
-  gl::VertBatchRef grid_batch_;
-  gl::VertBatchRef circular_grid_batches_[6];
+  renderer::GridRenderer grid_renderer_;
 
   CameraPersp camera_;
   CameraUi camera_ui_;
@@ -74,7 +73,7 @@ CiPointCloudViewerApp::CiPointCloudViewerApp()
   , saving_vertices_worker_(new SavingVerticesWorker)
   , gui_(this, clouds_, view_params_, config_, cloud_data_sources_, sensor_device_manager_, saving_vertices_worker_)
   , clouds_renderer_(this, clouds_)
-  , grid_batch_(gl::VertBatch::create(GL_LINES))
+  , grid_renderer_(view_params_)
   , camera_ui_(&camera_)
 {}
 
@@ -89,37 +88,6 @@ void CiPointCloudViewerApp::setup() {
   gui_.initialize();
 
   sensor_device_manager_->start();
-
-  grid_batch_->color(1, 1, 1, 0.3);
-  for (float i = -5; i <= 5.0; i += 0.5) {
-    for (float j = -5; j <= 5.0; j += 0.5) {
-      grid_batch_->vertex(vec3( i, 0, -j));
-      grid_batch_->vertex(vec3( i, 0,  j));
-      grid_batch_->vertex(vec3(-i, 0,  j));
-      grid_batch_->vertex(vec3( i, 0,  j));
-    }
-  }
-  {
-    for (int i = 0; i < 5; i++) {
-      auto batch = gl::VertBatch::create(GL_LINE_LOOP);
-      batch->color(1, 1, 1, 0.3);
-      for (int j = 0; j < 360; j++) {
-        float rad = (float) (j * M_PI) / 180;
-        batch->vertex((i + 1) * cos(rad), 0, (i + 1) * sin(rad));
-      }
-      circular_grid_batches_[i] = batch;
-    }
-    auto batch = gl::VertBatch::create(GL_LINES);
-    batch->color(1, 1, 1, 0.3);
-    for (int i = 0; i < 6; i++) {
-      auto x = 5 * cos(M_PI / 6 * i);
-      auto z = 5 * sin(M_PI / 6 * i);
-      batch->vertex(vec3(x, 0, z));
-      batch->vertex(vec3(-x, 0, -z));
-    }
-    circular_grid_batches_[5] = batch;
-  }
-
 
   gl::enableFaceCulling(true);
   gl::enableVerticalSync(false);
@@ -153,6 +121,7 @@ void CiPointCloudViewerApp::mouseWheel(MouseEvent event) {
 
 void CiPointCloudViewerApp::update() {
   gui_.update();
+  grid_renderer_.update();
   clouds_renderer_.update();
 
   setFullScreen(view_params_->is_full_screen());
@@ -165,19 +134,7 @@ void CiPointCloudViewerApp::draw() {
 
   gl::pointSize(view_params_->point_size());
 
-  switch (view_params_->grid()) {
-    case ViewParams::Grid::RECTANGULAR:
-      grid_batch_->draw();
-      break;
-    case ViewParams::Grid::POLAR:
-      for (auto batch : circular_grid_batches_) {
-        batch->draw();
-      }
-      break;
-    case ViewParams::Grid::NONE:
-      break;
-  }
-
+  grid_renderer_.render();
   clouds_renderer_.render();
 }
 
