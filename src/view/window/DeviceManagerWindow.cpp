@@ -34,7 +34,8 @@ void DeviceManagerWindow::drawImpl() {
 void DeviceManagerWindow::drawControls() {
   if (ui::Button("Start All")) {
     for (auto pair : sensor_device_manager_->devices()) {
-      if (pair.second->isReady()) {
+      // TODO: Disable if CalibrationParams does not exists.
+      if (!pair.second->isRunning()) {
         pair.second->start();
       }
     }
@@ -42,7 +43,7 @@ void DeviceManagerWindow::drawControls() {
   ui::SameLine();
   if (ui::Button("Stop All")) {
     for (auto pair : sensor_device_manager_->devices()) {
-      if (pair.second->hasStarted()) {
+      if (pair.second->isRunning()) {
         pair.second->stop();
       }
     }
@@ -50,7 +51,7 @@ void DeviceManagerWindow::drawControls() {
 
   if (ui::Button("Record All")) {
     for (auto pair : sensor_device_manager_->devices()) {
-      if (!pair.second->isRecording()) {
+      if (pair.second->isRunning() && !pair.second->isRecording()) {
         pair.second->record(config_->getSaveOniFilesTo());
       }
     }
@@ -67,7 +68,7 @@ void DeviceManagerWindow::drawControls() {
   if (!device_selected_.empty()) {
     ui::Separator();
     auto device = sensor_device_manager_->devices()[device_selected_];
-    if (device->hasStarted()) {
+    if (device->isRunning()) {
       if (ui::Button("Stop")) {
         device->stop();
       }
@@ -101,7 +102,7 @@ void DeviceManagerWindow::drawDeviceTable() {
       device_selected_ = pair.first;
     }
     ui::NextColumn();
-    ui::Text("%s", pair.second->stateString().c_str());
+    ui::Text("%s", pair.second->state().c_str());
     ui::NextColumn();
     ui::Text("%f", pair.second->fps());
     ui::NextColumn();
