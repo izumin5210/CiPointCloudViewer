@@ -40,6 +40,7 @@ public:
   ~CiPointCloudViewerApp();
 
   void setup() override;
+  void resize() override;
   void mouseDown(MouseEvent event) override;
   void mouseDrag(MouseEvent event) override;
   void mouseWheel(MouseEvent event) override;
@@ -96,6 +97,10 @@ void CiPointCloudViewerApp::setup() {
   gl::enableDepthWrite();
 
   onViewParamsUpdate();
+}
+
+void CiPointCloudViewerApp::resize() {
+  camera_.setAspectRatio(getWindow()->getAspectRatio());
 }
 
 void CiPointCloudViewerApp::onViewParamsUpdate() {
