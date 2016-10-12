@@ -27,6 +27,14 @@ find_package(Qt5 COMPONENTS Core Widgets REQUIRED)
 find_package(OpenCV 3.0 REQUIRED)
 find_package(Boost COMPONENTS system filesystem program_options thread REQUIRED)
 
+set(NITE2 TRUE)
+if(NITE2)
+  set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DUSE_NITE2")
+  set (NiTE2_LIBRARIES "NiTE2")
+  include_directories (/usr/local/include/nite2)
+  link_directories(/usr/local/lib/ni2)
+endif()
+
 get_filename_component(CINDER_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../../../../cinder/Cinder" ABSOLUTE)
 get_filename_component(PROJECT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../.." ABSOLUTE)
 
@@ -87,5 +95,5 @@ ci_make_app(
     SOURCES     ${PROJECT_SOURCES}
     INCLUDES    ${PROJECT_DIR}/include ${PCL_INCLUDE_DIRS}
     CINDER_PATH ${CINDER_PATH}
-    LIBRARIES   ${Boost_LIBRARIES} ${PCL_LIBRARIES} ${OpenCV_LIBS} freenect2 yaml-cpp
+    LIBRARIES   ${Boost_LIBRARIES} ${PCL_LIBRARIES} ${OpenCV_LIBS} freenect2 ${NiTE2_LIBRARIES} yaml-cpp
 )
