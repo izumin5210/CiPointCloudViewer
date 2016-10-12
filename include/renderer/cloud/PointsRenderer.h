@@ -30,6 +30,7 @@ private:
   std::map<Cloud::Key, cinder::gl::VaoRef> vaos_;
   std::map<Cloud::Key, cinder::gl::VboRef> vbos_;
   int size_;
+  std::set<Cloud::Key> target_keys_;
 };
 
 }
