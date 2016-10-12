@@ -25,9 +25,11 @@ VerticesRenderer::VerticesRenderer(
 
 void VerticesRenderer::update() {
   size_ = 0;
+  target_keys_.clear();
   clouds_->lock();
   for (auto pair : clouds_->clouds()) {
-    if (pair.second->vertices()->empty() || !pair.second->is_visible()) { continue; }
+    if (!pair.second->needs_render()) { continue; }
+    target_keys_.insert(pair.first);
     if (vaos_.find(pair.first) == vaos_.end()) {
       vaos_[pair.first] = cinder::gl::Vao::create();
     }
@@ -50,6 +52,7 @@ void VerticesRenderer::update() {
 void VerticesRenderer::render() {
   cinder::gl::ScopedGlslProg render(render_prog_);
   for (auto pair : vaos_) {
+    if (target_keys_.count(pair.first) == 0) { continue; }
     auto calib_params = clouds_->calib_params_map()[pair.first];
     glm::mat4 calib_matrix(1.0f);
     for (long i = 0; i < calib_params.calib_matrix.cols(); i++) {

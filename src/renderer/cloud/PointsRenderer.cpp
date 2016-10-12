@@ -24,9 +24,11 @@ PointsRenderer::PointsRenderer(
 
 void PointsRenderer::update() {
   size_ = 0;
+  target_keys_.clear();
   clouds_->lock();
   for (auto pair : clouds_->clouds()) {
-    if (pair.second->point_cloud()->empty() || !pair.second->is_visible()) { continue; }
+    if (!pair.second->needs_render()) { continue; }
+    target_keys_.insert(pair.first);
     if (vaos_.find(pair.first) == vaos_.end()) {
       vaos_[pair.first] = cinder::gl::Vao::create();
     }
@@ -49,6 +51,7 @@ void PointsRenderer::update() {
 void PointsRenderer::render() {
   cinder::gl::ScopedGlslProg render(render_prog_);
   for (auto pair : vaos_) {
+    if (target_keys_.count(pair.first) == 0) { continue; }
     cinder::gl::ScopedVao vao(pair.second);
     render_prog_->uniform("xPassThroughParams.enable", clouds_->x_pass_through_filter_params().enable);
     render_prog_->uniform("xPassThroughParams.min", clouds_->x_pass_through_filter_params().min);

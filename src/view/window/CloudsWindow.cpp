@@ -32,7 +32,9 @@ void CloudsWindow::drawImpl() {
       Signal<Clouds::RemoveCloudAction>::emit({cloud_selected_});
       cloud_selected_ = std::string();
     }
+  }
 
+  if (!cloud_selected_.empty()) {
     ui::SameLine();
     bool visible = clouds_->clouds()[cloud_selected_]->is_visible();
     if (ui::Button(visible ? "Hide" : "Show")) {

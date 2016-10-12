@@ -85,6 +85,10 @@ public:
     return calibrated_ ? point_cloud_->size() : vertices_->size();
   }
 
+  inline bool needs_render() {
+    return (point_cloud()->empty() && vertices()->empty()) || is_visible();
+  }
+
 
 private:
   const Key key_;
