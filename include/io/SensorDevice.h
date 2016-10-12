@@ -51,7 +51,6 @@ public:
 
 
 private:
-  const std::shared_ptr<openni::Device> device_;
   std::string uri_;
   std::string serial_;
   std::string name_;

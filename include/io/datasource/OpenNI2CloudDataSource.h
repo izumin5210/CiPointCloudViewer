@@ -14,7 +14,10 @@ namespace datasource {
 
 class OpenNI2CloudDataSource : public CloudDataSource {
 public:
-  OpenNI2CloudDataSource(const std::string name, const std::shared_ptr<openni::Device> &device);
+  OpenNI2CloudDataSource(
+    const std::string name,
+    const std::string uri
+  );
 
 
 protected:
@@ -26,7 +29,9 @@ protected:
 
 
 private:
-  const std::shared_ptr<openni::Device> device_;
+  const std::string uri_;
+
+  openni::Device device_;
   const std::shared_ptr<openni::VideoStream> color_stream_;
   const std::shared_ptr<openni::VideoStream> depth_stream_;
   const std::shared_ptr<openni::VideoStream> ir_stream_;

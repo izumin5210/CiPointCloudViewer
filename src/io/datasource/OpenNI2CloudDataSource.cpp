@@ -9,9 +9,9 @@
 namespace io {
 namespace datasource {
 
-OpenNI2CloudDataSource::OpenNI2CloudDataSource(const std::string name, const std::shared_ptr<openni::Device> &device)
+OpenNI2CloudDataSource::OpenNI2CloudDataSource(const std::string name, const std::string uri)
   : CloudDataSource(name)
-  , device_(device)
+  , uri_(uri)
   , color_stream_(new openni::VideoStream)
   , depth_stream_(new openni::VideoStream)
   , ir_stream_(new openni::VideoStream)
@@ -19,6 +19,8 @@ OpenNI2CloudDataSource::OpenNI2CloudDataSource(const std::string name, const std
 }
 
 void OpenNI2CloudDataSource::onStart() {
+  checkStatus(device_.open(uri_.c_str()), "openni::Device::open() failed.");
+
   startColorStream();
   startDepthStream();
   startIrStream();
@@ -73,13 +75,19 @@ std::shared_ptr<openni::VideoStream> OpenNI2CloudDataSource::getDepthVideoStream
 }
 
 void OpenNI2CloudDataSource::startColorStream() {
-  if (device_->hasSensor(openni::SENSOR_COLOR)) {
-    checkStatus(color_stream_->create(*device_, openni::SENSOR_COLOR), "Color stream failed to create.");
+  if (device_.hasSensor(openni::SENSOR_COLOR)) {
+    checkStatus(color_stream_->create(device_, openni::SENSOR_COLOR), "Color stream failed to create.");
     const openni::Array<openni::VideoMode> *supported_video_modes
       = &(color_stream_->getSensorInfo().getSupportedVideoModes());
     int num_of_video_modes = supported_video_modes->getSize();
     if (num_of_video_modes == 0) {
       throw std::runtime_error("VideoMode failed.");
+    }
+    for (int i = 0; i < num_of_video_modes; i++) {
+      openni::VideoMode vm = (*supported_video_modes)[i];
+      printf("%c. %dx%d at %dfps with %d format \r\n", '0' + i,
+             vm.getResolutionX(), vm.getResolutionY(), vm.getFps(),
+             vm.getPixelFormat());
     }
     checkStatus(color_stream_->setVideoMode((* supported_video_modes)[1]), "Set video mode to color stream failed");
     checkStatus(color_stream_->start(), "Color stream failed to start.");
@@ -87,22 +95,28 @@ void OpenNI2CloudDataSource::startColorStream() {
 }
 
 void OpenNI2CloudDataSource::startDepthStream() {
-  if (device_->hasSensor(openni::SENSOR_DEPTH)) {
-    checkStatus(depth_stream_->create(*device_, openni::SENSOR_DEPTH), "Depth stream failed to create.");
+  if (device_.hasSensor(openni::SENSOR_DEPTH)) {
+    checkStatus(depth_stream_->create(device_, openni::SENSOR_DEPTH), "Depth stream failed to create.");
     const openni::Array<openni::VideoMode> *supported_video_modes
       = &(depth_stream_->getSensorInfo().getSupportedVideoModes());
     int num_of_video_modes = supported_video_modes->getSize();
     if (num_of_video_modes == 0) {
       throw std::runtime_error("VideoMode failed.");
     }
-    checkStatus(depth_stream_->setVideoMode((* supported_video_modes)[0]), "Set video mode to depth stream failed");
+    for (int i = 0; i < num_of_video_modes; i++) {
+      openni::VideoMode vm = (*supported_video_modes)[i];
+      printf("%c. %dx%d at %dfps with %d format \r\n", '0' + i,
+             vm.getResolutionX(), vm.getResolutionY(), vm.getFps(),
+             vm.getPixelFormat());
+    }
+    checkStatus(depth_stream_->setVideoMode((* supported_video_modes)[1]), "Set video mode to depth stream failed");
     checkStatus(depth_stream_->start(), "Depth stream failed to start.");
   }
 }
 
 void OpenNI2CloudDataSource::startIrStream() {
-  if (device_->hasSensor(openni::SENSOR_IR)) {
-    checkStatus(ir_stream_->create(*device_, openni::SENSOR_IR), "IR stream failed to create.");
+  if (device_.hasSensor(openni::SENSOR_IR)) {
+    checkStatus(ir_stream_->create(device_, openni::SENSOR_IR), "IR stream failed to create.");
     const openni::Array<openni::VideoMode> *supported_video_modes
       = &(ir_stream_->getSensorInfo().getSupportedVideoModes());
     int num_of_video_modes = supported_video_modes->getSize();
@@ -114,7 +128,7 @@ void OpenNI2CloudDataSource::startIrStream() {
 }
 
 void OpenNI2CloudDataSource::enableMirroring() {
-  if (!device_->isFile()) {
+  if (!device_.isFile()) {
     if (color_stream_->isValid()) {
       checkStatus(color_stream_->setMirroringEnabled(true), "Color sensor mirroring failed.");
     }
@@ -129,10 +143,10 @@ void OpenNI2CloudDataSource::enableMirroring() {
 
 void OpenNI2CloudDataSource::enableDepthToColorRegistration() {
   if (color_stream_->isValid() && depth_stream_->isValid()) {
-    // checkStatus(device_->setDepthColorSyncEnabled(true), "Depth-Color sync failed.");
-    device_->setDepthColorSyncEnabled(true);
+    // checkStatus(device_.setDepthColorSyncEnabled(true), "Depth-Color sync failed.");
+    device_.setDepthColorSyncEnabled(true);
 
-    checkStatus(device_->setImageRegistrationMode(
+    checkStatus(device_.setImageRegistrationMode(
       openni::IMAGE_REGISTRATION_DEPTH_TO_COLOR), "Color to depth registration failed.");
   }
 }

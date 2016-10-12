@@ -12,25 +12,25 @@
 namespace io {
 
 SensorDevice::SensorDevice()
-  : device_(new openni::Device)
 {}
 
 SensorDevice::~SensorDevice() {
   stop();
-  device_->close();
 }
 
 void SensorDevice::initialize(const char *uri) {
   uri_ = uri;
 
-  auto status = device_->open(uri);
+  openni::Device device;
+
+  auto status = device.open(uri);
   if (status != openni::STATUS_OK) {
     throw std::runtime_error("openni::Device::open() failed.");
   }
 
-  if (!device_->isFile()) {
+  if (!device.isFile()) {
     char serial[64];
-    status = device_->getProperty(ONI_DEVICE_PROPERTY_SERIAL_NUMBER, &serial);
+    status = device.getProperty(ONI_DEVICE_PROPERTY_SERIAL_NUMBER, &serial);
     if (status != openni::STATUS_OK) {
       throw std::runtime_error("Device has not serial number.");
     }
@@ -38,7 +38,9 @@ void SensorDevice::initialize(const char *uri) {
     name_ = serial_;
   }
 
-  cloud_data_source_ = std::make_unique<datasource::OpenNI2CloudDataSource>(name_, device_);
+  device.close();
+
+  cloud_data_source_ = std::make_unique<datasource::OpenNI2CloudDataSource>(name_, uri_);
 }
 
 void SensorDevice::start() {
