@@ -5,32 +5,22 @@
 #ifndef CIPOINTCLOUDVIEWERAPP_POINTSRENDERER_H
 #define CIPOINTCLOUDVIEWERAPP_POINTSRENDERER_H
 
-#include "cinder/app/AppBase.h"
-
-#include "Clouds.h"
-#include "renderer/Renderer.h"
+#include "CloudRenderer.h"
 
 namespace renderer {
 namespace cloud {
 
-class PointsRenderer : public Renderer {
+class PointsRenderer : public CloudRenderer {
 public:
   PointsRenderer(
     ci::app::AppBase *app,
     const std::shared_ptr<Clouds> &clouds
   );
 
-  void update() override;
-  void render() override;
 
-
-private:
-  const std::shared_ptr<Clouds> clouds_;
-  const cinder::gl::GlslProgRef render_prog_;
-  std::map<Cloud::Key, cinder::gl::VaoRef> vaos_;
-  std::map<Cloud::Key, cinder::gl::VboRef> vbos_;
-  int size_;
-  std::set<Cloud::Key> target_keys_;
+protected:
+  void updateVaoAndVbo(const Cloud::Key &key, const std::shared_ptr<Cloud> &cloud) override;
+  void updateRenderProg(const Cloud::Key &key) override;
 };
 
 }
