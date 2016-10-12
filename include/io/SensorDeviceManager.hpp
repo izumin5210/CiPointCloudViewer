@@ -10,7 +10,11 @@
 #define SensorDeviceManager_hpp
 
 #include <OpenNI.h>
-#include "opencv2/opencv.hpp"
+#include <opencv2/opencv.hpp>
+
+#ifdef USE_NITE2
+#include <NiTE.h>
+#endif
 
 #include "io/SensorDevice.h"
 #include "io/CalibrationParamsManager.h"
@@ -22,10 +26,18 @@ class SensorDeviceManager {
 public:
     SensorDeviceManager() {
         openni::OpenNI::initialize();
+#ifdef USE_NITE2
+        if (nite::NiTE::initialize() != nite::STATUS_OK) {
+            throw std::runtime_error("Failed to initialize NiTE2.");
+        }
+#endif
     }
 
     ~SensorDeviceManager() {
         stop();
+#ifdef USE_NITE2
+        nite::NiTE::shutdown();
+#endif
         openni::OpenNI::shutdown();
     }
 

@@ -41,6 +41,11 @@ private:
   cv::Mat depth_image_;
   cv::Mat ir_image_;
 
+#ifdef USE_NITE2
+  nite::UserTracker user_tracker_;
+  const nite::UserId *user_ids_;
+#endif
+
   void startColorStream();
   void startDepthStream();
   void startIrStream();
@@ -50,6 +55,9 @@ private:
   void updateRawDepthImage(const openni::VideoFrameRef &depth_frame);
   void updateDepthImage(const openni::VideoFrameRef &depth_frame);
   void updateIrImage(const openni::VideoFrameRef &ir_frame);
+#ifdef USE_NITE2
+  void updateUserImage(const nite::UserTrackerFrameRef &user_frame);
+#endif
   void updatePointCloud(std::chrono::system_clock::time_point timestamp);
 };
 

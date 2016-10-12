@@ -26,9 +26,18 @@ void OpenNI2CloudDataSource::onStart() {
   startIrStream();
   enableMirroring();
   enableDepthToColorRegistration();
+
+#ifdef USE_NITE2
+  checkStatus(user_tracker_.create(&device_), "Failed to create user tracker.");
+#endif
 }
 
 void OpenNI2CloudDataSource::onStop() {
+#ifdef USE_NITE2
+  if (user_tracker_.isValid()) {
+    user_tracker_.destroy();
+  }
+#endif
   if (color_stream_->isValid()) {
     color_stream_->stop();
     color_stream_->destroy();
@@ -47,20 +56,41 @@ void OpenNI2CloudDataSource::update() {
   openni::VideoFrameRef color_frame;
   openni::VideoFrameRef depth_frame;
   openni::VideoFrameRef ir_frame;
+#ifdef USE_NITE2
+  nite::UserTrackerFrameRef user_frame;
+#endif
 
   if (color_stream_->isValid()) {
     checkStatus(color_stream_->readFrame(&color_frame), "Failed to read color frame.");
+  }
+#ifdef USE_NITE2
+  if (user_tracker_.isValid()) {
+    checkStatus(user_tracker_.readFrame(&user_frame), "Failed to read user frame.");
+    depth_frame = user_frame.getDepthFrame();
+  } else
+#endif
+  if (depth_stream_->isValid()) {
+    checkStatus(depth_stream_->readFrame(&depth_frame), "Failed to read depth frame.");
+  }
+//  if (ir_stream_->isValid()) {
+//    checkStatus(ir_stream_->readFrame(&ir_frame), "Failed to read ir frame.");
+//  }
+
+  if (color_stream_->isValid()) {
     updateColorImage(color_frame);
   }
   if (depth_stream_->isValid()) {
-    checkStatus(depth_stream_->readFrame(&depth_frame), "Failed to read depth frame.");
     updateRawDepthImage(depth_frame);
-//        updateDepthImage(depth_frame);
+//    updateDepthImage(depth_frame);
   }
-//      if (ir_stream_->isValid()) {
-//        checkStatus(ir_stream_->readFrame(&ir_frame), "Failed to read ir frame.");
-//        updateIrImage(ir_frame);
-//      }
+#ifdef USE_NITE2
+  if (user_tracker_.isValid()) {
+    user_ids_ = user_frame.getUserMap().getPixels();
+  }
+#endif
+//  if (ir_stream_->isValid()) {
+//    updateIrImage(ir_frame);
+//  }
 
   auto now = std::chrono::system_clock::now();
   updatePointCloud(now);
@@ -158,9 +188,13 @@ void OpenNI2CloudDataSource::updateColorImage(const openni::VideoFrameRef &color
 }
 
 void OpenNI2CloudDataSource::updateRawDepthImage(const openni::VideoFrameRef &depth_frame) {
-  raw_depth_image_ = cv::Mat(depth_frame.getHeight(), depth_frame.getWidth(),
-                             CV_16UC1,
-                             (unsigned short *) depth_frame.getData());
+  cv::Mat image;
+  cv::Mat(depth_frame.getHeight(), depth_frame.getWidth(),
+          CV_16UC1,
+          (unsigned short *) depth_frame.getData()
+  ).copyTo(image);
+  cv::Rect roi(0, 0, 512, 424);
+  raw_depth_image_ = image(roi);
 }
 
 void OpenNI2CloudDataSource::updateDepthImage(const openni::VideoFrameRef &depth_frame) {
@@ -168,7 +202,6 @@ void OpenNI2CloudDataSource::updateDepthImage(const openni::VideoFrameRef &depth
   cv::Mat(depth_frame.getHeight(), depth_frame.getWidth(), CV_16UC1,
           (unsigned short *) depth_frame.getData()).copyTo(depth_image);
   depth_image.convertTo(depth_image, CV_8U, 255.0 / 10000);
-  // FIXME: hardcoding?
   cv::Rect roi(0, 0, 512, 424);
   depth_image_ = depth_image(roi);
 }
@@ -186,25 +219,28 @@ void OpenNI2CloudDataSource::updatePointCloud(std::chrono::system_clock::time_po
   int width   = raw_depth_image_.size().width;
   int height  = raw_depth_image_.size().height;
 
-  unsigned char* color = (unsigned char*) color_image_.data;
-  unsigned short* depth = (unsigned short*) raw_depth_image_.data;
-
   VerticesPtr vertices(new Vertices);
+  vertices->reserve((size_t) (width * height));
 
-  for (int i = 0; i < width * height; i++) {
-    if (depth[i] != 0 && (color[i*3] != 0 || color[i*3+1] != 0 || color[i*3+2] != 0)) {
-      vertices->emplace_back((Vertex){
-        {
-          static_cast<float>(i % width),
-          static_cast<float>(i / width),
-          static_cast<float>(depth[i])
-        },
-        {
-          static_cast<uint8_t>(color[i * 3 + 2]),
-          static_cast<uint8_t>(color[i * 3 + 1]),
-          static_cast<uint8_t>(color[i * 3])
-        }
-      });
+  for (int y = 0; y < height; y++) {
+    unsigned short *depth = (unsigned short *) raw_depth_image_.ptr(y);
+    unsigned char *color = (unsigned char *) color_image_.ptr(y);
+
+    for (int x = 0; x < width; x++) {
+      if (depth[x] != 0 && (color[x*3] != 0 || color[x*3+1] != 0 || color[x*3+2] != 0)) {
+        vertices->emplace_back((Vertex) {
+          {
+            static_cast<float>(x),
+            static_cast<float>(y),
+            static_cast<float>(depth[x])
+          },
+          {
+            static_cast<uint8_t>(color[x * 3 + 2]),
+            static_cast<uint8_t>(color[x * 3 + 1]),
+            static_cast<uint8_t>(color[x * 3 + 0])
+          }
+        });
+      }
     }
   }
 
