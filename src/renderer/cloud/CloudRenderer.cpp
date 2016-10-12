@@ -38,6 +38,7 @@ void CloudRenderer::update() {
     }
     updateVaoAndVbo(pair.first, pair.second);
   }
+  clearUnusedVaos();
   clouds_->unlock();
 }
 
@@ -58,6 +59,18 @@ void CloudRenderer::render() {
     cinder::gl::ScopedVao svao(pair.second.first);
     cinder::gl::context()->setDefaultShaderVars();
     cinder::gl::drawArrays(GL_POINTS, 0, size_);
+  }
+}
+
+void CloudRenderer::clearUnusedVaos() {
+  std::vector<Cloud::Key> deleted_keys;
+  for (auto pair : vaos_) {
+    if (clouds_->clouds().count(pair.first) == 0) {
+      deleted_keys.emplace_back(pair.first);
+    }
+  }
+  for (auto key : deleted_keys) {
+    vaos_.erase(key);
   }
 }
 

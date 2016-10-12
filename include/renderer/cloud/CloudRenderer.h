@@ -57,6 +57,8 @@ private:
   std::map<Cloud::Key, std::pair<cinder::gl::VaoRef, cinder::gl::VboRef>> vaos_;
   int size_;
   std::set<Cloud::Key> target_keys_;
+
+  void clearUnusedVaos();
 };
 
 }
