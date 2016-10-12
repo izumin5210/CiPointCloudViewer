@@ -46,8 +46,8 @@ protected:
     return render_prog_;
   }
 
-  void add_size(size_t size) {
-    size_ += size;
+  void set_size(const Cloud::Key &key, const size_t &size) {
+    size_map_[key] = size;
   }
 
 
@@ -55,7 +55,7 @@ private:
   const std::shared_ptr<Clouds> clouds_;
   const cinder::gl::GlslProgRef render_prog_;
   std::map<Cloud::Key, std::pair<cinder::gl::VaoRef, cinder::gl::VboRef>> vaos_;
-  int size_;
+  std::map<Cloud::Key, int> size_map_;
   std::set<Cloud::Key> target_keys_;
 
   void clearUnusedVaos();

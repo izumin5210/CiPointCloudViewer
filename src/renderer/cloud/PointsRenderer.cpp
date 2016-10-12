@@ -16,7 +16,7 @@ PointsRenderer::PointsRenderer(
 
 void PointsRenderer::updateVaoAndVbo(const Cloud::Key &key, const std::shared_ptr<Cloud> &cloud) {
   auto points = cloud->point_cloud()->points;
-  add_size(points.size());
+  set_size(key, points.size());
   vbo(key)->copyData(points.size() * sizeof(Cloud::PointT), points.data());
   cinder::gl::ScopedVao svao(vao(key));
   cinder::gl::ScopedBuffer svbo(vbo(key));

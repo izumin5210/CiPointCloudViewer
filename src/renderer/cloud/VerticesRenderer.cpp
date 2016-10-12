@@ -17,7 +17,7 @@ VerticesRenderer::VerticesRenderer(
 
 void VerticesRenderer::updateVaoAndVbo(const Cloud::Key &key, const std::shared_ptr<Cloud> &cloud) {
   auto vertices = cloud->vertices();
-  add_size(vertices->size());
+  set_size(key, vertices->size());
   vbo(key)->copyData(vertices->size() * sizeof(Vertex), vertices->data());
   cinder::gl::ScopedVao svao(vao(key));
   cinder::gl::ScopedBuffer svbo(vbo(key));
