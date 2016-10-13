@@ -42,16 +42,15 @@ private:
   const int kWindowSpacing = 8;
   const int kWindowWidth = 320;
 
-  // bleu de provence
-  const ci::ColorA8u kColorPrimary    = ci::ColorA8u(0x00, 0x9a, 0xc5, 0xcc);
-  const ci::ColorA8u kColorPrimaryA99 = ci::ColorA8u(0x00, 0x9a, 0xc5, 0x99);
-  const ci::ColorA8u kColorPrimaryA66 = ci::ColorA8u(0x00, 0x9a, 0xc5, 0x66);
-  const ci::ColorA8u kColorPrimaryA33 = ci::ColorA8u(0x00, 0x9a, 0xc5, 0x33);
-  const ci::ColorA8u kColorPrimaryDark = ci::ColorA8u(0x00, 0x27, 0x33, 0xbb);
-  // rosso di toscana
-  const ci::ColorA8u kColorAccent     = ci::ColorA8u(0xf1, 0x67, 0x3f, 0xee);
-  const ci::ColorA8u kColorAccentAcc  = ci::ColorA8u(0xf1, 0x67, 0x3f, 0xcc);
-  const ci::ColorA8u kColorAccentA99  = ci::ColorA8u(0xf1, 0x67, 0x3f, 0x99);
+  const ci::ColorA8u kColorPrimary    = ci::ColorA8u(0x1c, 0xfe, 0xff, 0xcc);
+  const ci::ColorA8u kColorPrimaryA99 = ci::ColorA8u(0x1c, 0xfe, 0xff, 0x99);
+  const ci::ColorA8u kColorPrimaryA66 = ci::ColorA8u(0x1c, 0xfe, 0xff, 0x66);
+  const ci::ColorA8u kColorPrimaryA33 = ci::ColorA8u(0x1c, 0xfe, 0xff, 0x33);
+  const ci::ColorA8u kColorPrimaryDark = ci::ColorA8u(0x03, 0x19, 0x1a, 0xbb);
+
+  const ci::ColorA8u kColorAccent     = ci::ColorA8u(0xff, 0xa1, 0x00, 0xee);
+  const ci::ColorA8u kColorAccentAcc  = ci::ColorA8u(0xff, 0xa1, 0x00, 0xcc);
+  const ci::ColorA8u kColorAccentA99  = ci::ColorA8u(0xff, 0xa1, 0x00, 0x99);
 
   const ci::ColorA8u kColorWhite      = ci::ColorA8u(0xdd, 0xdd, 0xdd, 0xcc);
   const ci::ColorA8u kColorBlackA55   = ci::ColorA8u(0x11, 0x11, 0x11, 0x55);
