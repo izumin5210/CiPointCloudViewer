@@ -2,9 +2,11 @@
 
 layout(location = 0) in vec3 position;
 layout(location = 1) in vec3 color;
+layout(location = 2) in int user_id;
 
 out vec4 calibedPosition;
 out vec4 vColor;
+flat out int userId;
 
 uniform mat4 ciModelViewProjection;
 uniform mat4 calibMatrix;
@@ -14,6 +16,7 @@ uniform float cx;
 uniform float cy;
 
 void main() {
+    userId = user_id;
     float zw = position[2] / 1000.0;
     float xw = (position[0] - cx) / fx * zw;
     float yw = (position[1] - cy) / fy * zw;

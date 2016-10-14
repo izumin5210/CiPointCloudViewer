@@ -25,6 +25,9 @@ void FiltersWindow::drawImpl() {
   addFilter("Pass-through Z", std::bind(&FiltersWindow::addPassThroughFilterZ, this));
   addFilter("Voxel filter", std::bind(&FiltersWindow::addVoxelFilter, this));
   addFilter("Statistical outlier removal", std::bind(&FiltersWindow::addSorFilter, this));
+#ifdef USE_NITE2
+  addFilter("Display only humans", std::bind(&FiltersWindow::addUsersThroughFilter, this));
+#endif
 }
 
 void FiltersWindow::addPassThroughFilterX() {
@@ -69,6 +72,19 @@ void FiltersWindow::addSorFilter() {
     Signal<Clouds::UpdateStatisticalOutlierRemovalFilterParamsAction>::emit({params});
   }
 }
+
+#ifdef USE_NITE2
+void FiltersWindow::addUsersThroughFilter() {
+  auto enable = clouds_->enable_users_through_filter();
+  bool updated = false;
+  updated = updated || addFilterParam("Enable", [&]() {
+    return ui::Checkbox("##value", &enable);
+  });
+  if (updated) {
+    Signal<Clouds::UpdateUsersThroughFitlerParamsAction>::emit({enable});
+  }
+}
+#endif
 
 void FiltersWindow::addFilter(const char *label, std::function<void()> definition) {
   if (ui::TreeNode(label)) {

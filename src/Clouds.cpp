@@ -11,6 +11,9 @@ Clouds::Clouds()
   : x_pass_through_filter_("x")
   , y_pass_through_filter_("y")
   , z_pass_through_filter_("z")
+#ifdef USE_NITE2
+  , enable_users_through_filter_(false)
+#endif
 {
   initializeConnections();
 }
@@ -29,6 +32,10 @@ void Clouds::initializeConnections() {
     std::bind(&Clouds::onVoxelFilterParamsUpdate, this, ph::_1)));
   addConnection(Signal<UpdateStatisticalOutlierRemovalFilterParamsAction>::connect(
     std::bind(&Clouds::onStatisticalOutlierRemovalFilterParamsUpdate, this, ph::_1)));
+#ifdef USE_NITE2
+  addConnection(Signal<UpdateUsersThroughFitlerParamsAction>::connect(
+    std::bind(&Clouds::onUsersThroughFitlerParamsUpdate, this, ph::_1)));
+#endif
   addConnection(Signal<OpenPcdFileAction>::connect(std::bind(&Clouds::onPcdFileOpen, this, ph::_1)));
 }
 
@@ -140,6 +147,12 @@ void Clouds::onStatisticalOutlierRemovalFilterParamsUpdate(
   sor_filter_.setParams(action.params);
   updatePointCloud();
 }
+
+#ifdef USE_NITE2
+void Clouds::onUsersThroughFitlerParamsUpdate(const UpdateUsersThroughFitlerParamsAction &action) {
+  enable_users_through_filter_ = action.enable;
+}
+#endif
 
 void Clouds::onPcdFileOpen(const OpenPcdFileAction &action) {
   Cloud::PointCloudPtr cloud(new Cloud::PointCloud);

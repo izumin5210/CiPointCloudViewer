@@ -51,6 +51,9 @@ void CloudRenderer::render() {
   render_prog_->uniform("zPassThroughParams.enable", clouds_->z_pass_through_filter_params().enable);
   render_prog_->uniform("zPassThroughParams.min", clouds_->z_pass_through_filter_params().min);
   render_prog_->uniform("zPassThroughParams.max", clouds_->z_pass_through_filter_params().max);
+#ifdef USE_NITE2
+  render_prog_->uniform("enableUsersThrough", clouds_->enable_users_through_filter());
+#endif
   for (auto pair : vaos_) {
     auto size = size_map_[pair.first];
     if (target_keys_.count(pair.first) == 0 || size == 0) { continue; }

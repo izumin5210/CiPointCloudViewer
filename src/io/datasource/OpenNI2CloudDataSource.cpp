@@ -239,6 +239,9 @@ void OpenNI2CloudDataSource::updatePointCloud(std::chrono::system_clock::time_po
             static_cast<uint8_t>(color[x * 3 + 1]),
             static_cast<uint8_t>(color[x * 3 + 0])
           }
+#ifdef USE_NITE2
+        , user_ids_[y * 640 + x]
+#endif
         });
       }
     }

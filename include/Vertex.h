@@ -8,6 +8,7 @@
 struct Vertex {
   float xyz[3];
   uint8_t rgb[3];
+  int user_id;
 };
 
 using Vertices    = std::vector<Vertex>;

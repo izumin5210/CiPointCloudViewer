@@ -23,8 +23,10 @@ void VerticesRenderer::updateVaoAndVbo(const Cloud::Key &key, const std::shared_
   cinder::gl::ScopedBuffer svbo(vbo(key));
   cinder::gl::enableVertexAttribArray(0);
   cinder::gl::enableVertexAttribArray(1);
+  cinder::gl::enableVertexAttribArray(2);
   cinder::gl::vertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (const GLvoid*)offsetof(Vertex, xyz));
   cinder::gl::vertexAttribPointer(1, 3, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(Vertex), (const GLvoid*)offsetof(Vertex, rgb));
+  cinder::gl::vertexAttribPointer(2, 1, GL_INT, GL_FALSE, sizeof(Vertex), (const GLvoid*)offsetof(Vertex, user_id));
 }
 
 void VerticesRenderer::updateRenderProg(const Cloud::Key &key) {
