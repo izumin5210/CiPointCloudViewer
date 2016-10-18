@@ -50,6 +50,9 @@ void OpenNI2CloudDataSource::onStop() {
     ir_stream_->stop();
     ir_stream_->destroy();
   }
+  if (device_.isValid()) {
+    device_.close();
+  }
 }
 
 void OpenNI2CloudDataSource::update() {
