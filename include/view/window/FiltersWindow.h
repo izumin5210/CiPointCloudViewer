@@ -35,6 +35,9 @@ private:
   void addPassThroughFilterZ();
   void addVoxelFilter();
   void addSorFilter();
+#ifdef USE_NITE2
+  void addUsersThroughFilter();
+#endif
   void addFilter(const char *label, std::function<void()> definition);
   bool addFilterParam(const char *label, std::function<bool()> updater);
   void addPassThroughFilter(const std::string &name, PassThroughFilterParams params);

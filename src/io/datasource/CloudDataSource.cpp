@@ -78,7 +78,17 @@ void CloudDataSource::stopRecording() {
 }
 
 void CloudDataSource::checkStatus(openni::Status status, std::string msg) {
-  if (status != openni::STATUS_OK) {
+  checkStatus(status == openni::STATUS_OK, msg);
+}
+
+#ifdef USE_NITE2
+void CloudDataSource::checkStatus(nite::Status status, std::string msg) {
+  checkStatus(status == nite::STATUS_OK, msg);
+}
+#endif
+
+void CloudDataSource::checkStatus(bool status_ok, std::string msg) {
+  if (!status_ok) {
     throw std::runtime_error(msg);
   }
 }

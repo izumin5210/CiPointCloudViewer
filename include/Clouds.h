@@ -68,6 +68,10 @@ public:
     filter::StatisticalOutlierRemovalFilter<PointT>::Params params;
   };
 
+  struct UpdateUsersThroughFitlerParamsAction {
+    bool enable;
+  };
+
   struct OpenPcdFileAction {
     std::string path;
   };
@@ -110,6 +114,12 @@ public:
     return sor_filter_.params();
   }
 
+#ifdef USE_NITE2
+  bool enable_users_through_filter() const {
+    return enable_users_through_filter_;
+  }
+#endif
+
   size_t size() const {
     size_t size = 0;
     for (auto pair : clouds_) {
@@ -128,6 +138,9 @@ private:
   filter::PassThroughFilter<PointT> z_pass_through_filter_;
   filter::VoxelFilter<PointT> voxel_filter_;
   filter::StatisticalOutlierRemovalFilter<PointT> sor_filter_;
+#ifdef USE_NITE2
+  bool enable_users_through_filter_;
+#endif
 
   std::map<Key, glm::vec2> loading_progresses_;
 
@@ -145,6 +158,9 @@ private:
   void onPassThroughFilterParamsUpdate(const UpdatePassThroughFilterParamsAction &action);
   void onVoxelFilterParamsUpdate(const UpdateVoxelFilterParamsAction &action);
   void onStatisticalOutlierRemovalFilterParamsUpdate(const UpdateStatisticalOutlierRemovalFilterParamsAction &action);
+#ifdef USE_NITE2
+  void onUsersThroughFitlerParamsUpdate(const UpdateUsersThroughFitlerParamsAction &action);
+#endif
   void onPcdFileOpen(const OpenPcdFileAction &action);
 };
 

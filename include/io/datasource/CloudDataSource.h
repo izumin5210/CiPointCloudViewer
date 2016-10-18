@@ -7,6 +7,9 @@
 
 #include <map>
 #include <OpenNI.h>
+#ifdef USE_NITE2
+#include <NiTE.h>
+#endif
 
 #include "FpsCounter.h"
 
@@ -59,6 +62,10 @@ protected:
   virtual std::shared_ptr<openni::VideoStream> getDepthVideoStream() = 0;
 
   void checkStatus(openni::Status status, std::string msg);
+#ifdef USE_NITE2
+  void checkStatus(nite::Status status, std::string msg);
+#endif
+  void checkStatus(bool status_ok, std::string msg);
 
   std::string name() const {
     return name_;
