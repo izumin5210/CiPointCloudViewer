@@ -13,11 +13,10 @@
 #include "glm/glm.hpp"
 
 #include "Cloud.h"
+#include "FilterParams.h"
 #include "Store.h"
 
 #include "io/CalibrationParamsManager.h"
-
-#include "filter/PassThroughFilter.hpp"
 
 class Clouds : public Store {
 public:
@@ -55,7 +54,7 @@ public:
 
   struct UpdatePassThroughFilterParamsAction {
     std::string field;
-    filter::PassThroughFilter<PointT>::Params params;
+    PassThroughFilterParams params;
   };
 
   struct UpdateUsersThroughFitlerParamsAction {
@@ -84,24 +83,16 @@ public:
     return calib_params_map_;
   };
 
-  filter::PassThroughFilter<PointT>::Params x_pass_through_filter_params() const {
-    return x_pass_through_filter_.params();
+  PassThroughFilterParams x_pass_through_filter_params() const {
+    return x_pass_through_filter_params_;
   }
 
-  filter::PassThroughFilter<PointT>::Params y_pass_through_filter_params() const {
-    return y_pass_through_filter_.params();
+  PassThroughFilterParams y_pass_through_filter_params() const {
+    return y_pass_through_filter_params_;
   }
 
-  filter::PassThroughFilter<PointT>::Params z_pass_through_filter_params() const {
-    return z_pass_through_filter_.params();
-  }
-
-  filter::VoxelFilter<PointT>::Params voxel_filter_params() const {
-    return voxel_filter_.params();
-  }
-
-  filter::StatisticalOutlierRemovalFilter<PointT>::Params sor_filter_params() const {
-    return sor_filter_.params();
+  PassThroughFilterParams z_pass_through_filter_params() const {
+    return z_pass_through_filter_params_;
   }
 
 #ifdef USE_NITE2
@@ -123,9 +114,9 @@ private:
   std::map<Key, CloudPtr> clouds_;
   std::map<Key, io::CalibrationParams> calib_params_map_;
 
-  filter::PassThroughFilter<PointT> x_pass_through_filter_;
-  filter::PassThroughFilter<PointT> y_pass_through_filter_;
-  filter::PassThroughFilter<PointT> z_pass_through_filter_;
+  PassThroughFilterParams x_pass_through_filter_params_;
+  PassThroughFilterParams y_pass_through_filter_params_;
+  PassThroughFilterParams z_pass_through_filter_params_;
 #ifdef USE_NITE2
   bool enable_users_through_filter_;
 #endif

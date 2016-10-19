@@ -27,7 +27,6 @@ protected:
 
 
 private:
-  using PassThroughFilterParams = filter::PassThroughFilter<Clouds::PointT>::Params;
   const std::shared_ptr<Clouds> clouds_;
 
   void addPassThroughFilterX();

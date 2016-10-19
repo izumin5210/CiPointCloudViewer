@@ -8,11 +8,8 @@
 #include "Signal.h"
 
 Clouds::Clouds()
-  : x_pass_through_filter_("x")
-  , y_pass_through_filter_("y")
-  , z_pass_through_filter_("z")
 #ifdef USE_NITE2
-  , enable_users_through_filter_(false)
+  : enable_users_through_filter_(false)
 #endif
 {
   initializeConnections();
@@ -78,11 +75,11 @@ void Clouds::onCloudsClear(const ClearCloudsAction &action) {
 
 void Clouds::onPassThroughFilterParamsUpdate(const UpdatePassThroughFilterParamsAction &action) {
   if (action.field == "x") {
-    x_pass_through_filter_.setParams(action.params);
+    x_pass_through_filter_params_ = action.params;
   } else if (action.field == "y") {
-    y_pass_through_filter_.setParams(action.params);
+    y_pass_through_filter_params_ = action.params;
   } else if (action.field == "z") {
-    z_pass_through_filter_.setParams(action.params);
+    z_pass_through_filter_params_ = action.params;
   }
   emit();
 }
