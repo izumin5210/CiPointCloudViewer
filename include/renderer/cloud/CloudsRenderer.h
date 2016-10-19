@@ -21,7 +21,6 @@ public:
   );
 
   void update() override;
-
   void render() override;
 
 
@@ -29,12 +28,6 @@ private:
   const std::unique_ptr<Renderer> points_renderer_;
   const std::unique_ptr<Renderer> vertices_renderer_;
   const std::shared_ptr<Clouds> clouds_;
-
-  std::atomic<bool> needs_to_update_;
-
-  void initialize();
-
-  void onCloudsUpdate();
 };
 
 }

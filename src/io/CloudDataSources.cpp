@@ -12,9 +12,9 @@ CloudDataSources::CloudDataSources() {
 }
 
 void CloudDataSources::initializeConnections() {
-  addConnection(Signal<OpenPcdFilesDirectoryAction>::connect(
+  Signal<OpenPcdFilesDirectoryAction>::connect(
     std::bind(&CloudDataSources::onPcdFilesDirectoryOpen, this, std::placeholders::_1)
-  ));
+  );
 }
 
 void CloudDataSources::onPcdFilesDirectoryOpen(const OpenPcdFilesDirectoryAction &action) {

@@ -14,11 +14,10 @@
 
 #include "Cloud.h"
 #include "FilterParams.h"
-#include "Store.h"
 
 #include "io/CalibrationParamsManager.h"
 
-class Clouds : public Store {
+class Clouds {
 public:
   using Key           = Cloud::Key;
   using PointT        = Cloud::PointT;

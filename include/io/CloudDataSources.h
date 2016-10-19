@@ -7,12 +7,11 @@
 
 #include <map>
 
-#include "Store.h"
 #include "SequentialPcdPlayer.h"
 
 namespace io {
 
-class CloudDataSources : public Store {
+class CloudDataSources {
 public:
   using Key = std::string;
 
