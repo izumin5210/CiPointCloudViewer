@@ -23,8 +23,6 @@ void FiltersWindow::drawImpl() {
   addFilter("Pass-through X", std::bind(&FiltersWindow::addPassThroughFilterX, this));
   addFilter("Pass-through Y", std::bind(&FiltersWindow::addPassThroughFilterY, this));
   addFilter("Pass-through Z", std::bind(&FiltersWindow::addPassThroughFilterZ, this));
-  addFilter("Voxel filter", std::bind(&FiltersWindow::addVoxelFilter, this));
-  addFilter("Statistical outlier removal", std::bind(&FiltersWindow::addSorFilter, this));
 #ifdef USE_NITE2
   addFilter("Display only humans", std::bind(&FiltersWindow::addUsersThroughFilter, this));
 #endif
@@ -40,37 +38,6 @@ void FiltersWindow::addPassThroughFilterY() {
 
 void FiltersWindow::addPassThroughFilterZ() {
   addPassThroughFilter("z", clouds_->z_pass_through_filter_params());
-}
-
-void FiltersWindow::addVoxelFilter() {
-  auto params = clouds_->voxel_filter_params();
-  bool updated = false;
-  updated = updated || addFilterParam("Enable", [&]() {
-    return ui::Checkbox("##value", &params.enable);
-  });
-  updated = updated || addFilterParam("Voxel size", [&]() {
-    return ui::DragFloat("##value", &params.size, 0.001f, 0.0f);
-  });
-  if (updated) {
-    Signal<Clouds::UpdateVoxelFilterParamsAction>::emit({params});
-  }
-}
-
-void FiltersWindow::addSorFilter() {
-  auto params = clouds_->sor_filter_params();
-  bool updated = false;
-  updated = updated || addFilterParam("Enable", [&]() {
-    return ui::Checkbox("##value", &params.enable);
-  });
-  updated = updated || addFilterParam("MeanK", [&]() {
-    return ui::InputInt("##value", &params.mean_k, 1);
-  });
-  updated = updated || addFilterParam("StddevMulThresh", [&]() {
-    return ui::InputFloat("##value", &params.stddev_mul_threshold, 0.1f);
-  });
-  if (updated) {
-    Signal<Clouds::UpdateStatisticalOutlierRemovalFilterParamsAction>::emit({params});
-  }
 }
 
 #ifdef USE_NITE2

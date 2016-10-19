@@ -33,8 +33,6 @@ private:
   void addPassThroughFilterX();
   void addPassThroughFilterY();
   void addPassThroughFilterZ();
-  void addVoxelFilter();
-  void addSorFilter();
 #ifdef USE_NITE2
   void addUsersThroughFilter();
 #endif
