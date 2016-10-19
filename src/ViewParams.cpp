@@ -19,42 +19,36 @@ ViewParams::ViewParams()
 
 void ViewParams::initializeConnections() {
   namespace ph = std::placeholders;
-  addConnection(Signal<UpdateCameraParamsAction>::connect(std::bind(&ViewParams::onCameraParamsUpdate, this, ph::_1)));
-  addConnection(Signal<UpdateBgColorAction>::connect(std::bind(&ViewParams::onBgColorUpdate, this, ph::_1)));
-  addConnection(Signal<UpdatePointSizeAction>::connect(std::bind(&ViewParams::onPointSizeUpdate, this, ph::_1)));
-  addConnection(Signal<ToggleFullScreenAction>::connect(std::bind(&ViewParams::onFullScreenToggle, this, ph::_1)));
-  addConnection(Signal<ToggleWindowsVisibilityAction>::connect(std::bind(&ViewParams::onWindowVisibilityToggle, this, ph::_1)));
-  addConnection(Signal<ChangeGridAction>::connect(std::bind(&ViewParams::onGridChange, this, ph::_1)));
+  Signal<UpdateCameraParamsAction>::connect(std::bind(&ViewParams::onCameraParamsUpdate, this, ph::_1));
+  Signal<UpdateBgColorAction>::connect(std::bind(&ViewParams::onBgColorUpdate, this, ph::_1));
+  Signal<UpdatePointSizeAction>::connect(std::bind(&ViewParams::onPointSizeUpdate, this, ph::_1));
+  Signal<ToggleFullScreenAction>::connect(std::bind(&ViewParams::onFullScreenToggle, this, ph::_1));
+  Signal<ToggleWindowsVisibilityAction>::connect(std::bind(&ViewParams::onWindowVisibilityToggle, this, ph::_1));
+  Signal<ChangeGridAction>::connect(std::bind(&ViewParams::onGridChange, this, ph::_1));
 }
 
 
 void ViewParams::onCameraParamsUpdate(const UpdateCameraParamsAction &action) {
   eye_point_ = action.eye_point;
   look_at_ = action.look_at;
-  emit();
 }
 
 void ViewParams::onBgColorUpdate(const UpdateBgColorAction &action) {
   bg_color_ = action.bg_color;
-  emit();
 }
 
 void ViewParams::onPointSizeUpdate(const UpdatePointSizeAction &action) {
   point_size_ = action.size;
-  emit();
 }
 
 void ViewParams::onFullScreenToggle(const ToggleFullScreenAction &action) {
   enable_full_screen_ = action.enable;
-  emit();
 }
 
 void ViewParams::onWindowVisibilityToggle(const ToggleWindowsVisibilityAction &action) {
   visible_windows_ = action.visible;
-  emit();
 }
 
 void ViewParams::onGridChange(const ChangeGridAction &action) {
   grid_ = action.grid;
-  emit();
 }

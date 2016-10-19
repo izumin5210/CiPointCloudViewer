@@ -16,30 +16,17 @@ CloudsRenderer::CloudsRenderer(
   : points_renderer_(new PointsRenderer(app, clouds))
   , vertices_renderer_(new VerticesRenderer(app, clouds))
   , clouds_(clouds)
-  , needs_to_update_(true)
 {
-  initialize();
 }
 
 void CloudsRenderer::update() {
-  if (needs_to_update_) {
-    points_renderer_->update();
-    vertices_renderer_->update();
-    needs_to_update_ = false;
-  }
+  points_renderer_->update();
+  vertices_renderer_->update();
 }
 
 void CloudsRenderer::render() {
   points_renderer_->render();
   vertices_renderer_->render();
-}
-
-void CloudsRenderer::initialize() {
-  clouds_->connect(std::bind(&CloudsRenderer::onCloudsUpdate, this));
-}
-
-void CloudsRenderer::onCloudsUpdate() {
-  needs_to_update_ = true;
 }
 
 }

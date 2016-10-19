@@ -61,8 +61,6 @@ private:
 
   CameraPersp camera_;
   CameraUi camera_ui_;
-
-  void onViewParamsUpdate();
 };
 
 CiPointCloudViewerApp::CiPointCloudViewerApp()
@@ -83,8 +81,6 @@ CiPointCloudViewerApp::~CiPointCloudViewerApp() {
 }
 
 void CiPointCloudViewerApp::setup() {
-  view_params_->connect(std::bind(&CiPointCloudViewerApp::onViewParamsUpdate, this));
-
   config_->initialize();
   gui_.initialize();
 
@@ -95,19 +91,11 @@ void CiPointCloudViewerApp::setup() {
   disableFrameRate();
   gl::enableDepthRead();
   gl::enableDepthWrite();
-
-  onViewParamsUpdate();
 }
 
 void CiPointCloudViewerApp::resize() {
   camera_.setAspectRatio(getWindow()->getAspectRatio());
 }
-
-void CiPointCloudViewerApp::onViewParamsUpdate() {
-  camera_.setEyePoint(view_params_->eye_point());
-  camera_.lookAt(view_params_->eye_point(), view_params_->look_at());
-}
-
 
 void CiPointCloudViewerApp::mouseDown(MouseEvent event) {
   camera_ui_.mouseDown(event);
@@ -135,6 +123,8 @@ void CiPointCloudViewerApp::update() {
 void CiPointCloudViewerApp::draw() {
   gl::clear(view_params_->bg_color());
 
+  camera_.setEyePoint(view_params_->eye_point());
+  camera_.lookAt(view_params_->eye_point(), view_params_->look_at());
   gl::setMatrices(camera_);
 
   gl::pointSize(view_params_->point_size());

@@ -9,9 +9,7 @@
 
 #include "glm/glm.hpp"
 
-#include "Store.h"
-
-class ViewParams : public Store {
+class ViewParams {
 public:
   enum struct Grid {
     NONE        = 0,
