@@ -6,6 +6,7 @@
 #define CIPOINTCLOUDVIEWERAPP_VIEWPARAMS_H
 
 #include "cinder/Color.h"
+#include "cinder/Camera.h"
 
 #include "glm/glm.hpp"
 
@@ -44,12 +45,16 @@ public:
 
   ViewParams();
 
+  cinder::CameraPersp& camera() {
+    return camera_;
+  }
+
   glm::vec3 look_at() const {
-    return look_at_;
+    return camera_.getPivotPoint();
   }
 
   glm::vec3 eye_point() const {
-    return eye_point_;
+    return camera_.getEyePoint();
   }
 
   cinder::Color bg_color() const {
@@ -74,8 +79,7 @@ public:
 
 
 private:
-  glm::vec3 look_at_;
-  glm::vec3 eye_point_;
+  cinder::CameraPersp camera_;
   ci::Color bg_color_;
   float point_size_;
   bool enable_full_screen_;

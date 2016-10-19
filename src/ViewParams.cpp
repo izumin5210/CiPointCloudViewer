@@ -6,9 +6,7 @@
 #include "Signal.h"
 
 ViewParams::ViewParams()
-  : look_at_            (0, 0.5, 0)
-  , eye_point_          (4.0, 2.0, -4.0)
-  , bg_color_           (cinder::Color8u(0x11, 0x11, 0x11))
+  : bg_color_           (cinder::Color8u(0x11, 0x11, 0x11))
   , point_size_         (1.0f)
   , enable_full_screen_ (false)
   , visible_windows_    (true)
@@ -25,12 +23,12 @@ void ViewParams::initializeConnections() {
   Signal<ToggleFullScreenAction>::connect(std::bind(&ViewParams::onFullScreenToggle, this, ph::_1));
   Signal<ToggleWindowsVisibilityAction>::connect(std::bind(&ViewParams::onWindowVisibilityToggle, this, ph::_1));
   Signal<ChangeGridAction>::connect(std::bind(&ViewParams::onGridChange, this, ph::_1));
+  camera_.lookAt(glm::vec3(4.0, 2.0, -4.0), glm::vec3(0, 0.5, 0));
 }
 
 
 void ViewParams::onCameraParamsUpdate(const UpdateCameraParamsAction &action) {
-  eye_point_ = action.eye_point;
-  look_at_ = action.look_at;
+  camera_.lookAt(action.eye_point, action.look_at);
 }
 
 void ViewParams::onBgColorUpdate(const UpdateBgColorAction &action) {

@@ -40,10 +40,6 @@ public:
   ~CiPointCloudViewerApp();
 
   void setup() override;
-  void resize() override;
-  void mouseDown(MouseEvent event) override;
-  void mouseDrag(MouseEvent event) override;
-  void mouseWheel(MouseEvent event) override;
   void update() override;
   void draw() override;
 
@@ -59,7 +55,6 @@ private:
   renderer::cloud::CloudsRenderer clouds_renderer_;
   renderer::grid::GridRenderer grid_renderer_;
 
-  CameraPersp camera_;
   CameraUi camera_ui_;
 };
 
@@ -73,11 +68,12 @@ CiPointCloudViewerApp::CiPointCloudViewerApp()
   , gui_(this, clouds_, view_params_, config_, cloud_data_sources_, sensor_device_manager_, saving_vertices_worker_)
   , clouds_renderer_(this, clouds_)
   , grid_renderer_(view_params_)
-  , camera_ui_(&camera_)
+  , camera_ui_(&(view_params_->camera()))
 {}
 
 CiPointCloudViewerApp::~CiPointCloudViewerApp() {
   sensor_device_manager_->stop();
+  camera_ui_.disconnect();
 }
 
 void CiPointCloudViewerApp::setup() {
@@ -85,31 +81,13 @@ void CiPointCloudViewerApp::setup() {
   gui_.initialize();
 
   sensor_device_manager_->start();
+  camera_ui_.connect(getWindow());
 
   gl::enableFaceCulling(true);
   gl::enableVerticalSync(false);
   disableFrameRate();
   gl::enableDepthRead();
   gl::enableDepthWrite();
-}
-
-void CiPointCloudViewerApp::resize() {
-  camera_.setAspectRatio(getWindow()->getAspectRatio());
-}
-
-void CiPointCloudViewerApp::mouseDown(MouseEvent event) {
-  camera_ui_.mouseDown(event);
-  Signal<ViewParams::UpdateCameraParamsAction>::emit({camera_.getEyePoint(), camera_.getPivotPoint()});
-}
-
-void CiPointCloudViewerApp::mouseDrag(MouseEvent event) {
-  camera_ui_.mouseDrag(event);
-  Signal<ViewParams::UpdateCameraParamsAction>::emit({camera_.getEyePoint(), camera_.getPivotPoint()});
-}
-
-void CiPointCloudViewerApp::mouseWheel(MouseEvent event) {
-  camera_ui_.mouseWheel(event);
-  Signal<ViewParams::UpdateCameraParamsAction>::emit({camera_.getEyePoint(), camera_.getPivotPoint()});
 }
 
 void CiPointCloudViewerApp::update() {
@@ -122,11 +100,7 @@ void CiPointCloudViewerApp::update() {
 
 void CiPointCloudViewerApp::draw() {
   gl::clear(view_params_->bg_color());
-
-  camera_.setEyePoint(view_params_->eye_point());
-  camera_.lookAt(view_params_->eye_point(), view_params_->look_at());
-  gl::setMatrices(camera_);
-
+  gl::setMatrices(view_params_->camera());
   gl::pointSize(view_params_->point_size());
 
   grid_renderer_.render();
