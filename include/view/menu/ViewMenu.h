@@ -29,6 +29,7 @@ private:
   const std::shared_ptr<Configure> config_;
   const std::shared_ptr<ViewParams> view_params_;
 
+  void drawBackground();
   void drawGridMenu();
   void drawToggleFullScreen();
 };

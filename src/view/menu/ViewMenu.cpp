@@ -19,9 +19,27 @@ ViewMenu::ViewMenu(
 {}
 
 void ViewMenu::drawImpl() {
+  drawBackground();
   drawGridMenu();
   ui::Separator();
   drawToggleFullScreen();
+}
+
+void ViewMenu::drawBackground() {
+  if (ui::BeginMenu("Background color")) {
+    std::map<std::string, cinder::Color> map = {
+      { "#111111", cinder::Color8u(0x11, 0x11, 0x11) },
+      { "#333333", cinder::Color8u(0x33, 0x33, 0x33) },
+      { "#666666", cinder::Color8u(0x66, 0x66, 0x66) },
+      { "#999999", cinder::Color8u(0x99, 0x99, 0x99) }
+    };
+    for (auto pair : map) {
+      if (ui::MenuItem(pair.first.c_str())) {
+        Signal<ViewParams::UpdateBgColorAction>::emit({pair.second});
+      }
+    }
+    ui::EndMenu();
+  }
 }
 
 void ViewMenu::drawGridMenu() {
