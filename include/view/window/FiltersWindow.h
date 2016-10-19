@@ -27,14 +27,11 @@ protected:
 
 
 private:
-  using PassThroughFilterParams = filter::PassThroughFilter<Clouds::PointT>::Params;
   const std::shared_ptr<Clouds> clouds_;
 
   void addPassThroughFilterX();
   void addPassThroughFilterY();
   void addPassThroughFilterZ();
-  void addVoxelFilter();
-  void addSorFilter();
 #ifdef USE_NITE2
   void addUsersThroughFilter();
 #endif

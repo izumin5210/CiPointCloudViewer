@@ -13,13 +13,10 @@
 #include "glm/glm.hpp"
 
 #include "Cloud.h"
+#include "FilterParams.h"
 #include "Store.h"
 
 #include "io/CalibrationParamsManager.h"
-
-#include "filter/PassThroughFilter.hpp"
-#include "filter/VoxelFilter.hpp"
-#include "filter/StatisticalOutlierRemovalFilter.hpp"
 
 class Clouds : public Store {
 public:
@@ -57,15 +54,7 @@ public:
 
   struct UpdatePassThroughFilterParamsAction {
     std::string field;
-    filter::PassThroughFilter<PointT>::Params params;
-  };
-
-  struct UpdateVoxelFilterParamsAction {
-    filter::VoxelFilter<PointT>::Params params;
-  };
-
-  struct UpdateStatisticalOutlierRemovalFilterParamsAction {
-    filter::StatisticalOutlierRemovalFilter<PointT>::Params params;
+    PassThroughFilterParams params;
   };
 
   struct UpdateUsersThroughFitlerParamsAction {
@@ -94,24 +83,16 @@ public:
     return calib_params_map_;
   };
 
-  filter::PassThroughFilter<PointT>::Params x_pass_through_filter_params() const {
-    return x_pass_through_filter_.params();
+  PassThroughFilterParams x_pass_through_filter_params() const {
+    return x_pass_through_filter_params_;
   }
 
-  filter::PassThroughFilter<PointT>::Params y_pass_through_filter_params() const {
-    return y_pass_through_filter_.params();
+  PassThroughFilterParams y_pass_through_filter_params() const {
+    return y_pass_through_filter_params_;
   }
 
-  filter::PassThroughFilter<PointT>::Params z_pass_through_filter_params() const {
-    return z_pass_through_filter_.params();
-  }
-
-  filter::VoxelFilter<PointT>::Params voxel_filter_params() const {
-    return voxel_filter_.params();
-  }
-
-  filter::StatisticalOutlierRemovalFilter<PointT>::Params sor_filter_params() const {
-    return sor_filter_.params();
+  PassThroughFilterParams z_pass_through_filter_params() const {
+    return z_pass_through_filter_params_;
   }
 
 #ifdef USE_NITE2
@@ -133,11 +114,9 @@ private:
   std::map<Key, CloudPtr> clouds_;
   std::map<Key, io::CalibrationParams> calib_params_map_;
 
-  filter::PassThroughFilter<PointT> x_pass_through_filter_;
-  filter::PassThroughFilter<PointT> y_pass_through_filter_;
-  filter::PassThroughFilter<PointT> z_pass_through_filter_;
-  filter::VoxelFilter<PointT> voxel_filter_;
-  filter::StatisticalOutlierRemovalFilter<PointT> sor_filter_;
+  PassThroughFilterParams x_pass_through_filter_params_;
+  PassThroughFilterParams y_pass_through_filter_params_;
+  PassThroughFilterParams z_pass_through_filter_params_;
 #ifdef USE_NITE2
   bool enable_users_through_filter_;
 #endif
@@ -147,7 +126,6 @@ private:
   std::mutex cloud_mutex_;
 
   void initializeConnections();
-  void updatePointCloud();
 
   void onPointsUpdate(const UpdatePointsAction &action);
   void onVerticesUpdate(const UpdateVerticesAction &action);
@@ -156,8 +134,6 @@ private:
   void onCloudRemove(const RemoveCloudAction &action);
   void onCloudsClear(const ClearCloudsAction &action);
   void onPassThroughFilterParamsUpdate(const UpdatePassThroughFilterParamsAction &action);
-  void onVoxelFilterParamsUpdate(const UpdateVoxelFilterParamsAction &action);
-  void onStatisticalOutlierRemovalFilterParamsUpdate(const UpdateStatisticalOutlierRemovalFilterParamsAction &action);
 #ifdef USE_NITE2
   void onUsersThroughFitlerParamsUpdate(const UpdateUsersThroughFitlerParamsAction &action);
 #endif

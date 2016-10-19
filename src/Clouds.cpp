@@ -8,11 +8,8 @@
 #include "Signal.h"
 
 Clouds::Clouds()
-  : x_pass_through_filter_("x")
-  , y_pass_through_filter_("y")
-  , z_pass_through_filter_("z")
 #ifdef USE_NITE2
-  , enable_users_through_filter_(false)
+  : enable_users_through_filter_(false)
 #endif
 {
   initializeConnections();
@@ -28,10 +25,6 @@ void Clouds::initializeConnections() {
   addConnection(Signal<ClearCloudsAction>::connect(std::bind(&Clouds::onCloudsClear, this, ph::_1)));
   addConnection(Signal<UpdatePassThroughFilterParamsAction>::connect(
     std::bind(&Clouds::onPassThroughFilterParamsUpdate, this, ph::_1)));
-  addConnection(Signal<UpdateVoxelFilterParamsAction>::connect(
-    std::bind(&Clouds::onVoxelFilterParamsUpdate, this, ph::_1)));
-  addConnection(Signal<UpdateStatisticalOutlierRemovalFilterParamsAction>::connect(
-    std::bind(&Clouds::onStatisticalOutlierRemovalFilterParamsUpdate, this, ph::_1)));
 #ifdef USE_NITE2
   addConnection(Signal<UpdateUsersThroughFitlerParamsAction>::connect(
     std::bind(&Clouds::onUsersThroughFitlerParamsUpdate, this, ph::_1)));
@@ -39,52 +32,6 @@ void Clouds::initializeConnections() {
   addConnection(Signal<OpenPcdFileAction>::connect(std::bind(&Clouds::onPcdFileOpen, this, ph::_1)));
 }
 
-void Clouds::updatePointCloud() {
-  std::lock_guard<std::mutex> lg(cloud_mutex_);
-//  points_.clear();
-//
-//  for (auto pair : clouds_) {
-//    if (hidden_clouds_.find(pair.first) == hidden_clouds_.end()) {
-//      std::copy(pair.second.begin(), pair.second.end(), std::back_inserter(points_));
-//    }
-//  }
-//
-//  cloud_size_ = points_.size();
-//  filtered_cloud_size_ = points_.size();
-
-//  cloud_->clear();
-
-//  for (auto pair : clouds_) {
-//    if (hidden_clouds_.find(pair.first) == hidden_clouds_.end()) {
-//      *cloud_ += *(pair.second);
-//    }
-//  }
-//
-//  cloud_size_ = cloud_->size();
-//
-//  if (x_pass_through_filter_params().enable) {
-//    x_pass_through_filter_.filter(cloud_);
-//  }
-//
-//  if (y_pass_through_filter_params().enable) {
-//    y_pass_through_filter_.filter(cloud_);
-//  }
-//
-//  if (z_pass_through_filter_params().enable) {
-//    z_pass_through_filter_.filter(cloud_);
-//  }
-//
-//  if (voxel_filter_params().enable) {
-//    voxel_filter_.filter(cloud_);
-//  }
-//
-//  if (sor_filter_params().enable) {
-//    sor_filter_.filter(cloud_);
-//  }
-
-//  filtered_cloud_size_ = cloud_->size();
-  emit();
-}
 
 void Clouds::onPointsUpdate(const UpdatePointsAction &action) {
   std::lock_guard<std::mutex> lg(cloud_mutex_);
@@ -108,49 +55,39 @@ void Clouds::onVerticesUpdate(const UpdateVerticesAction &action) {
 
 void Clouds::onCalibrationParamsUpdate(const UpdateCalibrationParamsAction &action) {
   calib_params_map_[action.key] = action.params;
-  updatePointCloud();
+  emit();
 }
 
 void Clouds::onCloudVisibilityChange(const ChangeCloudVisibilityAction &action) {
   clouds_[action.key]->set_visible(action.visible);
-  updatePointCloud();
+  emit();
 }
 
 void Clouds::onCloudRemove(const RemoveCloudAction &action) {
   clouds_.erase(action.key);
-  updatePointCloud();
+  emit();
 }
 
 void Clouds::onCloudsClear(const ClearCloudsAction &action) {
   clouds_.clear();
-  updatePointCloud();
+  emit();
 }
 
 void Clouds::onPassThroughFilterParamsUpdate(const UpdatePassThroughFilterParamsAction &action) {
   if (action.field == "x") {
-    x_pass_through_filter_.setParams(action.params);
+    x_pass_through_filter_params_ = action.params;
   } else if (action.field == "y") {
-    y_pass_through_filter_.setParams(action.params);
+    y_pass_through_filter_params_ = action.params;
   } else if (action.field == "z") {
-    z_pass_through_filter_.setParams(action.params);
+    z_pass_through_filter_params_ = action.params;
   }
-  updatePointCloud();
-}
-
-void Clouds::onVoxelFilterParamsUpdate(const UpdateVoxelFilterParamsAction &action) {
-  voxel_filter_.setParams(action.params);
-  updatePointCloud();
-}
-
-void Clouds::onStatisticalOutlierRemovalFilterParamsUpdate(
-  const UpdateStatisticalOutlierRemovalFilterParamsAction &action) {
-  sor_filter_.setParams(action.params);
-  updatePointCloud();
+  emit();
 }
 
 #ifdef USE_NITE2
 void Clouds::onUsersThroughFitlerParamsUpdate(const UpdateUsersThroughFitlerParamsAction &action) {
   enable_users_through_filter_ = action.enable;
+  emit();
 }
 #endif
 
