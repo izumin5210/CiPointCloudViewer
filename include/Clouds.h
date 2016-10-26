@@ -26,12 +26,14 @@ public:
   struct UpdatePointsAction {
     Key key;
     PointCloudPtr point_cloud;
+    bool calibrated;
   };
 
   struct UpdateVerticesAction {
     Key key;
     VerticesPtr vertices;
     std::chrono::system_clock::time_point timestamp;
+    bool calibrated;
   };
 
   struct UpdateCalibrationParamsAction {

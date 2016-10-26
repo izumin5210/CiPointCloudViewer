@@ -82,7 +82,8 @@ void SequentialPcdPlayer::start(const uint64_t started_at) {
       }
       if ((itr->first - started_at) <= elapsedTime()) {
         cloud_ = clouds_[itr->first];
-        Signal<Clouds::UpdatePointsAction>::emit({path_.string(), cloud_});
+        // FIXME: Really calibrated?
+        Signal<Clouds::UpdatePointsAction>::emit({path_.string(), cloud_, true});
         itr++;
       }
       if (itr == files_.end()) {

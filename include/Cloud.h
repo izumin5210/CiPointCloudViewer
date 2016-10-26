@@ -14,7 +14,7 @@ class Cloud {
 public:
   using PointT        = pcl::PointXYZRGBA;
   using PointCloud    = pcl::PointCloud<PointT>;
-  using PointCloudPtr = PointCloud::Ptr;
+  using PointCloudPtr = PointCloud::ConstPtr;
   using Key = std::string;
 
   Cloud(
@@ -28,6 +28,7 @@ public:
     , vertices_   (new Vertices)
     , calibrated_ (calibrated)
     , visible_    (visible)
+    , empty_      (point_cloud_->empty())
   {
   }
 
@@ -42,6 +43,7 @@ public:
     , vertices_   (vertices)
     , calibrated_ (calibrated)
     , visible_    (visible)
+    , empty_      (vertices_->empty())
   {
   }
 
@@ -53,16 +55,20 @@ public:
     return point_cloud_;
   }
 
-  inline void set_point_cloud(const PointCloudPtr &point_cloud) {
+  inline void set_point_cloud(const PointCloudPtr &point_cloud, bool calibrated = false) {
     point_cloud_ = point_cloud;
+    calibrated_ = calibrated;
+    empty_ = vertices_->empty() && point_cloud_->empty();
   }
 
   inline VerticesPtr vertices() const {
     return vertices_;
   }
 
-  inline void set_vertices(const VerticesPtr &vertices) {
+  inline void set_vertices(const VerticesPtr &vertices, bool calibrated = false) {
     vertices_ = vertices;
+    calibrated_ = calibrated;
+    empty_ = vertices_->empty() && point_cloud_->empty();
   }
 
   inline bool is_calibrated() const {
@@ -82,11 +88,15 @@ public:
   }
 
   inline size_t size() {
-    return calibrated_ ? point_cloud_->size() : vertices_->size();
+    return point_cloud_->size() + vertices_->size();
+  }
+
+  inline bool empty() {
+    return empty_;
   }
 
   inline bool needs_render() {
-    return (point_cloud()->empty() && vertices()->empty()) || is_visible();
+    return !empty() && is_visible();
   }
 
 
@@ -98,6 +108,7 @@ private:
 
   bool calibrated_;
   bool visible_;
+  bool empty_;
 };
 
 using CloudPtr = std::shared_ptr<Cloud>;
