@@ -72,7 +72,6 @@ CiPointCloudViewerApp::CiPointCloudViewerApp()
 {}
 
 CiPointCloudViewerApp::~CiPointCloudViewerApp() {
-  sensor_device_manager_->stop();
   camera_ui_.disconnect();
 }
 
@@ -80,7 +79,6 @@ void CiPointCloudViewerApp::setup() {
   config_->initialize();
   gui_.initialize();
 
-  sensor_device_manager_->start();
   camera_ui_.connect(getWindow());
 
   gl::enableFaceCulling(true);

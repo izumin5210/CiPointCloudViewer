@@ -31,10 +31,15 @@ public:
             throw std::runtime_error("Failed to initialize NiTE2.");
         }
 #endif
+        stopped_ = false;
+        refresh();
     }
 
     ~SensorDeviceManager() {
-        stop();
+        stopped_ = true;
+        if (device_check_worker_.joinable()) {
+            device_check_worker_.join();
+        }
 #ifdef USE_NITE2
         nite::NiTE::shutdown();
 #endif
@@ -43,21 +48,6 @@ public:
 
     inline std::map<std::string, std::shared_ptr<SensorDevice>> devices() {
         return devices_;
-    }
-
-    inline void start() {
-        stopped_ = false;
-        refresh();
-    }
-
-    inline void stop() {
-        stopped_ = true;
-        if (device_check_worker_.joinable()) {
-            device_check_worker_.join();
-        }
-        for (auto pair : devices_) {
-            pair.second->stop();
-        }
     }
 
     inline void refresh() {

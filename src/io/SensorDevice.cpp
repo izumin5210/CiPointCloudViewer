@@ -14,8 +14,9 @@ namespace io {
 SensorDevice::SensorDevice()
 {}
 
-SensorDevice::~SensorDevice() {
-  stop();
+SensorDevice::~SensorDevice()
+{
+  cloud_data_source_.release();
 }
 
 void SensorDevice::initialize(const char *uri) {
