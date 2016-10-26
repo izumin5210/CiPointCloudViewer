@@ -64,6 +64,7 @@ set(PROJECT_SOURCES
     ${PROJECT_DIR}/src/renderer/BatchRenderer.cpp
     ${PROJECT_DIR}/src/io/datasource/CloudDataSource.cpp
     ${PROJECT_DIR}/src/io/datasource/OpenNI2CloudDataSource.cpp
+    ${PROJECT_DIR}/src/io/datasource/OpenNI2GrabberCloudDataSource.cpp
     ${PROJECT_DIR}/src/renderer/cloud/CloudsRenderer.cpp
     ${PROJECT_DIR}/src/renderer/cloud/CloudRenderer.cpp
     ${PROJECT_DIR}/src/renderer/cloud/PointsRenderer.cpp

@@ -7,7 +7,8 @@
 //
 
 #include "io/SensorDevice.h"
-#include "io/datasource/OpenNI2CloudDataSource.h"
+//#include "io/datasource/OpenNI2CloudDataSource.h"
+#include "io/datasource/OpenNI2GrabberCloudDataSource.h"
 
 namespace io {
 
@@ -41,7 +42,8 @@ void SensorDevice::initialize(const char *uri) {
 
   device.close();
 
-  cloud_data_source_ = std::make_unique<datasource::OpenNI2CloudDataSource>(name_, uri_);
+//  cloud_data_source_ = std::make_unique<datasource::OpenNI2CloudDataSource>(name_, uri_);
+  cloud_data_source_ = std::make_unique<datasource::OpenNI2GrabberCloudDataSource>(name_, uri_);
 }
 
 void SensorDevice::start() {
