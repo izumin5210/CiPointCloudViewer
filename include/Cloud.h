@@ -23,13 +23,12 @@ public:
     bool calibrated = true,
     bool visible = true
   )
-    : key_          (key)
-    , point_cloud_  (point_cloud)
-    , vertices_     (new Vertices)
-    , calibrated_   (calibrated)
-    , visible_      (visible)
-    , empty_        (point_cloud_->empty())
-    , needs_render_ (true)
+    : key_        (key)
+    , point_cloud_(point_cloud)
+    , vertices_   (new Vertices)
+    , calibrated_ (calibrated)
+    , visible_    (visible)
+    , empty_      (point_cloud_->empty())
   {
   }
 
@@ -39,13 +38,12 @@ public:
     bool calibrated = false,
     bool visible = true
   )
-    : key_          (key)
-    , point_cloud_  (new PointCloud)
-    , vertices_     (vertices)
-    , calibrated_   (calibrated)
-    , visible_      (visible)
-    , empty_        (vertices_->empty())
-    , needs_render_ (true)
+    : key_        (key)
+    , point_cloud_(new PointCloud)
+    , vertices_   (vertices)
+    , calibrated_ (calibrated)
+    , visible_    (visible)
+    , empty_      (vertices_->empty())
   {
   }
 
@@ -57,8 +55,9 @@ public:
     return point_cloud_;
   }
 
-  inline void set_point_cloud(const PointCloudPtr &point_cloud) {
+  inline void set_point_cloud(const PointCloudPtr &point_cloud, bool calibrated = false) {
     point_cloud_ = point_cloud;
+    calibrated_ = calibrated;
     empty_ = vertices_->empty() && point_cloud_->empty();
   }
 
@@ -66,8 +65,9 @@ public:
     return vertices_;
   }
 
-  inline void set_vertices(const VerticesPtr &vertices) {
+  inline void set_vertices(const VerticesPtr &vertices, bool calibrated = false) {
     vertices_ = vertices;
+    calibrated_ = calibrated;
     empty_ = vertices_->empty() && point_cloud_->empty();
   }
 
@@ -88,7 +88,7 @@ public:
   }
 
   inline size_t size() {
-    return calibrated_ ? point_cloud_->size() : vertices_->size();
+    return point_cloud_->size() + vertices_->size();
   }
 
   inline bool empty() {
@@ -109,7 +109,6 @@ private:
   bool calibrated_;
   bool visible_;
   bool empty_;
-  bool needs_render_;
 };
 
 using CloudPtr = std::shared_ptr<Cloud>;

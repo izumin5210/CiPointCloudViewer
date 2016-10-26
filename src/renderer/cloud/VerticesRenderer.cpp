@@ -30,6 +30,7 @@ void VerticesRenderer::updateVaoAndVbo(const Cloud::Key &key, const std::shared_
 }
 
 void VerticesRenderer::updateRenderProg(const Cloud::Key &key) {
+  if (clouds()->clouds()[key]->is_calibrated()) { return; }
   auto calib_params = clouds()->calib_params_map()[key];
   glm::mat4 calib_matrix(1.0f);
   for (long i = 0; i < calib_params.calib_matrix.cols(); i++) {

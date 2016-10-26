@@ -250,7 +250,7 @@ void OpenNI2CloudDataSource::updatePointCloud(std::chrono::system_clock::time_po
     }
   }
 
-  Signal<Clouds::UpdateVerticesAction>::emit({name(), vertices, timestamp});
+  Signal<Clouds::UpdateVerticesAction>::emit({name(), vertices, timestamp, false});
 }
 
 }

@@ -68,7 +68,7 @@ std::string OpenNI2GrabberCloudDataSource::getDeviceIdForGrabber() {
 
 void OpenNI2GrabberCloudDataSource::onPointCloudReceived(const pcl::PointCloud<pcl::PointXYZRGBA>::ConstPtr &cloud) {
   std::lock_guard<std::mutex> lk(mutex_);
-  Signal<Clouds::UpdatePointsAction>::emit({name(), cloud});
+  Signal<Clouds::UpdatePointsAction>::emit({name(), cloud, false});
   updated_ = true;
   cond_updated_.notify_one();
 }

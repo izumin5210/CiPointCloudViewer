@@ -38,7 +38,7 @@ void Clouds::onPointsUpdate(const UpdatePointsAction &action) {
   if (clouds_.find(action.key) != clouds_.end()) {
     clouds_[action.key]->set_point_cloud(action.point_cloud);
   } else {
-    clouds_[action.key] = std::make_shared<Cloud>(action.key, action.point_cloud);
+    clouds_[action.key] = std::make_shared<Cloud>(action.key, action.point_cloud, action.calibrated);
   }
 }
 
@@ -47,7 +47,7 @@ void Clouds::onVerticesUpdate(const UpdateVerticesAction &action) {
   if (clouds_.find(action.key) != clouds_.end()) {
     clouds_[action.key]->set_vertices(action.vertices);
   } else {
-    clouds_[action.key] = std::make_shared<Cloud>(action.key, action.vertices);
+    clouds_[action.key] = std::make_shared<Cloud>(action.key, action.vertices, action.calibrated);
   }
 }
 
@@ -86,5 +86,6 @@ void Clouds::onUsersThroughFitlerParamsUpdate(const UpdateUsersThroughFitlerPara
 void Clouds::onPcdFileOpen(const OpenPcdFileAction &action) {
   Cloud::PointCloud::Ptr cloud(new Cloud::PointCloud);
   pcl::io::loadPCDFile(action.path, *cloud);
-  clouds_[action.path] = std::make_shared<Cloud>(action.path, cloud);
+  // FIXME: Really callibarted?
+  clouds_[action.path] = std::make_shared<Cloud>(action.path, cloud, true);
 }
