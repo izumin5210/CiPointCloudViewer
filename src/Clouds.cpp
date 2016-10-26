@@ -84,7 +84,7 @@ void Clouds::onUsersThroughFitlerParamsUpdate(const UpdateUsersThroughFitlerPara
 #endif
 
 void Clouds::onPcdFileOpen(const OpenPcdFileAction &action) {
-  Cloud::PointCloudPtr cloud(new Cloud::PointCloud);
+  Cloud::PointCloud::Ptr cloud(new Cloud::PointCloud);
   pcl::io::loadPCDFile(action.path, *cloud);
   clouds_[action.path] = std::make_shared<Cloud>(action.path, cloud);
 }

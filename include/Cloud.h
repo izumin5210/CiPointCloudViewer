@@ -14,7 +14,7 @@ class Cloud {
 public:
   using PointT        = pcl::PointXYZRGBA;
   using PointCloud    = pcl::PointCloud<PointT>;
-  using PointCloudPtr = PointCloud::Ptr;
+  using PointCloudPtr = PointCloud::ConstPtr;
   using Key = std::string;
 
   Cloud(

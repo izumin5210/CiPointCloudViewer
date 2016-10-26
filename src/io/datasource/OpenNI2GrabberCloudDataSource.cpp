@@ -15,6 +15,7 @@ OpenNI2GrabberCloudDataSource::OpenNI2GrabberCloudDataSource(
 )
   : CloudDataSource(name)
   , uri_(uri)
+  , grabber_(nullptr)
   , updated_(false)
 {}
 
@@ -27,7 +28,7 @@ void OpenNI2GrabberCloudDataSource::onStart() {
 }
 
 void OpenNI2GrabberCloudDataSource::onStop() {
-  if (grabber_->isRunning()) {
+  if (grabber_ != nullptr && grabber_->isRunning()) {
     grabber_->stop();
   }
   if (conn_.connected()) {
@@ -67,7 +68,7 @@ std::string OpenNI2GrabberCloudDataSource::getDeviceIdForGrabber() {
 
 void OpenNI2GrabberCloudDataSource::onPointCloudReceived(const pcl::PointCloud<pcl::PointXYZRGBA>::ConstPtr &cloud) {
   std::lock_guard<std::mutex> lk(mutex_);
-  Signal<Clouds::UpdatePointsAction>::emit({name(), (*cloud).makeShared()});
+  Signal<Clouds::UpdatePointsAction>::emit({name(), cloud});
   updated_ = true;
   cond_updated_.notify_one();
 }
