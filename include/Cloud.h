@@ -23,11 +23,13 @@ public:
     bool calibrated = true,
     bool visible = true
   )
-    : key_        (key)
-    , point_cloud_(point_cloud)
-    , vertices_   (new Vertices)
-    , calibrated_ (calibrated)
-    , visible_    (visible)
+    : key_          (key)
+    , point_cloud_  (point_cloud)
+    , vertices_     (new Vertices)
+    , calibrated_   (calibrated)
+    , visible_      (visible)
+    , empty_        (point_cloud_->empty())
+    , needs_render_ (true)
   {
   }
 
@@ -37,11 +39,13 @@ public:
     bool calibrated = false,
     bool visible = true
   )
-    : key_        (key)
-    , point_cloud_(new PointCloud)
-    , vertices_   (vertices)
-    , calibrated_ (calibrated)
-    , visible_    (visible)
+    : key_          (key)
+    , point_cloud_  (new PointCloud)
+    , vertices_     (vertices)
+    , calibrated_   (calibrated)
+    , visible_      (visible)
+    , empty_        (vertices_->empty())
+    , needs_render_ (true)
   {
   }
 
@@ -55,6 +59,7 @@ public:
 
   inline void set_point_cloud(const PointCloudPtr &point_cloud) {
     point_cloud_ = point_cloud;
+    empty_ = vertices_->empty() && point_cloud_->empty();
   }
 
   inline VerticesPtr vertices() const {
@@ -63,6 +68,7 @@ public:
 
   inline void set_vertices(const VerticesPtr &vertices) {
     vertices_ = vertices;
+    empty_ = vertices_->empty() && point_cloud_->empty();
   }
 
   inline bool is_calibrated() const {
@@ -85,8 +91,12 @@ public:
     return calibrated_ ? point_cloud_->size() : vertices_->size();
   }
 
+  inline bool empty() {
+    return empty_;
+  }
+
   inline bool needs_render() {
-    return (point_cloud()->empty() && vertices()->empty()) || is_visible();
+    return !empty() && is_visible();
   }
 
 
@@ -98,6 +108,8 @@ private:
 
   bool calibrated_;
   bool visible_;
+  bool empty_;
+  bool needs_render_;
 };
 
 using CloudPtr = std::shared_ptr<Cloud>;
