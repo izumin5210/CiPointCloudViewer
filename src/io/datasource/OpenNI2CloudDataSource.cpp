@@ -10,90 +10,119 @@ namespace io {
 namespace datasource {
 
 OpenNI2CloudDataSource::OpenNI2CloudDataSource(const std::string name, const std::string uri)
-  : CloudDataSource(name)
-  , uri_(uri)
-  , color_stream_(new openni::VideoStream)
-  , depth_stream_(new openni::VideoStream)
-  , ir_stream_(new openni::VideoStream)
+  : CloudDataSource (name)
+  , uri_            (uri)
+  , color_stream_   (new openni::VideoStream)
+  , depth_stream_   (new openni::VideoStream)
+  , ir_stream_      (new openni::VideoStream)
+  , updated_color_image_(false)
+  , updated_depth_image_(false)
+  , updated_ir_image_   (false)
+#ifdef USE_NITE2
+  , updated_user_image_ (false)
+#endif
 {
 }
+
+void OpenNI2CloudDataSource::onNewFrame(openni::VideoStream &stream) {
+  openni::VideoFrameRef frame;
+  checkStatus(stream.readFrame(&frame), "Failed to read a video frame.");
+  switch (stream.getSensorInfo().getSensorType()) {
+    case openni::SENSOR_COLOR:
+      updateColorImage(frame);
+      updated_color_image_ = true;
+      break;
+    case openni::SENSOR_DEPTH:
+#ifdef USE_NITE2
+#else
+      updateRawDepthImage(frame);
+//      updateDepthImage(frame);
+      updated_depth_image_ = true;
+#endif
+      break;
+    case openni::SENSOR_IR:
+      updateIrImage(frame);
+      updated_ir_image_ = true;
+      break;
+    default:
+      throw std::runtime_error("Received an unknown video frame.");
+  }
+  updated_cond_.notify_all();
+}
+
+#ifdef USE_NITE2
+void OpenNI2CloudDataSource::onNewFrame(nite::UserTracker &tracker) {
+  nite::UserTrackerFrameRef frame;
+  checkStatus(tracker.readFrame(&frame), "Failed to read an user frame.");
+  auto depth_frame = frame.getDepthFrame();
+  updateRawDepthImage(depth_frame);
+//  updateDepthImage(depth_frame);
+  updateUserImage(frame);
+  updated_user_image_ = true;
+  updated_cond_.notify_all();
+}
+#endif
 
 void OpenNI2CloudDataSource::onStart() {
   checkStatus(device_.open(uri_.c_str()), "openni::Device::open() failed.");
 
   startColorStream();
   startDepthStream();
-  startIrStream();
+//  startIrStream();
   enableMirroring();
   enableDepthToColorRegistration();
-
 #ifdef USE_NITE2
-  checkStatus(user_tracker_.create(&device_), "Failed to create user tracker.");
+  startUserTracker();
 #endif
 }
 
 void OpenNI2CloudDataSource::onStop() {
-#ifdef USE_NITE2
-  if (user_tracker_.isValid()) {
-    user_tracker_.destroy();
-  }
-#endif
   if (color_stream_->isValid()) {
+    color_stream_->removeNewFrameListener(this);
     color_stream_->stop();
     color_stream_->destroy();
   }
+#ifdef USE_NITE2
+  if (user_tracker_.isValid()) {
+    user_tracker_.removeNewFrameListener(this);
+    user_tracker_.destroy();
+  }
+#endif
   if (depth_stream_->isValid()) {
+#ifdef USE_NITE2
+#else
+    depth_stream_->removeNewFrameListener(this);
+#endif
     depth_stream_->stop();
     depth_stream_->destroy();
   }
-  if (ir_stream_->isValid()) {
-    ir_stream_->stop();
-    ir_stream_->destroy();
-  }
+//  if (ir_stream_->isValid()) {
+//    ir_stream_->removeNewFrameListener(this);
+//    ir_stream_->stop();
+//    ir_stream_->destroy();
+//  }
   if (device_.isValid()) {
     device_.close();
   }
 }
 
 void OpenNI2CloudDataSource::update() {
-  openni::VideoFrameRef color_frame;
-  openni::VideoFrameRef depth_frame;
-  openni::VideoFrameRef ir_frame;
+  {
+    std::unique_lock<std::mutex> lk(mutex_updated_);
+    updated_cond_.wait(lk, [this] {
 #ifdef USE_NITE2
-  nite::UserTrackerFrameRef user_frame;
+      return updated_color_image_ && updated_user_image_;
+#else
+      return updated_color_image_ && updated_depth_image_;
 #endif
+    });
 
-  if (color_stream_->isValid()) {
-    checkStatus(color_stream_->readFrame(&color_frame), "Failed to read color frame.");
-  }
 #ifdef USE_NITE2
-  if (user_tracker_.isValid()) {
-    checkStatus(user_tracker_.readFrame(&user_frame), "Failed to read user frame.");
-    depth_frame = user_frame.getDepthFrame();
-  } else
+    updated_color_image_ = updated_user_image_ = false;
+#else
+    updated_color_image_ = updated_depth_image_ = false;
 #endif
-  if (depth_stream_->isValid()) {
-    checkStatus(depth_stream_->readFrame(&depth_frame), "Failed to read depth frame.");
   }
-//  if (ir_stream_->isValid()) {
-//    checkStatus(ir_stream_->readFrame(&ir_frame), "Failed to read ir frame.");
-//  }
-
-  if (color_stream_->isValid()) {
-    updateColorImage(color_frame);
-  }
-  if (depth_stream_->isValid()) {
-    updateRawDepthImage(depth_frame);
-//    updateDepthImage(depth_frame);
-  }
-#ifdef USE_NITE2
-  if (user_tracker_.isValid()) {
-    user_ids_ = user_frame.getUserMap().getPixels();
-  }
-#endif
-//  if (ir_stream_->isValid()) {
-//    updateIrImage(ir_frame);
-//  }
 
   auto now = std::chrono::system_clock::now();
   updatePointCloud(now);
@@ -124,6 +153,7 @@ void OpenNI2CloudDataSource::startColorStream() {
     }
     checkStatus(color_stream_->setVideoMode((* supported_video_modes)[1]), "Set video mode to color stream failed");
     checkStatus(color_stream_->start(), "Color stream failed to start.");
+    checkStatus(color_stream_->addNewFrameListener(this), "Failed to add the new color frame listener.");
   }
 }
 
@@ -144,6 +174,10 @@ void OpenNI2CloudDataSource::startDepthStream() {
     }
     checkStatus(depth_stream_->setVideoMode((* supported_video_modes)[1]), "Set video mode to depth stream failed");
     checkStatus(depth_stream_->start(), "Depth stream failed to start.");
+#ifdef USE_NITE2
+#else
+    checkStatus(depth_stream_->addNewFrameListener(this), "Failed to add the new depth frame listener.");
+#endif
   }
 }
 
@@ -157,8 +191,16 @@ void OpenNI2CloudDataSource::startIrStream() {
       throw std::runtime_error("VideoMode failed.");
     }
     checkStatus(ir_stream_->start(), "Ir stream failed to start.");
+    checkStatus(ir_stream_->addNewFrameListener(this), "Failed to add the new ir frame listener.");
   }
 }
+
+#ifdef USE_NITE2
+void OpenNI2CloudDataSource::startUserTracker() {
+  checkStatus(user_tracker_.create(&device_), "Failed to create user tracker.");
+  user_tracker_.addNewFrameListener(this);
+}
+#endif
 
 void OpenNI2CloudDataSource::enableMirroring() {
   if (!device_.isFile()) {
@@ -187,6 +229,7 @@ void OpenNI2CloudDataSource::enableDepthToColorRegistration() {
 void OpenNI2CloudDataSource::updateColorImage(const openni::VideoFrameRef &color_frame) {
   auto color_image = cv::Mat(color_frame.getHeight(), color_frame.getWidth(),
                              CV_8UC3, (unsigned char*) color_frame.getData());
+  std::lock_guard<std::mutex> lg(mutex_color_image_);
   cv::cvtColor(color_image, color_image_, CV_RGB2BGR);
 }
 
@@ -197,6 +240,7 @@ void OpenNI2CloudDataSource::updateRawDepthImage(const openni::VideoFrameRef &de
           (unsigned short *) depth_frame.getData()
   ).copyTo(image);
   cv::Rect roi(0, 0, 512, 424);
+  std::lock_guard<std::mutex> lg(mutex_raw_depth_image_);
   raw_depth_image_ = image(roi);
 }
 
@@ -206,6 +250,7 @@ void OpenNI2CloudDataSource::updateDepthImage(const openni::VideoFrameRef &depth
           (unsigned short *) depth_frame.getData()).copyTo(depth_image);
   depth_image.convertTo(depth_image, CV_8U, 255.0 / 10000);
   cv::Rect roi(0, 0, 512, 424);
+  std::lock_guard<std::mutex> lg(mutex_depth_image_);
   depth_image_ = depth_image(roi);
 }
 
@@ -215,15 +260,30 @@ void OpenNI2CloudDataSource::updateIrImage(const openni::VideoFrameRef &ir_frame
           (unsigned short *) ir_frame.getData()).copyTo(ir_image);
   ir_image.convertTo(ir_image, CV_8U, 255.0 / 10000);
   cv::cvtColor(ir_image, ir_image, CV_GRAY2RGB);
+  std::lock_guard<std::mutex> lg(mutex_ir_image_);
   ir_image_ = ir_image;
 }
 
+#ifdef USE_NITE2
+void OpenNI2CloudDataSource::updateUserImage(const nite::UserTrackerFrameRef &user_frame) {
+  std::lock_guard<std::mutex> lg(mutex_user_image_);
+  user_ids_ = user_frame.getUserMap().getPixels();
+}
+#endif
+
 void OpenNI2CloudDataSource::updatePointCloud(std::chrono::system_clock::time_point timestamp) {
+  std::lock_guard<std::mutex> lg_raw_depth(mutex_raw_depth_image_);
+
   int width   = raw_depth_image_.size().width;
   int height  = raw_depth_image_.size().height;
 
   VerticesPtr vertices(new Vertices);
   vertices->reserve((size_t) (width * height));
+
+  std::lock_guard<std::mutex> lg_color(mutex_color_image_);
+#ifdef USE_NITE2
+  std::lock_guard<std::mutex> lg_user(mutex_user_image_);
+#endif
 
   for (int y = 0; y < height; y++) {
     unsigned short *depth = (unsigned short *) raw_depth_image_.ptr(y);
