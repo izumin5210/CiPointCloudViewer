@@ -5,6 +5,9 @@
 #ifndef CIPOINTCLOUDVIEWERAPP_OPENNI2CLOUDDATASOURCE_H
 #define CIPOINTCLOUDVIEWERAPP_OPENNI2CLOUDDATASOURCE_H
 
+#include <condition_variable>
+#include <mutex>
+
 #include <opencv2/core.hpp>
 
 #include "CloudDataSource.h"
@@ -12,12 +15,23 @@
 namespace io {
 namespace datasource {
 
-class OpenNI2CloudDataSource : public CloudDataSource {
+class OpenNI2CloudDataSource :
+  public CloudDataSource
+  , public openni::VideoStream::NewFrameListener
+#ifdef USE_NITE2
+  , public nite::UserTracker::NewFrameListener
+#endif
+{
 public:
   OpenNI2CloudDataSource(
     const std::string name,
     const std::string uri
   );
+
+  void onNewFrame(openni::VideoStream &stream) override;
+#ifdef USE_NITE2
+  void onNewFrame(nite::UserTracker &tracker) override;
+#endif
 
 
 protected:
@@ -46,9 +60,28 @@ private:
   const nite::UserId *user_ids_;
 #endif
 
+  std::mutex mutex_color_image_;
+  std::mutex mutex_raw_depth_image_;
+  std::mutex mutex_depth_image_;
+  std::mutex mutex_ir_image_;
+  std::mutex mutex_user_image_;
+  std::mutex mutex_updated_;
+  std::condition_variable updated_cond_;
+
+  bool updated_color_image_;
+  bool updated_depth_image_;
+  bool updated_ir_image_;
+#ifdef USE_NITE2
+  bool updated_user_image_;
+#endif
+
+
   void startColorStream();
   void startDepthStream();
   void startIrStream();
+#ifdef USE_NITE2
+  void startUserTracker();
+#endif
   void enableMirroring();
   void enableDepthToColorRegistration();
   void updateColorImage(const openni::VideoFrameRef &color_frame);
