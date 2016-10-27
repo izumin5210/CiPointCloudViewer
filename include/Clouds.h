@@ -14,6 +14,7 @@
 
 #include "Cloud.h"
 #include "FilterParams.h"
+#include "Skeleton.h"
 
 #include "io/CalibrationParamsManager.h"
 
@@ -31,6 +32,12 @@ public:
   struct UpdateVerticesAction {
     Key key;
     VerticesPtr vertices;
+    std::chrono::system_clock::time_point timestamp;
+  };
+
+  struct UpdateSkeletonsAction {
+    Key key;
+    SkeletonsPtr skeletons;
     std::chrono::system_clock::time_point timestamp;
   };
 

@@ -11,6 +11,7 @@
 #include <opencv2/core.hpp>
 
 #include "CloudDataSource.h"
+#include "Skeleton.h"
 
 namespace io {
 namespace datasource {
@@ -58,6 +59,7 @@ private:
 #ifdef USE_NITE2
   nite::UserTracker user_tracker_;
   const nite::UserId *user_ids_;
+  SkeletonsPtr skeletons_;
 #endif
 
   std::mutex mutex_color_image_;

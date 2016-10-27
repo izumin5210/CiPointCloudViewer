@@ -5,6 +5,7 @@
 #include "Clouds.h"
 #include "Signal.h"
 #include "io/datasource/OpenNI2CloudDataSource.h"
+#include "io/datasource/SkeletonTracker.h"
 #include "util/util.h"
 
 namespace io {
@@ -56,6 +57,7 @@ void OpenNI2CloudDataSource::onNewFrame(nite::UserTracker &tracker) {
   nite::UserTrackerFrameRef frame;
   util::checkStatus(tracker.readFrame(&frame), "Failed to read an user frame.");
   auto depth_frame = frame.getDepthFrame();
+  skeletons_ = SkeletonTracker::getSkeletons(tracker, frame);
   updateRawDepthImage(depth_frame);
 //  updateDepthImage(depth_frame);
   updateUserImage(frame);
@@ -312,6 +314,7 @@ void OpenNI2CloudDataSource::updatePointCloud(std::chrono::system_clock::time_po
   }
 
   Signal<Clouds::UpdateVerticesAction>::emit({name(), vertices, timestamp});
+  Signal<Clouds::UpdateSkeletonsAction>::emit({name(), skeletons_, timestamp});
 }
 
 }
