@@ -64,6 +64,8 @@ set(PROJECT_SOURCES
     ${PROJECT_DIR}/src/io/datasource/CloudDataSource.cpp
     ${PROJECT_DIR}/src/io/datasource/OpenNI2CloudDataSource.cpp
     ${PROJECT_DIR}/src/io/datasource/SkeletonTracker.cpp
+    ${PROJECT_DIR}/src/io/exporter/Exporter.cpp
+    ${PROJECT_DIR}/src/io/exporter/SkeletonsExporter.cpp
     ${PROJECT_DIR}/src/renderer/BatchRenderer.cpp
     ${PROJECT_DIR}/src/renderer/cloud/CloudsRenderer.cpp
     ${PROJECT_DIR}/src/renderer/cloud/CloudRenderer.cpp

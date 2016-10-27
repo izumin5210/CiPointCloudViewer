@@ -6,11 +6,13 @@
 #define CIPOINTCLOUDVIEWERAPP_JOINT_H
 
 #include <map>
+#include <msgpack.hpp>
 
 struct Joint {
   float x;
   float y;
   int type;
+  MSGPACK_DEFINE(x, y, type);
 };
 
 using Skeleton = std::map<int, Joint>;
