@@ -12,8 +12,6 @@ namespace datasource {
 
 SkeletonsPtr SkeletonTracker::getSkeletons(nite::UserTracker &tracker, const nite::UserTrackerFrameRef &user_frame) {
   SkeletonsPtr skeletons(new Skeletons);
-  static auto proc = std::bind(&SkeletonTracker::getJointPosition, std::placeholders::_1, std::placeholders::_2);
-
   const auto &users = user_frame.getUsers();
   for (int i = 0; i < users.getSize(); i++) {
     const auto &user = users[i];
@@ -43,7 +41,7 @@ Joint SkeletonTracker::getJointPosition(nite::UserTracker &tracker, const nite::
   float x = 0, y = 0;
   util::checkStatus(tracker.convertJointCoordinatesToDepth(pos.x, pos.y, pos.z, &x, &y),
                     "Failed to convert joint coords to depth.");
-  return { x, y, joint.getType() };
+  return { x, y, 0, joint.getType() };
 }
 
 }

@@ -33,6 +33,7 @@ public:
     Key key;
     VerticesPtr vertices;
     std::chrono::system_clock::time_point timestamp;
+    int user_count;
   };
 
   struct UpdateSkeletonsAction {

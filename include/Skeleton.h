@@ -11,6 +11,7 @@
 struct Joint {
   float x;
   float y;
+  float z;
   int type;
   MSGPACK_DEFINE(x, y, type);
 };

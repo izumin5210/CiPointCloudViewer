@@ -14,7 +14,7 @@ namespace exporter {
 
 class SkeletonsExporter : public Exporter<SkeletonsPtr> {
 public:
-  SkeletonsExporter();
+  SkeletonsExporter(const std::shared_ptr<Clouds> &clouds);
 
 
 protected:
@@ -23,6 +23,11 @@ protected:
 
 
 private:
+  const std::string kDirName = "skeletons";
+
+  const std::shared_ptr<Clouds> clouds_;
+
+  Skeletons calibrate(const std::string key, SkeletonsPtr skeletons);
   void onSkeletonsUpdate(const Clouds::UpdateSkeletonsAction &action);
 };
 

@@ -59,6 +59,7 @@ private:
 #ifdef USE_NITE2
   nite::UserTracker user_tracker_;
   const nite::UserId *user_ids_;
+  int user_count_;
   SkeletonsPtr skeletons_;
 #endif
 
