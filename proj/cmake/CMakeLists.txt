@@ -61,9 +61,12 @@ set(PROJECT_SOURCES
     ${PROJECT_DIR}/src/io/CalibrationParamsManager.cpp
     ${PROJECT_DIR}/src/io/SensorDevice.cpp
     ${PROJECT_DIR}/src/io/SequentialPcdPlayer.cpp
-    ${PROJECT_DIR}/src/renderer/BatchRenderer.cpp
     ${PROJECT_DIR}/src/io/datasource/CloudDataSource.cpp
     ${PROJECT_DIR}/src/io/datasource/OpenNI2CloudDataSource.cpp
+    ${PROJECT_DIR}/src/io/datasource/SkeletonTracker.cpp
+    ${PROJECT_DIR}/src/io/exporter/Exporter.cpp
+    ${PROJECT_DIR}/src/io/exporter/SkeletonsExporter.cpp
+    ${PROJECT_DIR}/src/renderer/BatchRenderer.cpp
     ${PROJECT_DIR}/src/renderer/cloud/CloudsRenderer.cpp
     ${PROJECT_DIR}/src/renderer/cloud/CloudRenderer.cpp
     ${PROJECT_DIR}/src/renderer/cloud/PointsRenderer.cpp
@@ -89,6 +92,8 @@ set(PROJECT_SOURCES
 )
 
 include_directories(${PROJECT_DIR}/blocks/nod/include)
+include_directories(${PROJECT_DIR}/blocks/msgpack/include)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DMSGPACK_DISABLE_LEGACY_NIL")
 
 include("${CINDER_PATH}/proj/cmake/modules/cinderMakeApp.cmake")
 

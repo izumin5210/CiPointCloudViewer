@@ -17,7 +17,7 @@
 
 class SavingVerticesWorker {
 public:
-  SavingVerticesWorker();
+  SavingVerticesWorker(const std::shared_ptr<Clouds> &clouds);
   ~SavingVerticesWorker();
 
   void start(std::string dir);
@@ -45,9 +45,12 @@ private:
     std::string key;
     std::chrono::system_clock::time_point timestamp;
     VerticesPtr vertices;
+    int user_count;
   };
 
   const std::string kFpsCounterKey = "SavingVerticesWorker";
+
+  const std::shared_ptr<Clouds> clouds_;
 
   std::queue<QueueItem> queue_;
   std::atomic<size_t> total_size_;

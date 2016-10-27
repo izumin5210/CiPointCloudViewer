@@ -5,6 +5,7 @@
 #include "Clouds.h"
 #include "Signal.h"
 #include "io/datasource/OpenNI2CloudDataSource.h"
+#include "io/datasource/SkeletonTracker.h"
 #include "util/util.h"
 
 namespace io {
@@ -16,6 +17,7 @@ OpenNI2CloudDataSource::OpenNI2CloudDataSource(const std::string name, const std
   , color_stream_   (new openni::VideoStream)
   , depth_stream_   (new openni::VideoStream)
   , ir_stream_      (new openni::VideoStream)
+  , user_count_     (0)
   , updated_color_image_(false)
   , updated_depth_image_(false)
   , updated_ir_image_   (false)
@@ -56,10 +58,12 @@ void OpenNI2CloudDataSource::onNewFrame(nite::UserTracker &tracker) {
   nite::UserTrackerFrameRef frame;
   util::checkStatus(tracker.readFrame(&frame), "Failed to read an user frame.");
   auto depth_frame = frame.getDepthFrame();
+  skeletons_ = SkeletonTracker::getSkeletons(tracker, frame);
   updateRawDepthImage(depth_frame);
 //  updateDepthImage(depth_frame);
   updateUserImage(frame);
   updated_user_image_ = true;
+  user_count_ = frame.getUsers().getSize();
   updated_cond_.notify_all();
 }
 #endif
@@ -286,6 +290,13 @@ void OpenNI2CloudDataSource::updatePointCloud(std::chrono::system_clock::time_po
   std::lock_guard<std::mutex> lg_user(mutex_user_image_);
 #endif
 
+  for (auto &p1 : *skeletons_) {
+    for (auto &p2 : p1.second) {
+      int x = (int) p2.second.x, y = (int) p2.second.y;
+      p2.second.z = raw_depth_image_.ptr(y)[x];
+    }
+  }
+
   for (int y = 0; y < height; y++) {
     unsigned short *depth = (unsigned short *) raw_depth_image_.ptr(y);
     unsigned char *color = (unsigned char *) color_image_.ptr(y);
@@ -311,7 +322,8 @@ void OpenNI2CloudDataSource::updatePointCloud(std::chrono::system_clock::time_po
     }
   }
 
-  Signal<Clouds::UpdateVerticesAction>::emit({name(), vertices, timestamp});
+  Signal<Clouds::UpdateVerticesAction>::emit({name(), vertices, timestamp, user_count_});
+  Signal<Clouds::UpdateSkeletonsAction>::emit({name(), skeletons_, timestamp});
 }
 
 }
