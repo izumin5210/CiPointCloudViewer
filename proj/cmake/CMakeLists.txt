@@ -71,6 +71,7 @@ set(PROJECT_SOURCES
     ${PROJECT_DIR}/src/renderer/grid/GridRenderer.cpp
     ${PROJECT_DIR}/src/renderer/grid/PolarGridRenderer.cpp
     ${PROJECT_DIR}/src/renderer/grid/RectangularGridRenderer.cpp
+    ${PROJECT_DIR}/src/util/util.cpp
     ${PROJECT_DIR}/src/view/AppGui.cpp
     ${PROJECT_DIR}/src/view/menu/FileMenu.cpp
     ${PROJECT_DIR}/src/view/menu/Menu.cpp
