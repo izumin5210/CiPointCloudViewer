@@ -7,3 +7,6 @@
 [submodule "blocks/nod"]
 	path = blocks/nod
 	url = https://github.com/fr00b0/nod.git
+[submodule "blocks/msgpack"]
+	path = blocks/msgpack
+	url = https://github.com/msgpack/msgpack-c.git

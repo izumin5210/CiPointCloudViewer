@@ -90,6 +90,8 @@ set(PROJECT_SOURCES
 )
 
 include_directories(${PROJECT_DIR}/blocks/nod/include)
+include_directories(${PROJECT_DIR}/blocks/msgpack/include)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DMSGPACK_DISABLE_LEGACY_NIL")
 
 include("${CINDER_PATH}/proj/cmake/modules/cinderMakeApp.cmake")
 
