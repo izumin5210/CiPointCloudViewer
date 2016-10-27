@@ -19,6 +19,7 @@
 #include "Configure.h"
 #include "io/CloudDataSources.h"
 #include "SavingVerticesWorker.h"
+#include "io/exporter/SkeletonsExporter.h"
 
 #include "renderer/cloud/CloudsRenderer.h"
 #include "renderer/grid/GridRenderer.h"
@@ -50,6 +51,7 @@ private:
   shared_ptr<io::SensorDeviceManager> sensor_device_manager_;
   shared_ptr<io::CloudDataSources> cloud_data_sources_;
   shared_ptr<SavingVerticesWorker> saving_vertices_worker_;
+  shared_ptr<io::exporter::SkeletonsExporter> skeletons_exporter_;
 
   view::AppGui gui_;
   renderer::cloud::CloudsRenderer clouds_renderer_;
@@ -65,7 +67,8 @@ CiPointCloudViewerApp::CiPointCloudViewerApp()
   , sensor_device_manager_(new io::SensorDeviceManager)
   , cloud_data_sources_(new io::CloudDataSources)
   , saving_vertices_worker_(new SavingVerticesWorker)
-  , gui_(this, clouds_, view_params_, config_, cloud_data_sources_, sensor_device_manager_, saving_vertices_worker_)
+  , skeletons_exporter_(new io::exporter::SkeletonsExporter)
+  , gui_(this, clouds_, view_params_, config_, cloud_data_sources_, sensor_device_manager_, saving_vertices_worker_, skeletons_exporter_)
   , clouds_renderer_(this, clouds_)
   , grid_renderer_(view_params_)
   , camera_ui_(&(view_params_->camera()))

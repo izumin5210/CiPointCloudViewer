@@ -24,11 +24,7 @@ SavingVerticesWorker::~SavingVerticesWorker() {
 }
 
 void SavingVerticesWorker::start(std::string dir) {
-  auto started_at = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-  std::stringstream ss_dir;
-  ss_dir << dir << "/" << started_at;
-  dir_ = boost::filesystem::path(ss_dir.str());
-  boost::filesystem::create_directory(dir_);
+  dir_  = boost::filesystem::path(dir);
   if (worker_stopped_) {
     worker_ = std::thread([&]{
       fps_counter_.start(kFpsCounterKey);
@@ -37,7 +33,7 @@ void SavingVerticesWorker::start(std::string dir) {
       while (!worker_stopped_ || !queue_.empty()) {
         if (!queue_.empty()) {
           auto item = queue_.front();
-          auto stamp = std::chrono::duration_cast<std::chrono::milliseconds>(item.timestamp.time_since_epoch()).count();
+          auto stamp = std::chrono::duration_cast<std::chrono::microseconds>(item.timestamp.time_since_epoch()).count();
           std::stringstream ss;
           ss << item.key << "/" << stamp << ".pcd";
           auto path = dir_ / boost::filesystem::path(ss.str());

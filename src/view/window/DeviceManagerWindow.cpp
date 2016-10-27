@@ -2,7 +2,9 @@
 // Created by Masayuki IZUMI on 9/29/16.
 //
 
+#include <chrono>
 #include "view/window/DeviceManagerWindow.h"
+#include "util/util.h"
 
 namespace view {
 namespace window {
@@ -14,11 +16,17 @@ DeviceManagerWindow::DeviceManagerWindow(
   const ImGuiWindowFlags flags,
   const std::shared_ptr<Configure> &config,
   const std::shared_ptr<SavingVerticesWorker> &saving_vertices_worker,
+#ifdef USE_NITE2
+  const std::shared_ptr<io::exporter::Exporter<SkeletonsPtr>> &skeletons_exporter,
+#endif
   const std::shared_ptr<io::SensorDeviceManager> &sensor_device_manager
 )
   : Window(name, width, spacing, flags)
   , config_(config)
   , saving_vertices_worker_(saving_vertices_worker)
+#ifdef USE_NITE2
+  , skeletons_exporter_(skeletons_exporter)
+#endif
   , sensor_device_manager_(sensor_device_manager)
   , device_selected_(std::string())
 {}
@@ -127,17 +135,40 @@ void DeviceManagerWindow::drawDeviceTable() {
 
 void DeviceManagerWindow::drawSavingPCDWidget() {
   bool has_recording_pcd_files = !saving_vertices_worker_->has_stopped();
-  if (ui::Checkbox("Save as PCD files", &has_recording_pcd_files)) {
+  if (ui::Checkbox("Save point clouds and skeletons", &has_recording_pcd_files)) {
     if (has_recording_pcd_files) {
-      saving_vertices_worker_->start(config_->getSavePcdFilesTo());
+      auto now = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+      boost::filesystem::path dir(config_->getSavePcdFilesTo());
+      auto path = (dir / std::to_string(now)).string();
+      boost::system::error_code error;
+      util::checkStatus(boost::filesystem::create_directories(path, error), "Failed to create directory.");
+      saving_vertices_worker_->start(path);
+#ifdef USE_NITE2
+      skeletons_exporter_->start(path);
+#endif
     } else {
       saving_vertices_worker_->stopSafety();
+#ifdef USE_NITE2
+      skeletons_exporter_->stopSafety();
+#endif
     }
   }
-  auto total_count = saving_vertices_worker_->total_size();
-  auto saved_count = total_count - saving_vertices_worker_->size();
-  ui::LabelText("Saved files", "%zu / %zu", saved_count, total_count);
-  ui::LabelText("Worker FPS", "%f", saving_vertices_worker_->fps());
+  {
+    ui::Text("Point clouds");
+    auto total_count = saving_vertices_worker_->total_size();
+    auto saved_count = total_count - saving_vertices_worker_->size();
+    ui::LabelText("Saved files", "%zu / %zu", saved_count, total_count);
+    ui::LabelText("Worker FPS", "%f", saving_vertices_worker_->fps());
+  }
+#ifdef USE_NITE2
+  {
+    ui::Text("Skeletons");
+    auto total_count = skeletons_exporter_->total_size();
+    auto saved_count = total_count - skeletons_exporter_->size();
+    ui::LabelText("Saved files", "%zu / %zu", saved_count, total_count);
+    ui::LabelText("Worker FPS", "%f", skeletons_exporter_->fps());
+  }
+#endif
 }
 
 }
