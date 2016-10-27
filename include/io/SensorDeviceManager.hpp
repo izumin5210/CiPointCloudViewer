@@ -18,6 +18,7 @@
 
 #include "io/SensorDevice.h"
 #include "io/CalibrationParamsManager.h"
+#include "util/util.h"
 #include "Signal.h"
 
 namespace io {
@@ -25,11 +26,9 @@ namespace io {
 class SensorDeviceManager {
 public:
     SensorDeviceManager() {
-        openni::OpenNI::initialize();
+      util::checkStatus(openni::OpenNI::initialize(), "Failed to initialize OpenNI2.");
 #ifdef USE_NITE2
-        if (nite::NiTE::initialize() != nite::STATUS_OK) {
-            throw std::runtime_error("Failed to initialize NiTE2.");
-        }
+      util::checkStatus(nite::NiTE::initialize(), "Failed to initialize NiTE2.");
 #endif
         stopped_ = false;
         refresh();

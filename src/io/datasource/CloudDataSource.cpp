@@ -7,6 +7,7 @@
 
 #include "Signal.h"
 #include "io/datasource/CloudDataSource.h"
+#include "util/util.h"
 
 namespace io {
 namespace datasource {
@@ -60,10 +61,10 @@ void CloudDataSource::startRecording(std::string dir) {
   std::ostringstream ss;
   auto now = boost::posix_time::microsec_clock::universal_time();
   ss << dir << "/" << boost::posix_time::to_iso_string(now) << "_" << name() << ".oni";
-  checkStatus(recorder_.create(ss.str().c_str()), "Creating recorder failed.");
-  checkStatus(recorder_.attach(*getColorVideoStream(), TRUE), "Attaching color stream to recorder failed.");
-  checkStatus(recorder_.attach(*getDepthVideoStream(), FALSE), "Attaching depth stream to recorder failed.");
-  checkStatus(recorder_.start(), "Recording failed.");
+  util::checkStatus(recorder_.create(ss.str().c_str()), "Creating recorder failed.");
+  util::checkStatus(recorder_.attach(*getColorVideoStream(), TRUE), "Attaching color stream to recorder failed.");
+  util::checkStatus(recorder_.attach(*getDepthVideoStream(), FALSE), "Attaching depth stream to recorder failed.");
+  util::checkStatus(recorder_.start(), "Recording failed.");
   state_ = RECORDING;
 }
 
@@ -74,22 +75,6 @@ void CloudDataSource::stopRecording() {
     if (state_ == RECORDING) {
       state_ = RUNNING;
     }
-  }
-}
-
-void CloudDataSource::checkStatus(openni::Status status, std::string msg) {
-  checkStatus(status == openni::STATUS_OK, msg);
-}
-
-#ifdef USE_NITE2
-void CloudDataSource::checkStatus(nite::Status status, std::string msg) {
-  checkStatus(status == nite::STATUS_OK, msg);
-}
-#endif
-
-void CloudDataSource::checkStatus(bool status_ok, std::string msg) {
-  if (!status_ok) {
-    throw std::runtime_error(msg);
   }
 }
 
