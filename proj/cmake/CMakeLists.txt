@@ -46,7 +46,6 @@ include_directories(${CINDER_IMGUI_DIR}/include)
 set(CINDER_IMGUI_SOURCES
     ${CINDER_IMGUI_DIR}/lib/imgui/imgui.cpp
     ${CINDER_IMGUI_DIR}/lib/imgui/imgui_draw.cpp
-    ${CINDER_IMGUI_DIR}/lib/imgui/imgui_demo.cpp
     ${CINDER_IMGUI_DIR}/src/CinderImGui.cpp
 )
 
