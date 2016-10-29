@@ -7,12 +7,12 @@
 
 #include "Clouds.h"
 #include "Vertex.h"
-#include "io/exporter/Exporter.h"
+#include "io/exporter/ExporterBase.h"
 
 namespace io {
 namespace exporter {
 
-class VerticesExporter : public Exporter<Clouds::UpdateVerticesAction> {
+class VerticesExporter : public ExporterBase<Clouds::UpdateVerticesAction> {
 public:
   VerticesExporter(const std::shared_ptr<Clouds> &clouds);
 

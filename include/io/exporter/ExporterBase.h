@@ -2,8 +2,8 @@
 // Created by Masayuki IZUMI on 10/27/16.
 //
 
-#ifndef CIPOINTCLOUDVIEWERAPP_EXPORTER_H
-#define CIPOINTCLOUDVIEWERAPP_EXPORTER_H
+#ifndef CIPOINTCLOUDVIEWERAPP_EXPORTERBASE_H
+#define CIPOINTCLOUDVIEWERAPP_EXPORTERBASE_H
 
 #include <atomic>
 #include <chrono>
@@ -19,10 +19,10 @@ namespace io {
 namespace exporter {
 
 template <typename T>
-class Exporter {
+class ExporterBase {
 public:
-  Exporter(const std::string key);
-  ~Exporter();
+  ExporterBase(const std::string key);
+  ~ExporterBase();
 
   void start(std::string dir);
   void stopSafety();
@@ -81,4 +81,4 @@ private:
 }
 }
 
-#endif //CIPOINTCLOUDVIEWERAPP_EXPORTER_H
+#endif //CIPOINTCLOUDVIEWERAPP_EXPORTERBASE_H

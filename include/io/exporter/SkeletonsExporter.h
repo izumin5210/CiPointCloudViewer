@@ -7,12 +7,12 @@
 
 #include "Clouds.h"
 #include "Skeleton.h"
-#include "io/exporter/Exporter.h"
+#include "io/exporter/ExporterBase.h"
 
 namespace io {
 namespace exporter {
 
-class SkeletonsExporter : public Exporter<Clouds::UpdateSkeletonsAction> {
+class SkeletonsExporter : public ExporterBase<Clouds::UpdateSkeletonsAction> {
 public:
   SkeletonsExporter(const std::shared_ptr<Clouds> &clouds);
 
