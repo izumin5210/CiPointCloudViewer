@@ -4,6 +4,7 @@
 
 #include "io/exporter/Exporter.h"
 #include "io/exporter/SkeletonsExporter.h"
+#include "io/exporter/VerticesExporter.h"
 
 namespace io {
 namespace exporter {
@@ -75,6 +76,7 @@ void Exporter<T>::onFpsUpdate(const FpsCounter::Event &event) {
 }
 
 template class Exporter<Clouds::UpdateSkeletonsAction>;
+template class Exporter<Clouds::UpdateVerticesAction>;
 
 }
 }
