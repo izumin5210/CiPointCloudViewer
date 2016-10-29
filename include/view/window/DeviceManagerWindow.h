@@ -10,7 +10,7 @@
 #include "Window.h"
 #include "Skeleton.h"
 #include "io/SensorDeviceManager.hpp"
-#include "io/exporter/Exporter.h"
+#include "io/exporter/SkeletonsExporter.h"
 
 namespace view {
 namespace window {
@@ -25,7 +25,7 @@ public:
     const std::shared_ptr<Configure> &config,
     const std::shared_ptr<SavingVerticesWorker> &saving_vertices_worker,
 #ifdef USE_NITE2
-    const std::shared_ptr<io::exporter::Exporter<SkeletonsPtr>> &skeletons_exporter,
+    const std::shared_ptr<io::exporter::SkeletonsExporter> &skeletons_exporter,
 #endif
     const std::shared_ptr<io::SensorDeviceManager> &sensor_device_manager
   );
@@ -39,7 +39,7 @@ private:
   const std::shared_ptr<Configure> config_;
   const std::shared_ptr<SavingVerticesWorker> saving_vertices_worker_;
 #ifdef USE_NITE2
-  const std::shared_ptr<io::exporter::Exporter<SkeletonsPtr>> skeletons_exporter_;
+  const std::shared_ptr<io::exporter::SkeletonsExporter> skeletons_exporter_;
 #endif
   const std::shared_ptr<io::SensorDeviceManager> sensor_device_manager_;
 

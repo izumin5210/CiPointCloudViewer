@@ -24,7 +24,7 @@ AppGui::AppGui(
   const std::shared_ptr<io::CloudDataSources> &cloud_data_sources,
   const std::shared_ptr<io::SensorDeviceManager> &sensor_device_manager,
   const std::shared_ptr<SavingVerticesWorker> &saving_vertices_worker,
-  const std::shared_ptr<io::exporter::Exporter<SkeletonsPtr>> &skeletons_exporter
+  const std::shared_ptr<io::exporter::SkeletonsExporter> &skeletons_exporter
 )
   : app_(app)
   , view_params_            (view_params)

@@ -17,7 +17,7 @@ DeviceManagerWindow::DeviceManagerWindow(
   const std::shared_ptr<Configure> &config,
   const std::shared_ptr<SavingVerticesWorker> &saving_vertices_worker,
 #ifdef USE_NITE2
-  const std::shared_ptr<io::exporter::Exporter<SkeletonsPtr>> &skeletons_exporter,
+  const std::shared_ptr<io::exporter::SkeletonsExporter> &skeletons_exporter,
 #endif
   const std::shared_ptr<io::SensorDeviceManager> &sensor_device_manager
 )

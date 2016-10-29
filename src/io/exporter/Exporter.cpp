@@ -3,7 +3,7 @@
 //
 
 #include "io/exporter/Exporter.h"
-#include "Skeleton.h"
+#include "io/exporter/SkeletonsExporter.h"
 
 namespace io {
 namespace exporter {
@@ -16,6 +16,7 @@ Exporter<T>::Exporter(const std::string key)
   , acceptable_     (false)
   , fps_            (0)
 {
+  Signal<T>::connect(std::bind(&Exporter<T>::onItemUpdate, this, std::placeholders::_1));
   Signal<FpsCounter::Event>::connect(std::bind(&Exporter<T>::onFpsUpdate, this, std::placeholders::_1));
 }
 
@@ -62,13 +63,18 @@ void Exporter<T>::stop() {
 }
 
 template <typename T>
+void Exporter<T>::onItemUpdate(const T &item) {
+  add(item);
+}
+
+template <typename T>
 void Exporter<T>::onFpsUpdate(const FpsCounter::Event &event) {
   if (event.key == key_) {
     fps_ = event.fps;
   }
 }
 
-template class Exporter<SkeletonsPtr>;
+template class Exporter<Clouds::UpdateSkeletonsAction>;
 
 }
 }
