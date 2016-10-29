@@ -12,23 +12,20 @@
 namespace io {
 namespace exporter {
 
-class SkeletonsExporter : public Exporter<SkeletonsPtr> {
+class SkeletonsExporter : public Exporter<Clouds::UpdateSkeletonsAction> {
 public:
   SkeletonsExporter(const std::shared_ptr<Clouds> &clouds);
 
 
 protected:
-  void initialize();
-  void save(const Item &item) override;
+  void save(const Clouds::UpdateSkeletonsAction &item) override;
 
 
 private:
   const std::string kDirName = "skeletons";
-
   const std::shared_ptr<Clouds> clouds_;
 
   Skeletons calibrate(const std::string key, SkeletonsPtr skeletons);
-  void onSkeletonsUpdate(const Clouds::UpdateSkeletonsAction &action);
 };
 
 }

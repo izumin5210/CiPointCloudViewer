@@ -46,19 +46,13 @@ public:
 
 
 protected:
-  struct Item {
-    std::string key;
-    std::chrono::system_clock::time_point timestamp;
-    T item;
-  };
-
-  virtual void save(const Item &item) = 0;
+  virtual void save(const T &item) = 0;
 
   inline boost::filesystem::path dir() const {
     return dir_;
   }
 
-  inline void add(const Item &item) {
+  inline void add(const T &item) {
     if (acceptable_) {
       queue_.push(item);
       total_size_++;
@@ -68,7 +62,7 @@ protected:
 
 private:
   const std::string key_;
-  std::queue<Item> queue_;
+  std::queue<T> queue_;
   std::atomic<size_t> total_size_;
 
   boost::filesystem::path dir_;
@@ -80,6 +74,7 @@ private:
   FpsCounter fps_counter_;
   float fps_;
 
+  void onItemUpdate(const T &item);
   void onFpsUpdate(const FpsCounter::Event &event);
 };
 

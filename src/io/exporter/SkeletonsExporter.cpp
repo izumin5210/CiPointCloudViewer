@@ -18,24 +18,15 @@ SkeletonsExporter::SkeletonsExporter(const std::shared_ptr<Clouds> &clouds)
   : Exporter("skeletons_exporter")
   , clouds_(clouds)
 {
-  initialize();
 }
 
-void SkeletonsExporter::initialize() {
-  Signal<Clouds::UpdateSkeletonsAction>::connect(
-    std::bind(&SkeletonsExporter::onSkeletonsUpdate, this, std::placeholders::_1));
-}
-
-void SkeletonsExporter::save(const Item &item) {
+void SkeletonsExporter::save(const Clouds::UpdateSkeletonsAction &item) {
   std::stringstream ss;
-  ss << std::chrono::duration_cast<std::chrono::microseconds>(item.timestamp.time_since_epoch()).count() << ".mpac";
   auto d = dir() / item.key / kDirName;
-  if (!boost::filesystem::exists(d)) {
-    boost::system::error_code error;
-    util::checkStatus(boost::filesystem::create_directories(d, error), "Failed to create directory.");
-  }
+  util::mkdir_p(d);
+  ss << util::to_us(item.timestamp) << ".mpac";
   std::ofstream file((d / ss.str()).string());
-  msgpack::pack(&file, calibrate(item.key, item.item));
+  msgpack::pack(&file, calibrate(item.key, item.skeletons));
 }
 
 Skeletons SkeletonsExporter::calibrate(const std::string key, SkeletonsPtr skeletons) {
@@ -57,10 +48,6 @@ Skeletons SkeletonsExporter::calibrate(const std::string key, SkeletonsPtr skele
     skeletons_calibed[p1.first] = skeleton;
   }
   return skeletons_calibed;
-}
-
-void SkeletonsExporter::onSkeletonsUpdate(const Clouds::UpdateSkeletonsAction &action) {
-  add({action.key, action.timestamp, action.skeletons});
 }
 
 }

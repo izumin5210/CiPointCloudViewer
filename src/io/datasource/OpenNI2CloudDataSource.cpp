@@ -129,8 +129,7 @@ void OpenNI2CloudDataSource::update() {
 #endif
   }
 
-  auto now = std::chrono::system_clock::now();
-  updatePointCloud(now);
+  updatePointCloud(util::now());
 }
 
 std::shared_ptr<openni::VideoStream> OpenNI2CloudDataSource::getColorVideoStream() {
