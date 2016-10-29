@@ -15,8 +15,7 @@
 
 #include "io/CloudDataSources.h"
 #include "io/SensorDeviceManager.hpp"
-#include "io/exporter/SkeletonsExporter.h"
-#include "io/exporter/VerticesExporter.h"
+#include "io/exporter/Exporters.h"
 
 #include "menu/Menu.h"
 #include "window/Window.h"
@@ -32,8 +31,7 @@ public:
     const std::shared_ptr<Configure> &config,
     const std::shared_ptr<io::CloudDataSources> &cloud_data_sources,
     const std::shared_ptr<io::SensorDeviceManager> &sensor_device_manager,
-    const std::shared_ptr<io::exporter::SkeletonsExporter> &skeletons_exporter,
-    const std::shared_ptr<io::exporter::VerticesExporter> &vertices_exporter
+    const std::shared_ptr<io::exporter::Exporters> &exporters
   );
 
   void initialize();

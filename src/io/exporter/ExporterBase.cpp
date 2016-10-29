@@ -27,7 +27,7 @@ ExporterBase<T>::~ExporterBase() {
 }
 
 template <typename T>
-void ExporterBase<T>::start(std::string dir) {
+void ExporterBase<T>::start(const std::string &dir) {
   dir_  = boost::filesystem::path(dir);
   if (worker_stopped_) {
     worker_ = std::thread([&] {

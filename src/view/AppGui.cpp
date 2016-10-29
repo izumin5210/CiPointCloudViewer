@@ -23,8 +23,7 @@ AppGui::AppGui(
   const std::shared_ptr<Configure> &config,
   const std::shared_ptr<io::CloudDataSources> &cloud_data_sources,
   const std::shared_ptr<io::SensorDeviceManager> &sensor_device_manager,
-  const std::shared_ptr<io::exporter::SkeletonsExporter> &skeletons_exporter,
-  const std::shared_ptr<io::exporter::VerticesExporter> &vertices_exporter
+  const std::shared_ptr<io::exporter::Exporters> &exporters
 )
   : app_(app)
   , view_params_            (view_params)
@@ -39,7 +38,7 @@ AppGui::AppGui(
   ))
   , window_device_manager_  (new view::window::DeviceManagerWindow(
     "Connected devices", kWindowWidth, kWindowSpacing, kWindowFlags,
-    config, skeletons_exporter, vertices_exporter, sensor_device_manager
+    config, exporters, sensor_device_manager
   ))
   , window_filters_         (new view::window::FiltersWindow(
     "Filters", kWindowWidth, kWindowSpacing, kWindowFlags, clouds

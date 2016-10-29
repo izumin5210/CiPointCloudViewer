@@ -18,8 +18,7 @@
 #include "view/AppGui.h"
 #include "Configure.h"
 #include "io/CloudDataSources.h"
-#include "io/exporter/SkeletonsExporter.h"
-#include "io/exporter/VerticesExporter.h"
+#include "io/exporter/Exporters.h"
 
 #include "renderer/cloud/CloudsRenderer.h"
 #include "renderer/grid/GridRenderer.h"
@@ -50,8 +49,7 @@ private:
   shared_ptr<Configure> config_;
   shared_ptr<io::SensorDeviceManager> sensor_device_manager_;
   shared_ptr<io::CloudDataSources> cloud_data_sources_;
-  shared_ptr<io::exporter::SkeletonsExporter> skeletons_exporter_;
-  shared_ptr<io::exporter::VerticesExporter> vertices_exporter_;
+  shared_ptr<io::exporter::Exporters> exporters_;
 
   view::AppGui gui_;
   renderer::cloud::CloudsRenderer clouds_renderer_;
@@ -66,9 +64,8 @@ CiPointCloudViewerApp::CiPointCloudViewerApp()
   , config_(new Configure(getAssetPath("")))
   , sensor_device_manager_(new io::SensorDeviceManager)
   , cloud_data_sources_(new io::CloudDataSources)
-  , skeletons_exporter_(new io::exporter::SkeletonsExporter(clouds_))
-  , vertices_exporter_(new io::exporter::VerticesExporter(clouds_))
-  , gui_(this, clouds_, view_params_, config_, cloud_data_sources_, sensor_device_manager_, skeletons_exporter_, vertices_exporter_)
+  , exporters_(new io::exporter::Exporters(clouds_))
+  , gui_(this, clouds_, view_params_, config_, cloud_data_sources_, sensor_device_manager_, exporters_)
   , clouds_renderer_(this, clouds_)
   , grid_renderer_(view_params_)
   , camera_ui_(&(view_params_->camera()))

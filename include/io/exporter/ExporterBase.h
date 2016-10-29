@@ -14,26 +14,27 @@
 
 #include "Signal.h"
 #include "FpsCounter.h"
+#include "io/exporter/Exporter.h"
 
 namespace io {
 namespace exporter {
 
 template <typename T>
-class ExporterBase {
+class ExporterBase : public Exporter {
 public:
   ExporterBase(const std::string key);
   ~ExporterBase();
 
-  void start(std::string dir);
-  void stopSafety();
-  void stop();
+  void start(const std::string &dir) override;
+  void stopSafety() override;
+  void stop() override;
+
+  inline bool hasStopped() const override {
+    return !acceptable_;
+  }
 
   inline size_t total_size() const {
     return total_size_;
-  }
-
-  inline bool has_stopped() const {
-    return !acceptable_;
   }
 
   inline size_t size() const {
