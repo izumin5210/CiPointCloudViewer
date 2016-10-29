@@ -46,50 +46,20 @@ include_directories(${CINDER_IMGUI_DIR}/include)
 set(CINDER_IMGUI_SOURCES
     ${CINDER_IMGUI_DIR}/lib/imgui/imgui.cpp
     ${CINDER_IMGUI_DIR}/lib/imgui/imgui_draw.cpp
-    ${CINDER_IMGUI_DIR}/lib/imgui/imgui_demo.cpp
     ${CINDER_IMGUI_DIR}/src/CinderImGui.cpp
 )
 
-set(PROJECT_SOURCES
-    ${PROJECT_DIR}/src/CiPointCloudViewerApp.cpp
-    ${PROJECT_DIR}/src/Configure.cpp
-    ${PROJECT_DIR}/src/FpsCounter.cpp
-    ${PROJECT_DIR}/src/Clouds.cpp
-    ${PROJECT_DIR}/src/ViewParams.cpp
-    ${PROJECT_DIR}/src/SavingVerticesWorker.cpp
-    ${PROJECT_DIR}/src/io/CloudDataSources.cpp
-    ${PROJECT_DIR}/src/io/CalibrationParamsManager.cpp
-    ${PROJECT_DIR}/src/io/SensorDevice.cpp
-    ${PROJECT_DIR}/src/io/SequentialPcdPlayer.cpp
-    ${PROJECT_DIR}/src/io/datasource/CloudDataSource.cpp
-    ${PROJECT_DIR}/src/io/datasource/OpenNI2CloudDataSource.cpp
-    ${PROJECT_DIR}/src/io/datasource/SkeletonTracker.cpp
-    ${PROJECT_DIR}/src/io/exporter/Exporter.cpp
-    ${PROJECT_DIR}/src/io/exporter/SkeletonsExporter.cpp
-    ${PROJECT_DIR}/src/renderer/BatchRenderer.cpp
-    ${PROJECT_DIR}/src/renderer/cloud/CloudsRenderer.cpp
-    ${PROJECT_DIR}/src/renderer/cloud/CloudRenderer.cpp
-    ${PROJECT_DIR}/src/renderer/cloud/PointsRenderer.cpp
-    ${PROJECT_DIR}/src/renderer/cloud/VerticesRenderer.cpp
-    ${PROJECT_DIR}/src/renderer/grid/GridRenderer.cpp
-    ${PROJECT_DIR}/src/renderer/grid/PolarGridRenderer.cpp
-    ${PROJECT_DIR}/src/renderer/grid/RectangularGridRenderer.cpp
-    ${PROJECT_DIR}/src/util/util.cpp
-    ${PROJECT_DIR}/src/view/AppGui.cpp
-    ${PROJECT_DIR}/src/view/menu/FileMenu.cpp
-    ${PROJECT_DIR}/src/view/menu/Menu.cpp
-    ${PROJECT_DIR}/src/view/menu/ViewMenu.cpp
-    ${PROJECT_DIR}/src/view/menu/WindowMenu.cpp
-    ${PROJECT_DIR}/src/view/window/AppearanceWindow.cpp
-    ${PROJECT_DIR}/src/view/window/CameraWindow.cpp
-    ${PROJECT_DIR}/src/view/window/CloudsWindow.cpp
-    ${PROJECT_DIR}/src/view/window/FiltersWindow.cpp
-    ${PROJECT_DIR}/src/view/window/DeviceManagerWindow.cpp
-    ${PROJECT_DIR}/src/view/window/InformationWindow.cpp
-    ${PROJECT_DIR}/src/view/window/PlayerWindow.cpp
-    ${PROJECT_DIR}/src/view/window/Window.cpp
-    ${CINDER_IMGUI_SOURCES}
+execute_process(
+  COMMAND find ${PROJECT_DIR}/src -name "*.cpp" -type f
+  COMMAND paste -s -d ";" -
+  OUTPUT_VARIABLE cppfiles
 )
+foreach(cppfile ${cppfiles})
+  string(STRIP ${cppfile} cppfile)
+  list(APPEND PROJECT_SOURCES "${cppfile}")
+endforeach(cppfile)
+
+list(APPEND PROJECT_SOURCES ${CINDER_IMGUI_SOURCES})
 
 include_directories(${PROJECT_DIR}/blocks/nod/include)
 include_directories(${PROJECT_DIR}/blocks/msgpack/include)
