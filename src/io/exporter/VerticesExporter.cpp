@@ -13,7 +13,7 @@ namespace io {
 namespace exporter {
 
 VerticesExporter::VerticesExporter(const std::shared_ptr<Clouds> &clouds)
-  : Exporter("vertices_exporter")
+  : ExporterBase("vertices_exporter")
   , clouds_(clouds)
 {
 }

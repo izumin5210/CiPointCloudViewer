@@ -15,7 +15,7 @@ namespace io {
 namespace exporter {
 
 SkeletonsExporter::SkeletonsExporter(const std::shared_ptr<Clouds> &clouds)
-  : Exporter("skeletons_exporter")
+  : ExporterBase("skeletons_exporter")
   , clouds_(clouds)
 {
 }

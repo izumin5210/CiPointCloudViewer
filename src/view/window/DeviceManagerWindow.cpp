@@ -15,18 +15,12 @@ DeviceManagerWindow::DeviceManagerWindow(
   const int spacing,
   const ImGuiWindowFlags flags,
   const std::shared_ptr<Configure> &config,
-#ifdef USE_NITE2
-  const std::shared_ptr<io::exporter::SkeletonsExporter> &skeletons_exporter,
-#endif
-  const std::shared_ptr<io::exporter::VerticesExporter> &vertices_exporter,
+  const std::shared_ptr<io::exporter::Exporters> &exporters,
   const std::shared_ptr<io::SensorDeviceManager> &sensor_device_manager
 )
   : Window(name, width, spacing, flags)
   , config_(config)
-#ifdef USE_NITE2
-  , skeletons_exporter_(skeletons_exporter)
-#endif
-  , vertices_exporter_(vertices_exporter)
+  , exporters_(exporters)
   , sensor_device_manager_(sensor_device_manager)
   , device_selected_(std::string())
 {}
@@ -134,37 +128,31 @@ void DeviceManagerWindow::drawDeviceTable() {
 }
 
 void DeviceManagerWindow::drawSavingPCDWidget() {
-  bool has_recording_pcd_files = !vertices_exporter_->has_stopped();
-  if (ui::Checkbox("Save point clouds and skeletons", &has_recording_pcd_files)) {
-    if (has_recording_pcd_files) {
+  bool is_recording = !exporters_->hasStopped();
+  if (ui::Checkbox("Save point clouds and skeletons", &is_recording)) {
+    if (is_recording) {
       boost::filesystem::path dir(config_->getSavePcdFilesTo());
       auto path = (dir / std::to_string(util::to_us(util::now()))).string();
       util::mkdir_p(path);
-      vertices_exporter_->start(path);
-#ifdef USE_NITE2
-      skeletons_exporter_->start(path);
-#endif
+      exporters_->start(path);
     } else {
-      vertices_exporter_->stopSafety();
-#ifdef USE_NITE2
-      skeletons_exporter_->stopSafety();
-#endif
+      exporters_->stopSafety();
     }
   }
   {
     ui::Text("Point clouds");
-    auto total_count = vertices_exporter_->total_size();
-    auto saved_count = total_count - vertices_exporter_->size();
+    auto total_count = exporters_->vertices_exporter()->total_size();
+    auto saved_count = total_count - exporters_->vertices_exporter()->size();
     ui::LabelText("Saved files", "%zu / %zu", saved_count, total_count);
-    ui::LabelText("Worker FPS", "%f", vertices_exporter_->fps());
+    ui::LabelText("Worker FPS", "%f", exporters_->vertices_exporter()->fps());
   }
 #ifdef USE_NITE2
   {
     ui::Text("Skeletons");
-    auto total_count = skeletons_exporter_->total_size();
-    auto saved_count = total_count - skeletons_exporter_->size();
+    auto total_count = exporters_->skeletons_exporter()->total_size();
+    auto saved_count = total_count - exporters_->skeletons_exporter()->size();
     ui::LabelText("Saved files", "%zu / %zu", saved_count, total_count);
-    ui::LabelText("Worker FPS", "%f", skeletons_exporter_->fps());
+    ui::LabelText("Worker FPS", "%f", exporters_->skeletons_exporter()->fps());
   }
 #endif
 }

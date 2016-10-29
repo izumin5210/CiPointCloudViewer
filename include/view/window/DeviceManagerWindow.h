@@ -9,8 +9,7 @@
 #include "Window.h"
 #include "Skeleton.h"
 #include "io/SensorDeviceManager.hpp"
-#include "io/exporter/SkeletonsExporter.h"
-#include "io/exporter/VerticesExporter.h"
+#include "io/exporter/Exporters.h"
 
 namespace view {
 namespace window {
@@ -23,10 +22,7 @@ public:
     const int spacing,
     const ImGuiWindowFlags flags,
     const std::shared_ptr<Configure> &config,
-#ifdef USE_NITE2
-    const std::shared_ptr<io::exporter::SkeletonsExporter> &skeletons_exporter,
-#endif
-    const std::shared_ptr<io::exporter::VerticesExporter> &vertices_exporter,
+    const std::shared_ptr<io::exporter::Exporters> &exporters,
     const std::shared_ptr<io::SensorDeviceManager> &sensor_device_manager
   );
 
@@ -37,10 +33,7 @@ protected:
 
 private:
   const std::shared_ptr<Configure> config_;
-#ifdef USE_NITE2
-  const std::shared_ptr<io::exporter::SkeletonsExporter> skeletons_exporter_;
-#endif
-  const std::shared_ptr<io::exporter::VerticesExporter> vertices_exporter_;
+  const std::shared_ptr<io::exporter::Exporters> exporters_;
   const std::shared_ptr<io::SensorDeviceManager> sensor_device_manager_;
 
   std::string device_selected_;
