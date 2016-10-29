@@ -137,11 +137,9 @@ void DeviceManagerWindow::drawSavingPCDWidget() {
   bool has_recording_pcd_files = !saving_vertices_worker_->has_stopped();
   if (ui::Checkbox("Save point clouds and skeletons", &has_recording_pcd_files)) {
     if (has_recording_pcd_files) {
-      auto now = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
       boost::filesystem::path dir(config_->getSavePcdFilesTo());
-      auto path = (dir / std::to_string(now)).string();
-      boost::system::error_code error;
-      util::checkStatus(boost::filesystem::create_directories(path, error), "Failed to create directory.");
+      auto path = (dir / std::to_string(util::to_us(util::now()))).string();
+      util::mkdir_p(path);
       saving_vertices_worker_->start(path);
 #ifdef USE_NITE2
       skeletons_exporter_->start(path);
