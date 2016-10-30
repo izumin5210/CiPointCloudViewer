@@ -3,6 +3,7 @@
 //
 
 #include <stdexcept>
+#include <boost/range/iterator_range.hpp>
 #include "util/util.h"
 
 namespace util {
@@ -23,6 +24,14 @@ void checkStatus(bool status_ok, std::string msg) {
   }
 }
 
+bool exists(const std::string &path) {
+  return util::exists(boost::filesystem::path(path));
+}
+
+bool exists(const boost::filesystem::path &path) {
+  return boost::filesystem::exists(path);
+}
+
 void mkdir_p(const std::string &dir) {
   mkdir_p(boost::filesystem::path(dir));
 }
@@ -35,6 +44,30 @@ void mkdir_p(const boost::filesystem::path &path) {
       "Failed to create directory."
     );
   }
+}
+
+bool hasExt(const std::string &path, const std::string &ext) {
+  return hasExt(boost::filesystem::path(path), ext);
+}
+
+bool hasExt(const boost::filesystem::path &path, const std::string &ext) {
+  return path.extension().string() == ext;
+}
+
+void eachFiles(const std::string &path, std::function<void(boost::filesystem::directory_entry&)> proc) {
+  auto range = boost::make_iterator_range(
+    boost::filesystem::directory_iterator(path),
+    boost::filesystem::directory_iterator()
+  );
+  for (auto file : range) {
+    proc(file);
+  }
+}
+
+std::string basename(const boost::filesystem::path &path) {
+  auto name = path.filename().string();
+  auto ext = path.extension().string();
+  return name.replace(name.find(ext), ext.size(), "");
 }
 
 std::chrono::system_clock::time_point now() {
