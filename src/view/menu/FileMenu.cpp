@@ -4,6 +4,7 @@
 
 #include "Clouds.h"
 #include "Signal.h"
+#include "io/CapturedLogManager.h"
 #include "io/CalibrationParamsManager.h"
 #include "io/CloudDataSources.h"
 #include "view/menu/FileMenu.h"
@@ -24,6 +25,7 @@ FileMenu::FileMenu(
 void FileMenu::drawImpl() {
   drawOpenPcdFile();
   drawOpenDirectory();
+  drawOpenCapturedLog();
   drawOpenCalibYaml();
 
   ui::Separator();
@@ -46,6 +48,15 @@ void FileMenu::drawOpenDirectory() {
     auto dir = app_->getFolderPath();
     if (boost::filesystem::is_directory(dir)) {
       Signal<io::CloudDataSources::OpenPcdFilesDirectoryAction>::emit({dir.string()});
+    }
+  }
+}
+
+void FileMenu::drawOpenCapturedLog() {
+  if (ui::MenuItem("Open captured log yaml file")) {
+    auto yamlfile = app_->getOpenFilePath(path(), {"yaml", "yml"});
+    if (boost::filesystem::exists(yamlfile)) {
+      io::CapturedLogManager::load(yamlfile.string());
     }
   }
 }
