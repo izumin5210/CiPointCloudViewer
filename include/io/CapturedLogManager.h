@@ -17,6 +17,11 @@ public:
 
   CapturedLogManager();
 
+  std::map<std::string, std::shared_ptr<CapturedLogLoader>> loaders() const {
+    return loaders_;
+  }
+
+
 private:
   void onLogOpen(const OpenLogAction &path);
 };

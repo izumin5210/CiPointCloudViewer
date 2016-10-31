@@ -14,6 +14,7 @@
 #include "Skeleton.h"
 
 #include "io/CloudDataSources.h"
+#include "io/CapturedLogManager.h"
 #include "io/SensorDeviceManager.hpp"
 #include "io/exporter/Exporters.h"
 
@@ -30,6 +31,7 @@ public:
     const std::shared_ptr<ViewParams> &view_params,
     const std::shared_ptr<Configure> &config,
     const std::shared_ptr<io::CloudDataSources> &cloud_data_sources,
+    const std::shared_ptr<io::CapturedLogManager> &captured_log_manager,
     const std::shared_ptr<io::SensorDeviceManager> &sensor_device_manager,
     const std::shared_ptr<io::exporter::Exporters> &exporters
   );

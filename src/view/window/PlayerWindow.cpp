@@ -12,31 +12,33 @@ PlayerWindow::PlayerWindow(
   const int width,
   const int spacing,
   const ImGuiWindowFlags flags,
-  const std::shared_ptr<io::CloudDataSources> &cloud_data_sources
+  const std::shared_ptr<io::CapturedLogManager> &captured_log_manager
 )
   : Window(name, width, spacing, flags)
-  , cloud_data_sources_(cloud_data_sources)
+  , captured_log_manager_(captured_log_manager)
 {}
 
 void PlayerWindow::drawImpl() {
-  for (auto pair : cloud_data_sources_->sequential_pcd_players()) {
-    ui::TextUnformatted(boost::filesystem::path(pair.first).filename().c_str());
-    auto player = pair.second;
-    auto prg = player->loading_progress();
-    ui::Columns(2);
-    ui::ProgressBar(((float) prg[0]) / prg[1]);
+  ui::Separator();
+  ui::Columns(2, "Player", true);
+  ui::Text("serial");
+  ui::NextColumn();
+  ui::Text("loaded");
+  ui::NextColumn();
+  ui::Separator();
+  for (auto &pair : captured_log_manager_->loaders()) {
+    ui::Selectable(pair.first.c_str(), false, ImGuiSelectableFlags_SpanAllColumns);
     ui::NextColumn();
-    ui::Text("%04d / %04d", (int) prg[0], (int) prg[1]);
-    ui::SameLine();
-    if (player->isPlaying()) {
-      if (ui::Button("Stop")) {
-        player->stop();
-      }
-    } else if (ui::Button("Play")) {
-      player->start();
-    }
-    ui::Columns(1);
+    ui::Text("%s", pair.second->hasLoaded() ? "Loaded." : "Now loading...");
+    ui::NextColumn();
   }
+  if (captured_log_manager_->loaders().empty()) {
+    ui::Text("...");
+    ui::NextColumn();
+    ui::Text("NO LOGS");
+    ui::NextColumn();
+  }
+  ui::Separator();
 }
 
 }

@@ -22,6 +22,7 @@ AppGui::AppGui(
   const std::shared_ptr<ViewParams> &view_params,
   const std::shared_ptr<Configure> &config,
   const std::shared_ptr<io::CloudDataSources> &cloud_data_sources,
+  const std::shared_ptr<io::CapturedLogManager> &captured_log_manager,
   const std::shared_ptr<io::SensorDeviceManager> &sensor_device_manager,
   const std::shared_ptr<io::exporter::Exporters> &exporters
 )
@@ -47,7 +48,7 @@ AppGui::AppGui(
     "Information", kWindowWidth, kWindowSpacing, kWindowFlags, app, clouds
   ))
   , window_player_          (new view::window::PlayerWindow(
-    "Player", kWindowWidth, kWindowSpacing, kWindowFlags, cloud_data_sources
+    "Player", kWindowWidth, kWindowSpacing, kWindowFlags, captured_log_manager
   ))
   , menu_file_              (new view::menu::FileMenu("File", app, config))
   , menu_view_              (new view::menu::ViewMenu("View", config, view_params))
