@@ -5,6 +5,7 @@
 #include <pcl/io/pcd_io.h>
 
 #include "Cloud.h"
+#include "Signal.h"
 #include "io/CapturedLogLoader.h"
 #include "util/util.h"
 
@@ -62,9 +63,10 @@ void CapturedLogLoader::initialize(const std::string &dir) {
         pcl::io::loadPCDFile(p2.second, *cloud);
         clouds[p2.first] = std::make_shared<Cloud>(serial_, cloud, true);
       }
-      // TODO: Instantiate CapturedLog
+      logs_[p1.first] = std::make_shared<CapturedLog>(serial_, p1.first, clouds);
     }
     loaded_ = true;
+    Signal<CompleteLoadingAction>::emit({serial_});
   });
 }
 

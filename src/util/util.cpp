@@ -3,6 +3,7 @@
 //
 
 #include <stdexcept>
+#include <thread>
 #include <boost/range/iterator_range.hpp>
 #include "util/util.h"
 
@@ -80,6 +81,10 @@ int64_t to_ms(const std::chrono::system_clock::time_point &tp) {
 
 int64_t to_us(const std::chrono::system_clock::time_point &tp) {
   return std::chrono::duration_cast<std::chrono::microseconds>(tp.time_since_epoch()).count();
+}
+
+void sleep(unsigned int ms) {
+  std::this_thread::sleep_for(std::chrono::milliseconds(ms));
 }
 
 }

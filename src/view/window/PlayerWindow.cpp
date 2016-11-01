@@ -39,6 +39,22 @@ void PlayerWindow::drawImpl() {
     ui::NextColumn();
   }
   ui::Separator();
+  drawSpacer();
+  {
+    auto state = captured_log_manager_->state();
+
+    if (state == io::CapturedLogManager::State::LOADED) {
+      if (ui::Button("Start")) {
+        captured_log_manager_->start();
+      }
+    }
+
+    if (state == io::CapturedLogManager::State::PLAYING) {
+      if (ui::Button("Stop")) {
+        captured_log_manager_->stop();
+      }
+    }
+  }
 }
 
 }

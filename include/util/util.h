@@ -36,6 +36,7 @@ std::string basename(const boost::filesystem::path &path);
 std::chrono::system_clock::time_point now();
 int64_t to_ms(const std::chrono::system_clock::time_point &tp);
 int64_t to_us(const std::chrono::system_clock::time_point &tp);
+void sleep(unsigned int ms);
 
 }
 

@@ -10,10 +10,16 @@
 #include <string>
 #include <thread>
 
+#include "CapturedLog.h"
+
 namespace io {
 
 class CapturedLogLoader {
 public:
+  struct CompleteLoadingAction {
+    std::string serial;
+  };
+
   CapturedLogLoader(
     const std::string &dir,
     const std::string &serial,
@@ -41,6 +47,7 @@ private:
   int64_t ended_at_;
   std::map<int, std::map<int64_t, std::string>> pcd_files_;
   std::map<int64_t, std::string> skeleton_files_;
+  std::map<int, std::shared_ptr<CapturedLog>> logs_;
 
   std::atomic<bool> loaded_;
   std::thread loader_;
