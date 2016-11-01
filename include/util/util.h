@@ -23,12 +23,20 @@ void checkStatus(nite::Status status, const std::string msg);
 #endif
 void checkStatus(bool is_ok, const std::string msg);
 
+bool exists(const std::string &path);
+bool exists(const boost::filesystem::path &path);
 void mkdir_p(const std::string &dir);
 void mkdir_p(const boost::filesystem::path &path);
+
+bool hasExt(const std::string &path, const std::string &ext);
+bool hasExt(const boost::filesystem::path &path, const std::string &ext);
+void eachFiles(const std::string &path, std::function<void(boost::filesystem::directory_entry&)> proc);
+std::string basename(const boost::filesystem::path &path);
 
 std::chrono::system_clock::time_point now();
 int64_t to_ms(const std::chrono::system_clock::time_point &tp);
 int64_t to_us(const std::chrono::system_clock::time_point &tp);
+void sleep(unsigned int ms);
 
 }
 

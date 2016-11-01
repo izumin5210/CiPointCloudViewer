@@ -36,6 +36,7 @@ private:
 
   void drawOpenPcdFile();
   void drawOpenDirectory();
+  void drawOpenCapturedLog();
   void drawOpenCalibYaml();
   void drawOniDirectoryConfig();
   void drawPcdDirectoryConfig();

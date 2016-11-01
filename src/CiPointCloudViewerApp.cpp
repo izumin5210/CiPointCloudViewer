@@ -17,6 +17,7 @@
 
 #include "view/AppGui.h"
 #include "Configure.h"
+#include "io/CapturedLogManager.h"
 #include "io/CloudDataSources.h"
 #include "io/exporter/Exporters.h"
 
@@ -48,6 +49,7 @@ private:
   shared_ptr<ViewParams> view_params_;
   shared_ptr<Configure> config_;
   shared_ptr<io::SensorDeviceManager> sensor_device_manager_;
+  shared_ptr<io::CapturedLogManager> captured_log_manager_;
   shared_ptr<io::CloudDataSources> cloud_data_sources_;
   shared_ptr<io::exporter::Exporters> exporters_;
 
@@ -63,9 +65,10 @@ CiPointCloudViewerApp::CiPointCloudViewerApp()
   , view_params_(new ViewParams)
   , config_(new Configure(getAssetPath("")))
   , sensor_device_manager_(new io::SensorDeviceManager)
+  , captured_log_manager_(new io::CapturedLogManager)
   , cloud_data_sources_(new io::CloudDataSources)
   , exporters_(new io::exporter::Exporters(clouds_))
-  , gui_(this, clouds_, view_params_, config_, cloud_data_sources_, sensor_device_manager_, exporters_)
+  , gui_(this, clouds_, view_params_, config_, cloud_data_sources_, captured_log_manager_, sensor_device_manager_, exporters_)
   , clouds_renderer_(this, clouds_)
   , grid_renderer_(view_params_)
   , camera_ui_(&(view_params_->camera()))

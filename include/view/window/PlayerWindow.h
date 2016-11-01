@@ -6,7 +6,7 @@
 #define CIPOINTCLOUDVIEWERAPP_PLAYERWINDOW_H
 
 #include "Window.h"
-#include "io/CloudDataSources.h"
+#include "io/CapturedLogManager.h"
 
 namespace view {
 namespace window {
@@ -18,7 +18,7 @@ public:
     const int width,
     const int spacing,
     const ImGuiWindowFlags flags,
-    const std::shared_ptr<io::CloudDataSources> &cloud_data_sources
+    const std::shared_ptr<io::CapturedLogManager> &captured_log_manager
   );
 
 
@@ -27,7 +27,7 @@ protected:
 
 
 private:
-  const std::shared_ptr<io::CloudDataSources> cloud_data_sources_;
+  const std::shared_ptr<io::CapturedLogManager> captured_log_manager_;
 };
 
 }

@@ -12,30 +12,54 @@ PlayerWindow::PlayerWindow(
   const int width,
   const int spacing,
   const ImGuiWindowFlags flags,
-  const std::shared_ptr<io::CloudDataSources> &cloud_data_sources
+  const std::shared_ptr<io::CapturedLogManager> &captured_log_manager
 )
   : Window(name, width, spacing, flags)
-  , cloud_data_sources_(cloud_data_sources)
+  , captured_log_manager_(captured_log_manager)
 {}
 
 void PlayerWindow::drawImpl() {
-  for (auto pair : cloud_data_sources_->sequential_pcd_players()) {
-    ui::TextUnformatted(boost::filesystem::path(pair.first).filename().c_str());
-    auto player = pair.second;
-    auto prg = player->loading_progress();
-    ui::Columns(2);
-    ui::ProgressBar(((float) prg[0]) / prg[1]);
+  ui::Separator();
+  ui::Columns(3, "Player", true);
+  ui::Text("serial");
+  ui::NextColumn();
+  ui::Text("loaded");
+  ui::NextColumn();
+  ui::Text("size");
+  ui::NextColumn();
+  ui::Separator();
+  for (auto &pair : captured_log_manager_->loaders()) {
+    ui::Selectable(pair.first.c_str(), false, ImGuiSelectableFlags_SpanAllColumns);
     ui::NextColumn();
-    ui::Text("%04d / %04d", (int) prg[0], (int) prg[1]);
-    ui::SameLine();
-    if (player->isPlaying()) {
-      if (ui::Button("Stop")) {
-        player->stop();
+    ui::Text("%s", pair.second->hasLoaded() ? "Loaded." : "Now loading...");
+    ui::NextColumn();
+    ui::Text("%zu / %zu", pair.second->loaded_file_count(), pair.second->total_file_count());
+    ui::NextColumn();
+  }
+  if (captured_log_manager_->loaders().empty()) {
+    ui::Text("...");
+    ui::NextColumn();
+    ui::Text("NO LOGS");
+    ui::NextColumn();
+    ui::Text("%d / %d", 0, 0);
+    ui::NextColumn();
+  }
+  ui::Separator();
+  drawSpacer();
+  {
+    auto state = captured_log_manager_->state();
+
+    if (state == io::CapturedLogManager::State::LOADED) {
+      if (ui::Button("Start")) {
+        captured_log_manager_->start();
       }
-    } else if (ui::Button("Play")) {
-      player->start();
     }
-    ui::Columns(1);
+
+    if (state == io::CapturedLogManager::State::PLAYING) {
+      if (ui::Button("Stop")) {
+        captured_log_manager_->stop();
+      }
+    }
   }
 }
 
