@@ -20,10 +20,12 @@ PlayerWindow::PlayerWindow(
 
 void PlayerWindow::drawImpl() {
   ui::Separator();
-  ui::Columns(2, "Player", true);
+  ui::Columns(3, "Player", true);
   ui::Text("serial");
   ui::NextColumn();
   ui::Text("loaded");
+  ui::NextColumn();
+  ui::Text("size");
   ui::NextColumn();
   ui::Separator();
   for (auto &pair : captured_log_manager_->loaders()) {
@@ -31,11 +33,15 @@ void PlayerWindow::drawImpl() {
     ui::NextColumn();
     ui::Text("%s", pair.second->hasLoaded() ? "Loaded." : "Now loading...");
     ui::NextColumn();
+    ui::Text("%zu / %zu", pair.second->loaded_file_count(), pair.second->total_file_count());
+    ui::NextColumn();
   }
   if (captured_log_manager_->loaders().empty()) {
     ui::Text("...");
     ui::NextColumn();
     ui::Text("NO LOGS");
+    ui::NextColumn();
+    ui::Text("%d / %d", 0, 0);
     ui::NextColumn();
   }
   ui::Separator();

@@ -18,6 +18,8 @@ CapturedLogLoader::CapturedLogLoader(
 )
   : serial_     (serial)
   , user_count_ (user_count)
+  , total_file_count_ (0)
+  , loaded_file_count_(0)
   , started_at_ (INT64_MAX)
   , ended_at_   (INT64_MIN)
   , loaded_     (false)
@@ -49,6 +51,9 @@ void CapturedLogLoader::initialize(const std::string &dir) {
         }
       });
     }
+    for (auto p1 : pcd_files_) {
+      total_file_count_ += p1.second.size();
+    }
     util::eachFiles((path / "skeletons").string(), [&](boost::filesystem::directory_entry &file) {
       if (util::hasExt(file.path(), ".mpac")) {
         auto stamp = std::stoll(util::basename(file.path()));
@@ -58,10 +63,10 @@ void CapturedLogLoader::initialize(const std::string &dir) {
     for (auto p1 : pcd_files_) {
       std::map<int64_t, CloudPtr> clouds;
       for (auto p2 : p1.second) {
-        // TODO: Update loading progress status
         Cloud::PointCloudPtr cloud(new Cloud::PointCloud);
         pcl::io::loadPCDFile(p2.second, *cloud);
         clouds[p2.first] = std::make_shared<Cloud>(serial_, cloud, true);
+        loaded_file_count_++;
       }
       logs_[p1.first] = std::make_shared<CapturedLog>(serial_, p1.first, clouds);
     }

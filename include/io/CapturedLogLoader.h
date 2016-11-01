@@ -27,6 +27,14 @@ public:
   );
   ~CapturedLogLoader();
 
+  size_t total_file_count() const {
+    return total_file_count_;
+  }
+
+  size_t loaded_file_count() const {
+    return loaded_file_count_;
+  }
+
   int64_t started_at() const {
     return started_at_;
   }
@@ -43,6 +51,8 @@ public:
 private:
   const std::string serial_;
   const int user_count_;
+  size_t total_file_count_;
+  size_t loaded_file_count_;
   int64_t started_at_;
   int64_t ended_at_;
   std::map<int, std::map<int64_t, std::string>> pcd_files_;
