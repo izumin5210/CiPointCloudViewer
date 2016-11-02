@@ -11,6 +11,7 @@
 #include <thread>
 
 #include "CapturedLog.h"
+#include "Skeleton.h"
 
 namespace io {
 
@@ -56,7 +57,7 @@ private:
   int64_t started_at_;
   int64_t ended_at_;
   std::map<int, std::map<int64_t, std::string>> pcd_files_;
-  std::map<int64_t, std::string> skeleton_files_;
+  std::map<int64_t, SkeletonsPtr> skeletons_;
   std::map<int, std::shared_ptr<CapturedLog>> logs_;
 
   std::atomic<bool> loaded_;
@@ -64,6 +65,11 @@ private:
 
 
   void initialize(const std::string &dir);
+  void initializePcdFileList(const std::string &dir);
+  void loadAllSkeletons(const std::string &dir);
+  void loadAllClouds();
+  SkeletonsPtr loadSkeletons(const std::string &path);
+  CloudPtr loadCloud(const std::string &path);
 };
 
 }
