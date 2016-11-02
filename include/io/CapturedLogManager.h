@@ -48,9 +48,9 @@ private:
   int64_t started_at_;
   int64_t ended_at_;
   int64_t started_at_in_real_;
+  int64_t stopped_at_in_real_;
   std::thread player_worker_;
   std::atomic<bool> player_worker_canceled_;
-  std::atomic<bool> player_waited_;
 
   void onLogOpen(const OpenLogAction &action);
   void onLoadingComplete(const CapturedLogLoader::CompleteLoadingAction &action);
