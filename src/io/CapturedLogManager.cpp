@@ -18,9 +18,9 @@ CapturedLogManager::CapturedLogManager()
   : state_                  (State::NO_LOGS)
   , started_at_             (INT64_MAX)
   , ended_at_               (INT64_MIN)
-  , started_at_in_real_     (INT64_MAX)
+  , started_at_in_real_     (0)
+  , stopped_at_in_real_     (0)
   , player_worker_canceled_ (true)
-  , player_waited_          (true)
 {
   Signal<OpenLogAction>::connect(
     std::bind(&CapturedLogManager::onLogOpen, this, std::placeholders::_1)
@@ -36,7 +36,14 @@ CapturedLogManager::~CapturedLogManager() {
 
 void CapturedLogManager::start() {
   if (state_ != State::LOADED) { return; }
+  if (player_worker_.joinable()) {
+    player_worker_.join();
+  }
   player_worker_ = std::thread([&] {
+    if (stopped_at_in_real_ == 0) {
+      started_at_in_real_ = 0;
+      Signal<CapturedLog::ResetTimestampAction>::emit({});
+    }
     for (auto pair : loaders_) {
       if (started_at_ > pair.second->started_at()) {
         started_at_ = pair.second->started_at();
@@ -46,19 +53,20 @@ void CapturedLogManager::start() {
       }
     }
     player_worker_canceled_ = false;
-    started_at_in_real_ = util::to_us(util::now());
-    player_waited_ = true;
+    started_at_in_real_ += util::to_us(util::now()) - stopped_at_in_real_;
     state_ = State::PLAYING;
     while (!player_worker_canceled_) {
       auto now = util::to_us(util::now());
       auto duration = now - started_at_in_real_;
       if ((ended_at_ - started_at_) < duration) {
         player_worker_canceled_ = true;
+        stopped_at_in_real_ = 0;
       } else {
         util::sleep(4);
         Signal<CapturedLog::UpdateTimestampAction>::emit({ started_at_ + duration });
       }
     }
+    state_ = State::LOADED;
   });
 }
 
@@ -67,6 +75,7 @@ void CapturedLogManager::stop() {
   if (player_worker_.joinable()) {
     player_worker_.join();
   }
+  stopped_at_in_real_ = util::to_us(util::now());
   state_ = State::LOADED;
 }
 

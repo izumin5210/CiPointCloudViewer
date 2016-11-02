@@ -43,6 +43,7 @@ void CapturedLog::onTimestampUpdate(const UpdateTimestampAction &action) {
 
 void CapturedLog::onTimestampReset(const ResetTimestampAction &action) {
   stamp_itr_ = stamps_.begin();
+  Signal<Clouds::RemoveCloudAction>::emit({key_});
 }
 
 }
