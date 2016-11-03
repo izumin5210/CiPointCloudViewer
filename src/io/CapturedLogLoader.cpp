@@ -79,7 +79,7 @@ void CapturedLogLoader::loadAllClouds() {
   for (auto p1 : pcd_files_) {
     std::map<int64_t, CloudPtr> clouds;
     for (auto p2 : p1.second) {
-      clouds[p2.first] = loadCloud(p2.second);
+      clouds[p2.first] = loadCloud(p2.second, p1.first, p2.first);
       loaded_file_count_++;
     }
     logs_[p1.first] = std::make_shared<CapturedLog>(serial_, p1.first, clouds);
@@ -105,10 +105,10 @@ SkeletonsPtr CapturedLogLoader::loadSkeletons(const std::string &path) {
   return skeletons;
 }
 
-CloudPtr CapturedLogLoader::loadCloud(const std::string &path) {
+CloudPtr CapturedLogLoader::loadCloud(const std::string &path, int user_id, int64_t timestamp) {
   Cloud::PointCloudPtr cloud(new Cloud::PointCloud);
   pcl::io::loadPCDFile(path, *cloud);
-  return std::make_shared<Cloud>(serial_, cloud, true);
+  return std::make_shared<Cloud>(serial_, cloud, (*skeletons_[timestamp])[user_id], true);
 }
 
 }

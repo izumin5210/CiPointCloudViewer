@@ -8,6 +8,7 @@
 #include <pcl/point_cloud.h>
 #include <pcl/point_types.h>
 
+#include "Skeleton.h"
 #include "Vertex.h"
 
 class Cloud {
@@ -45,12 +46,31 @@ public:
   {
   }
 
+  Cloud(
+    Key key,
+    const PointCloudPtr &point_cloud,
+    const Skeleton &skeleton,
+    bool calibrated = true,
+    bool visible = true
+  )
+    : key_        (key)
+    , point_cloud_(point_cloud)
+    , vertices_   (new Vertices)
+    , skeleton_   (skeleton)
+    , calibrated_ (calibrated)
+    , visible_    (visible)
+  {}
+
   inline Key key() const {
     return key_;
   }
 
   inline PointCloudPtr point_cloud() const {
     return point_cloud_;
+  }
+
+  inline Skeleton skeleton() const {
+    return skeleton_;
   }
 
   inline void set_point_cloud(const PointCloudPtr &point_cloud) {
@@ -89,12 +109,17 @@ public:
     return (point_cloud()->empty() && vertices()->empty()) || is_visible();
   }
 
+  inline bool hasSkeleton() {
+    return skeleton_.size() > 0;
+  }
+
 
 private:
   const Key key_;
 
   PointCloudPtr point_cloud_;
   VerticesPtr vertices_;
+  Skeleton skeleton_;
 
   bool calibrated_;
   bool visible_;

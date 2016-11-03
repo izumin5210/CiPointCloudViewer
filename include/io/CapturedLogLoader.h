@@ -69,7 +69,7 @@ private:
   void loadAllSkeletons(const std::string &dir);
   void loadAllClouds();
   SkeletonsPtr loadSkeletons(const std::string &path);
-  CloudPtr loadCloud(const std::string &path);
+  CloudPtr loadCloud(const std::string &path, int user_id, int64_t timestamp);
 };
 
 }
