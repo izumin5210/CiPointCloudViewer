@@ -16,6 +16,7 @@ CapturedLog::CapturedLog(
   : serial_ (serial)
   , user_id_(user_id)
   , clouds_ (clouds)
+  , key_    (serial_ + " (" + std::to_string(user_id) + ")")
 {
   initialize();
   Signal<UpdateTimestampAction>::connect(std::bind(&CapturedLog::onTimestampUpdate, this, std::placeholders::_1));
@@ -23,9 +24,6 @@ CapturedLog::CapturedLog(
 }
 
 void CapturedLog::initialize() {
-  std::stringstream ss;
-  ss << serial_ << " (" << user_id_ << ")" << std::endl;
-  key_ = ss.str();
   for (auto pair : clouds_) {
     stamps_.emplace_back(pair.first);
   }
@@ -35,7 +33,7 @@ void CapturedLog::initialize() {
 void CapturedLog::onTimestampUpdate(const UpdateTimestampAction &action) {
   if (action.timestamp > *stamp_itr_) {
     if (stamp_itr_ != stamps_.end()) {
-      Signal<Clouds::UpdatePointsAction>::emit({key_, clouds_[*stamp_itr_]->point_cloud()});
+      Signal<Clouds::UpdateCloudAction>::emit({key_, clouds_.at(*stamp_itr_)});
       stamp_itr_++;
     }
   }

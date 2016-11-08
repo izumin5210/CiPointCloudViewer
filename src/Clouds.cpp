@@ -19,6 +19,7 @@ void Clouds::initializeConnections() {
   namespace ph = std::placeholders;
   Signal<UpdatePointsAction>::connect(std::bind(&Clouds::onPointsUpdate, this, ph::_1));
   Signal<UpdateVerticesAction>::connect(std::bind(&Clouds::onVerticesUpdate, this, ph::_1));
+  Signal<UpdateCloudAction>::connect(std::bind(&Clouds::onCloudUpdate, this, ph::_1));
   Signal<UpdateCalibrationParamsAction>::connect(std::bind(&Clouds::onCalibrationParamsUpdate, this, ph::_1));
   Signal<ChangeCloudVisibilityAction>::connect(std::bind(&Clouds::onCloudVisibilityChange, this, ph::_1));
   Signal<RemoveCloudAction>::connect(std::bind(&Clouds::onCloudRemove, this, ph::_1));
@@ -49,6 +50,10 @@ void Clouds::onVerticesUpdate(const UpdateVerticesAction &action) {
   } else {
     clouds_[action.key] = std::make_shared<Cloud>(action.key, action.vertices);
   }
+}
+
+void Clouds::onCloudUpdate(const UpdateCloudAction &action) {
+  clouds_[action.key] = action.cloud;
 }
 
 void Clouds::onCalibrationParamsUpdate(const UpdateCalibrationParamsAction &action) {
