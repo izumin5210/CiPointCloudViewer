@@ -10,7 +10,6 @@
 #define SensorDeviceManager_hpp
 
 #include <OpenNI.h>
-#include <opencv2/opencv.hpp>
 
 #ifdef USE_NITE2
 #include <NiTE.h>
