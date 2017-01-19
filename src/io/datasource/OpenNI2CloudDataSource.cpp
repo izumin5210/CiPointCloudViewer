@@ -2,6 +2,8 @@
 // Created by Masayuki IZUMI on 10/7/16.
 //
 
+#include <opencv2/opencv.hpp>
+
 #include "Clouds.h"
 #include "Signal.h"
 #include "io/datasource/OpenNI2CloudDataSource.h"

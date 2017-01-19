@@ -9,12 +9,10 @@
 #ifndef CalibrationParamsManager_h
 #define CalibrationParamsManager_h
 
-#include "cinder/Signals.h"
+#include <opencv2/core.hpp>
 
 #include <Eigen/Core>
 #include <Eigen/LU>
-
-#include <opencv2/opencv.hpp>
 
 namespace io {
 
