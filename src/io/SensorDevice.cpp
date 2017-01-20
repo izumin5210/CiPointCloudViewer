@@ -41,7 +41,7 @@ void SensorDevice::initialize(const char *uri) {
 
   device.close();
 
-  cloud_data_source_ = std::make_unique<datasource::OpenNI2CloudDataSource>(name_, uri_);
+  cloud_data_source_ = std::unique_ptr<datasource::OpenNI2CloudDataSource>(new datasource::OpenNI2CloudDataSource(name_, uri_));
 }
 
 void SensorDevice::start() {

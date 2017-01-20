@@ -90,7 +90,7 @@ void CapturedLogManager::onLogOpen(const OpenLogAction &action) {
       auto camera = cameras[i];
       auto serial = camera["serial"].as<std::string>();
       auto user_count = camera["user_count"].as<int>();
-      loaders_[serial] = std::make_unique<CapturedLogLoader>(dir, serial, user_count);
+      loaders_[serial] = std::unique_ptr<CapturedLogLoader>(new CapturedLogLoader(dir, serial, user_count));
     }
   }
 }
