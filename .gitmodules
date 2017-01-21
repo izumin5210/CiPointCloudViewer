@@ -10,3 +10,6 @@
 [submodule "blocks/msgpack"]
 	path = blocks/msgpack
 	url = https://github.com/msgpack/msgpack-c.git
+[submodule "framework"]
+	path = framework
+	url = https://github.com/cinder/Cinder.git
