@@ -47,6 +47,11 @@ public:
     io::CalibrationParams params;
   };
 
+  struct UpdateCloudAction {
+    Key key;
+    CloudPtr cloud;
+  };
+
   struct ChangeCloudVisibilityAction {
     Key key;
     bool visible;
@@ -136,6 +141,7 @@ private:
 
   void onPointsUpdate(const UpdatePointsAction &action);
   void onVerticesUpdate(const UpdateVerticesAction &action);
+  void onCloudUpdate(const UpdateCloudAction &action);
   void onCalibrationParamsUpdate(const UpdateCalibrationParamsAction &action);
   void onCloudVisibilityChange(const ChangeCloudVisibilityAction &action);
   void onCloudRemove(const RemoveCloudAction &action);

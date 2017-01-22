@@ -30,8 +30,8 @@ public:
 private:
   const std::string serial_;
   const int user_id_;
-  std::map<int64_t, CloudPtr> clouds_;
-  std::string key_;
+  const std::map<int64_t, CloudPtr> clouds_;
+  const std::string key_;
   std::vector<int64_t> stamps_;
   std::vector<int64_t>::iterator stamp_itr_;
 

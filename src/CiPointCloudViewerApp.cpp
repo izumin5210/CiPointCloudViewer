@@ -22,6 +22,7 @@
 #include "io/exporter/Exporters.h"
 
 #include "renderer/cloud/CloudsRenderer.h"
+#include "renderer/skeleton/SkeletonsRenderer.h"
 #include "renderer/grid/GridRenderer.h"
 
 #include "Clouds.h"
@@ -55,6 +56,7 @@ private:
 
   view::AppGui gui_;
   renderer::cloud::CloudsRenderer clouds_renderer_;
+  renderer::skeleton::SkeletonsRenderer skeletons_renderer_;
   renderer::grid::GridRenderer grid_renderer_;
 
   CameraUi camera_ui_;
@@ -70,6 +72,7 @@ CiPointCloudViewerApp::CiPointCloudViewerApp()
   , exporters_(new io::exporter::Exporters(clouds_))
   , gui_(this, clouds_, view_params_, config_, cloud_data_sources_, captured_log_manager_, sensor_device_manager_, exporters_)
   , clouds_renderer_(this, clouds_)
+  , skeletons_renderer_(clouds_)
   , grid_renderer_(view_params_)
   , camera_ui_(&(view_params_->camera()))
 {}
@@ -95,6 +98,7 @@ void CiPointCloudViewerApp::update() {
   gui_.update();
   grid_renderer_.update();
   clouds_renderer_.update();
+  skeletons_renderer_.update();
 
   setFullScreen(view_params_->is_full_screen());
 }
@@ -104,8 +108,11 @@ void CiPointCloudViewerApp::draw() {
   gl::setMatrices(view_params_->camera());
   gl::pointSize(view_params_->point_size());
 
+  gl::lineWidth(1);
   grid_renderer_.render();
   clouds_renderer_.render();
+  gl::lineWidth(5);
+  skeletons_renderer_.render();
 }
 
 CINDER_APP( CiPointCloudViewerApp, RendererGl, [](App::Settings *settings) {
