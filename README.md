@@ -41,19 +41,7 @@ $ git submodule init && git submodule update
 ### Build on Linux
 #### Build cinder
 
-```
-$ cd ~/src/github.com/cinder/Cinder
-
-$ git fetch
-
-$ git checkout -b android_linux origin/android_linux
-
-$ mkdir build && cd build
-
-$ cmake -DCINDER_BOOST_USE_SYSTEM ..
-
-$ make -j$(nproc)
-```
+- [CiNDER Installation Guides (Linux-Notes)](https://libcinder.org/docs/guides/linux-notes/ubuntu.html)
 
 #### Build this app
 
